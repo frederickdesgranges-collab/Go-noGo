@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0e1a" />
+  <meta name="description" content="CEC Check-in matinal - Camp Innsbruck 2026" data-i18n="meta.description" data-i18n-attr="content" />
+  <title data-i18n="meta.title">CEC Check-in Matinal · Innsbruck 2026</title>
+
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="css/result-screen.css" />
+</head>
+<body>
+  <!-- Ambient background gradients -->
+  <div class="bg-gradients" aria-hidden="true">
+    <div class="bg-gradient bg-gradient-red"></div>
+    <div class="bg-gradient bg-gradient-blue"></div>
+    <div class="bg-gradient bg-gradient-purple"></div>
+  </div>
+
+  <!-- Floating ambient particles -->
+  <div class="particles" aria-hidden="true">
+    <span class="particle particle-1"></span>
+    <span class="particle particle-2"></span>
+    <span class="particle particle-3"></span>
+    <span class="particle particle-4"></span>
+    <span class="particle particle-5"></span>
+    <span class="particle particle-6"></span>
+    <span class="particle particle-7"></span>
+  </div>
+
+  <!-- Sticky header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-brand">
+        <div class="header-logo" aria-hidden="true">
+          <span class="header-logo-text">CEC</span>
+        </div>
+        <div class="header-titles">
+          <h1 class="header-title" data-i18n="header.title">Check-in Matinal</h1>
+          <p class="header-subtitle" id="header-date">—</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-button" id="lang-toggle" type="button" aria-label="Toggle language">
+          <span class="flag" aria-hidden="true">🇨🇦</span>
+          <span class="lang-code" id="lang-code">FR</span>
+        </button>
+        <button class="icon-button" id="settings-open" type="button" aria-label="Settings" data-i18n="header.settings" data-i18n-attr="aria-label">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="progress-bar" aria-hidden="true">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- ============================================ -->
+    <!-- FORM SCREEN -->
+    <!-- ============================================ -->
+    <section class="screen screen-form" id="screen-form">
+
+      <!-- Athlete name -->
+      <div class="card card-athlete">
+        <label class="field-label" for="athlete-name" data-i18n="athlete.label">Athlète</label>
+        <input class="text-input" id="athlete-name" name="athlete-name" type="text" autocomplete="name" required data-i18n="athlete.placeholder" data-i18n-attr="placeholder" placeholder="Ton prénom" />
+      </div>
+
+      <!-- ===== Section A : Sommeil ===== -->
+      <article class="card section-card" data-section="sleep">
+        <header class="section-header">
+          <span class="section-number section-number-blue">A</span>
+          <div class="section-titles">
+            <h2 class="section-title" data-i18n="sections.sleep.title">Sommeil</h2>
+            <p class="section-hint" data-i18n="sections.sleep.hint">Renseigne tes horaires de la nuit dernière.</p>
+          </div>
+        </header>
+
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label" for="sleep-bedtime" data-i18n="sleep.bedtime">Heure de coucher</label>
+            <input class="time-input" id="sleep-bedtime" type="time" value="23:00" />
+          </div>
+          <div class="field">
+            <label class="field-label" for="sleep-wake" data-i18n="sleep.wake">Heure de réveil</label>
+            <input class="time-input" id="sleep-wake" type="time" value="07:00" />
+          </div>
+        </div>
+
+        <div class="sleep-duration" id="sleep-duration">
+          <span class="sleep-duration-label" data-i18n="sleep.duration">Durée</span>
+          <span class="sleep-duration-value" id="sleep-duration-value">—</span>
+        </div>
+
+        <div class="field">
+          <label class="field-label" data-i18n="sleep.quality">Qualité du sommeil</label>
+          <div class="likert" data-likert="sleep-quality" data-required="true"
+               data-anchor-low-key="sleep.qualityLow" data-anchor-high-key="sleep.qualityHigh">
+            <div class="likert-anchors">
+              <span class="likert-anchor anchor-low" data-i18n="sleep.qualityLow">Très mal</span>
+              <span class="likert-anchor anchor-high" data-i18n="sleep.qualityHigh">Excellent</span>
+            </div>
+            <div class="likert-buttons" role="radiogroup" aria-label="Sleep quality"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="sleep-wakings" data-i18n="sleep.wakings">Réveils nocturnes</label>
+          <input class="number-input" id="sleep-wakings" type="number" min="0" max="20" step="1" value="0" />
+        </div>
+      </article>
+
+      <!-- ===== Section B : Bien-être ===== -->
+      <article class="card section-card" data-section="wellbeing">
+        <header class="section-header">
+          <span class="section-number section-number-green">B</span>
+          <div class="section-titles">
+            <h2 class="section-title" data-i18n="sections.wellbeing.title">Bien-être</h2>
+            <p class="section-hint" data-i18n="sections.wellbeing.hint">Échelle uniforme. 1 = très mauvais. 5 = au top. Plus haut = mieux.</p>
+          </div>
+        </header>
+
+        <div class="field">
+          <label class="field-label" data-i18n="wellbeing.energy">Niveau d'énergie</label>
+          <div class="likert" data-likert="energy" data-required="true">
+            <div class="likert-anchors">
+              <span class="likert-anchor anchor-low" data-i18n="wellbeing.energyLow">Vidé</span>
+              <span class="likert-anchor anchor-high" data-i18n="wellbeing.energyHigh">Plein d'énergie</span>
+            </div>
+            <div class="likert-buttons" role="radiogroup" aria-label="Energy"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" data-i18n="wellbeing.muscles">État des muscles</label>
+          <div class="likert" data-likert="muscles" data-required="true">
+            <div class="likert-anchors">
+              <span class="likert-anchor anchor-low" data-i18n="wellbeing.musclesLow">Très courbatés</span>
+              <span class="likert-anchor anchor-high" data-i18n="wellbeing.musclesHigh">Frais et dispos</span>
+            </div>
+            <div class="likert-buttons" role="radiogroup" aria-label="Muscles"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">
+            <span data-i18n="wellbeing.forearms">Avant-bras / mains / doigts</span>
+            <span class="badge badge-priority" data-i18n="wellbeing.priority">PRIORITÉ</span>
+          </label>
+          <div class="likert" data-likert="forearms" data-required="true">
+            <div class="likert-anchors">
+              <span class="likert-anchor anchor-low" data-i18n="wellbeing.forearmsLow">Cuits</span>
+              <span class="likert-anchor anchor-high" data-i18n="wellbeing.forearmsHigh">Pleine forme</span>
+            </div>
+            <div class="likert-buttons" role="radiogroup" aria-label="Forearms"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" data-i18n="wellbeing.calm">Calme et sérénité</label>
+          <div class="likert" data-likert="calm" data-required="true">
+            <div class="likert-anchors">
+              <span class="likert-anchor anchor-low" data-i18n="wellbeing.calmLow">Très stressé</span>
+              <span class="likert-anchor anchor-high" data-i18n="wellbeing.calmHigh">Très serein</span>
+            </div>
+            <div class="likert-buttons" role="radiogroup" aria-label="Calm"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" data-i18n="wellbeing.mood">Humeur</label>
+          <div class="likert" data-likert="mood" data-required="true">
+            <div class="likert-anchors">
+              <span class="likert-anchor anchor-low" data-i18n="wellbeing.moodLow">Très basse</span>
+              <span class="likert-anchor anchor-high" data-i18n="wellbeing.moodHigh">Excellente</span>
+            </div>
+            <div class="likert-buttons" role="radiogroup" aria-label="Mood"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="slider-header">
+            <label class="field-label" for="willingness" data-i18n="wellbeing.willingness">Disposition à grimper aujourd'hui</label>
+            <span class="slider-value" id="willingness-value">7</span>
+          </div>
+          <input class="slider slider-willingness" id="willingness" type="range" min="0" max="10" step="1" value="7" />
+          <div class="slider-anchors">
+            <span data-i18n="scale.zero">0</span>
+            <span data-i18n="scale.ten">10</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="slider-header">
+            <label class="field-label" for="recovery-prs" data-i18n="wellbeing.recoveryPrs">Récupération PRS</label>
+            <span class="slider-value" id="recovery-prs-value">7</span>
+          </div>
+          <input class="slider slider-recovery" id="recovery-prs" type="range" min="0" max="10" step="1" value="7" />
+          <div class="slider-anchors">
+            <span data-i18n="scale.zero">0</span>
+            <span data-i18n="scale.ten">10</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== Section C : Douleur NRS ===== -->
+      <article class="card section-card" data-section="pain">
+        <header class="section-header">
+          <span class="section-number section-number-orange">C</span>
+          <div class="section-titles">
+            <h2 class="section-title" data-i18n="sections.pain.title">Douleur (NRS 0-10)</h2>
+            <p class="section-hint" data-i18n="sections.pain.hint">0 = aucune douleur. 10 = douleur maximale.</p>
+          </div>
+        </header>
+
+        <div class="field">
+          <div class="slider-header">
+            <label class="field-label" for="pain-fingers" data-i18n="pain.fingers">Doigts et articulations</label>
+            <span class="slider-value" id="pain-fingers-value">0</span>
+          </div>
+          <input class="slider slider-pain" id="pain-fingers" type="range" min="0" max="10" step="1" value="0" />
+        </div>
+
+        <div class="alert-box">
+          <div class="alert-toggle">
+            <label class="switch">
+              <input type="checkbox" id="pip-dorsal" />
+              <span class="switch-slider"></span>
+            </label>
+            <div class="alert-content">
+              <p class="alert-title" data-i18n="pain.pipDorsalTitle">Douleur DORSALE sur articulation PIP ?</p>
+              <p class="alert-explain" data-i18n="pain.pipDorsalExplain">Douleur sur le DESSUS de l'articulation entre la 1re et la 2e phalange (pas la pulpe). Signal d'arrêt impératif.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="slider-header">
+            <label class="field-label" for="pain-forearm" data-i18n="pain.forearm">Avant-bras (zone fléchisseurs)</label>
+            <span class="slider-value" id="pain-forearm-value">0</span>
+          </div>
+          <input class="slider slider-pain" id="pain-forearm" type="range" min="0" max="10" step="1" value="0" />
+        </div>
+
+        <div class="field">
+          <div class="slider-header">
+            <label class="field-label" for="pain-shoulders" data-i18n="pain.shoulders">Épaules / lats</label>
+            <span class="slider-value" id="pain-shoulders-value">0</span>
+          </div>
+          <input class="slider slider-pain" id="pain-shoulders" type="range" min="0" max="10" step="1" value="0" />
+        </div>
+
+        <div class="field">
+          <div class="slider-header">
+            <label class="field-label" for="pain-elbow" data-i18n="pain.elbow">Coude médial</label>
+            <span class="slider-value" id="pain-elbow-value">0</span>
+          </div>
+          <input class="slider slider-pain" id="pain-elbow" type="range" min="0" max="10" step="1" value="0" />
+        </div>
+
+        <div class="field">
+          <div class="slider-header">
+            <label class="field-label" for="pain-back" data-i18n="pain.back">Bas du dos</label>
+            <span class="slider-value" id="pain-back-value">0</span>
+          </div>
+          <input class="slider slider-pain" id="pain-back" type="range" min="0" max="10" step="1" value="0" />
+        </div>
+
+        <div class="field">
+          <div class="slider-header">
+            <label class="field-label" for="pain-skin" data-i18n="pain.skin">Peau (paumes / doigts)</label>
+            <span class="slider-value" id="pain-skin-value">0</span>
+          </div>
+          <input class="slider slider-pain" id="pain-skin" type="range" min="0" max="10" step="1" value="0" />
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="pain-other" data-i18n="pain.other">Autre douleur (optionnel)</label>
+          <input class="text-input" id="pain-other" type="text" data-i18n="pain.otherPlaceholder" data-i18n-attr="placeholder" placeholder="Décris brièvement…" />
+        </div>
+      </article>
+
+      <!-- ===== Section D : Hydratation ===== -->
+      <article class="card section-card" data-section="hydration">
+        <header class="section-header">
+          <span class="section-number section-number-purple">D</span>
+          <div class="section-titles">
+            <h2 class="section-title" data-i18n="sections.hydration.title">Hydratation et nutrition</h2>
+            <p class="section-hint" data-i18n="sections.hydration.hint">Indicateurs simples mais cruciaux pour la performance.</p>
+          </div>
+        </header>
+
+        <div class="field">
+          <label class="field-label" data-i18n="hydration.urine">Couleur de la première urine</label>
+          <div class="likert" data-likert="urine" data-required="true">
+            <div class="likert-anchors">
+              <span class="likert-anchor anchor-low" data-i18n="hydration.urineLow">Clair</span>
+              <span class="likert-anchor anchor-high" data-i18n="hydration.urineHigh">Très foncé</span>
+            </div>
+            <div class="likert-buttons" role="radiogroup" aria-label="Urine"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="toggle-row">
+            <label class="switch">
+              <input type="checkbox" id="skipped-meal" />
+              <span class="switch-slider"></span>
+            </label>
+            <span class="toggle-label" data-i18n="hydration.skippedMeal">As-tu sauté un repas hier ?</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="free-note" data-i18n="hydration.note">Note libre (optionnel)</label>
+          <textarea class="text-input textarea" id="free-note" rows="3" data-i18n="hydration.notePlaceholder" data-i18n-attr="placeholder" placeholder="Quelque chose à ajouter pour le coach ?"></textarea>
+        </div>
+      </article>
+
+      <button class="btn btn-primary btn-submit" id="submit-btn" type="button" data-i18n="form.submit">
+        Calculer mon Track du jour
+      </button>
+
+      <div class="form-footer">
+        <p class="form-disclaimer" data-i18n="form.disclaimer">Tes réponses ne sont envoyées qu'à ton coach via WhatsApp, et seulement si tu décides de les partager.</p>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- RESULT SCREEN -->
+    <!-- ============================================ -->
+    <section class="screen screen-result" id="screen-result" hidden>
+
+      <div class="hero-card" id="hero-card">
+        <div class="hero-halo" aria-hidden="true"></div>
+
+        <div class="hero-track">
+          <div class="track-ring" aria-hidden="true">
+            <svg width="240" height="240" viewBox="0 0 240 240">
+              <defs>
+                <linearGradient id="ring-gradient-green" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#34d399"/>
+                  <stop offset="100%" stop-color="#047857"/>
+                </linearGradient>
+                <linearGradient id="ring-gradient-yellow" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fbbf24"/>
+                  <stop offset="100%" stop-color="#b45309"/>
+                </linearGradient>
+                <linearGradient id="ring-gradient-red" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#f87171"/>
+                  <stop offset="100%" stop-color="#b91c1c"/>
+                </linearGradient>
+              </defs>
+              <circle class="ring-bg" cx="120" cy="120" r="108" fill="none" stroke-width="14"></circle>
+              <circle class="ring-fg" id="ring-fg" cx="120" cy="120" r="108" fill="none" stroke-width="14" stroke-linecap="round" transform="rotate(-90 120 120)"></circle>
+            </svg>
+            <div class="track-climber" id="track-climber"></div>
+          </div>
+
+          <div class="hero-letter" id="hero-letter">A</div>
+          <p class="hero-track-label" id="hero-track-label" data-i18n="result.trackA">TRACK A</p>
+        </div>
+
+        <div class="hero-text">
+          <h2 class="hero-message" id="hero-message">—</h2>
+          <p class="hero-kindness" id="hero-kindness">—</p>
+        </div>
+      </div>
+
+      <!-- Stats grid 2x4 -->
+      <div class="stats-grid" id="stats-grid"></div>
+
+      <!-- Indicators list -->
+      <div class="card indicators-card">
+        <h3 class="card-title" data-i18n="result.indicators">Indicateurs</h3>
+        <ul class="indicators-list" id="indicators-list">
+          <li class="indicator indicator-empty" data-i18n="result.noFlags">Aucun signal d'alerte. Belle nuit, beau profil.</li>
+        </ul>
+      </div>
+
+      <!-- Actions -->
+      <button class="btn btn-whatsapp" id="whatsapp-btn" type="button">
+        <svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true">
+          <path d="M16 .5C7.44.5.5 7.44.5 16c0 2.83.74 5.49 2.04 7.79L.5 31.5l7.92-2c2.21 1.21 4.74 1.91 7.45 1.92h.13c8.56 0 15.5-6.94 15.5-15.5S24.56.5 16 .5zm0 28.31h-.11a13.05 13.05 0 0 1-6.65-1.82l-.48-.28-4.7 1.19 1.25-4.59-.31-.48a12.84 12.84 0 0 1-1.97-6.84C3.03 8.66 8.86 2.84 16 2.84c3.49 0 6.77 1.36 9.24 3.83a12.99 12.99 0 0 1 3.83 9.25c0 7.16-5.83 12.98-13.07 12.99zm7.13-9.74c-.39-.2-2.31-1.14-2.67-1.27-.36-.13-.62-.2-.88.2-.26.39-1.01 1.27-1.24 1.53-.23.26-.46.29-.85.1-.39-.2-1.65-.61-3.14-1.94a11.83 11.83 0 0 1-2.18-2.71c-.23-.39-.02-.6.17-.79.18-.18.39-.46.59-.69.2-.23.26-.39.39-.65.13-.26.07-.49-.03-.69-.1-.2-.88-2.12-1.21-2.9-.32-.77-.64-.66-.88-.67-.23-.01-.49-.01-.75-.01s-.69.1-1.05.49c-.36.39-1.37 1.34-1.37 3.27s1.41 3.79 1.6 4.05c.2.26 2.77 4.23 6.71 5.93 2.34 1.01 3.26 1.1 4.43.92.71-.11 2.31-.94 2.64-1.86.32-.91.32-1.7.23-1.86-.1-.16-.36-.26-.75-.46z"/>
+        </svg>
+        <span data-i18n="result.sendWhatsapp">Envoyer au coach via WhatsApp</span>
+      </button>
+
+      <div class="result-actions">
+        <button class="btn btn-secondary" id="edit-btn" type="button" data-i18n="result.edit">Modifier</button>
+        <button class="btn btn-tertiary" id="restart-btn" type="button" data-i18n="result.restart">Recommencer</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================ -->
+  <!-- SETTINGS MODAL -->
+  <!-- ============================================ -->
+  <div class="modal" id="settings-modal" hidden role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="modal-backdrop" id="settings-backdrop"></div>
+    <div class="modal-content card">
+      <header class="modal-header">
+        <h2 class="modal-title" id="settings-title" data-i18n="settings.title">Paramètres</h2>
+        <button class="icon-button" id="settings-close" type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </header>
+
+      <div class="modal-body">
+        <div class="field">
+          <label class="field-label" for="coach-phone" data-i18n="settings.coachPhone">Numéro WhatsApp du coach</label>
+          <input class="text-input" id="coach-phone" type="tel" inputmode="tel" placeholder="14186095751" />
+          <p class="field-hint" data-i18n="settings.coachPhoneHint">Format international sans + ni espace. Exemple Canada : 14186095751.</p>
+        </div>
+
+        <div class="field">
+          <p class="field-label" data-i18n="settings.langLabel">Langue</p>
+          <div class="lang-options">
+            <label class="lang-option">
+              <input type="radio" name="lang-pref" value="fr" />
+              <span data-i18n="settings.langFr">Français</span>
+            </label>
+            <label class="lang-option">
+              <input type="radio" name="lang-pref" value="en" />
+              <span data-i18n="settings.langEn">English</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <footer class="modal-footer">
+        <button class="btn btn-primary" id="settings-save" type="button" data-i18n="settings.save">Enregistrer</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- TOAST -->
+  <!-- ============================================ -->
+  <div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
