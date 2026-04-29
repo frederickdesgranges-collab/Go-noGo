@@ -119,7 +119,10 @@ function wireLandingScreen() {
   if (cue) {
     cue.addEventListener('click', () => {
       const target = document.getElementById('signin-section');
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (target) {
+        const top = target.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
     });
   }
 
@@ -143,9 +146,9 @@ function setActiveProfile(p) {
 }
 
 /**
- * Parallax scroll listener. The landing screen scrolls inside its own
- * container (.screen-landing has overflow-y: auto), so we listen on it
- * rather than on window.
+ * Parallax scroll listener. Landing now flows in the document, so we
+ * listen on window scroll. CSS layers compensate via translateY(--pscroll
+ * * factor). Bigger factor = layer appears slower (lags = depth).
  */
 function wireParallax() {
   const screen = document.getElementById('screen-landing');
@@ -155,7 +158,7 @@ function wireParallax() {
 
   function update() {
     ticking = false;
-    const sy = screen.scrollTop;
+    const sy = window.scrollY || document.documentElement.scrollTop || 0;
     const stageH = stage.offsetHeight || window.innerHeight;
     const fade = Math.max(0, 1 - sy / (stageH * 0.7));
     screen.style.setProperty('--pscroll', `${sy}px`);
@@ -168,7 +171,7 @@ function wireParallax() {
       ticking = true;
     }
   }
-  screen.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('scroll', onScroll, { passive: true });
   update();
 }
 

@@ -105,12 +105,12 @@
 
       <!-- PARALLAX STAGE -->
       <div class="parallax-stage" id="parallax-stage">
-        <div class="parallax-back" id="parallax-back" aria-hidden="true">
+        <div class="parallax-layer parallax-back" id="parallax-back" aria-hidden="true">
           <img src="https://paraclimbing.org/wp-content/uploads/2020/01/innsbruck-20190705_183552-scaled.jpg"
                alt="" loading="eager" decoding="async" referrerpolicy="no-referrer" />
         </div>
 
-        <div class="parallax-mid" id="parallax-mid">
+        <div class="parallax-layer parallax-mid" id="parallax-mid">
           <div class="parallax-eyebrow" data-i18n="landing.eyebrow">YWCH 2026 · INNSBRUCK PREP</div>
           <h1 class="parallax-headline" data-i18n="landing.title">Check‑in matinal</h1>
           <p class="parallax-sub" data-i18n="landing.sub">60 secondes pour décider la journée. Honnête. Précis. Stratégique.</p>
@@ -178,19 +178,15 @@
           </div>
 
           <div class="landing-profile">
-            <p class="landing-label" data-i18n="landing.profileLabel">Profil pour Arco</p>
+            <p class="landing-label" data-i18n="landing.profileLabel">Compétition à Arco ?</p>
             <div class="profile-grid" role="radiogroup" aria-label="Profile">
-              <button type="button" class="profile-card" data-profile="top-shape" role="radio" aria-checked="false">
-                <span class="profile-name" data-i18n="landing.profileTopShape">Top shape</span>
-                <span class="profile-hint" data-i18n="landing.profileTopShapeHint">Visée podium · charge maximale</span>
-              </button>
-              <button type="button" class="profile-card" data-profile="fatigue-mgmt" role="radio" aria-checked="false">
-                <span class="profile-name" data-i18n="landing.profileFatigueMgmt">Fatigue management</span>
-                <span class="profile-hint" data-i18n="landing.profileFatigueMgmtHint">Compétition · charge ajustée</span>
+              <button type="button" class="profile-card" data-profile="competing" role="radio" aria-checked="false">
+                <span class="profile-name" data-i18n="landing.profileCompeting">Compétitionne à Arco</span>
+                <span class="profile-hint" data-i18n="landing.profileCompetingHint">YWCH · podium en visée</span>
               </button>
               <button type="button" class="profile-card" data-profile="not-competing" role="radio" aria-checked="false">
-                <span class="profile-name" data-i18n="landing.profileNotCompeting">Pas en compétition</span>
-                <span class="profile-hint" data-i18n="landing.profileNotCompetingHint">Camp d'entraînement seulement</span>
+                <span class="profile-name" data-i18n="landing.profileNotCompeting">Ne compétitionne pas</span>
+                <span class="profile-hint" data-i18n="landing.profileNotCompetingHint">Camp d'entraînement</span>
               </button>
             </div>
           </div>

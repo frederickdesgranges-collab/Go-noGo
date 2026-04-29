@@ -1945,33 +1945,36 @@ a { color: inherit; text-decoration: none; }
    + sign-in section below (athlete · discipline · profile)
    ============================================ */
 
+/* Landing flows in the document so the body scrolls naturally.
+   The .screen-form / .screen-result are toggled via [hidden]. */
 .screen-landing {
-  position: fixed;
-  inset: 0;
+  position: relative;
   width: 100%;
-  height: 100vh;
-  height: 100dvh;
-  z-index: 60;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   background: var(--bg-deep);
   transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), filter 0.7s ease;
 }
 
 .screen-landing[hidden] { display: none; }
 
+/* When the landing is visible, the global header is hidden
+   and the container has no padding (the landing manages its own). */
+body:has(.screen-landing:not([hidden])) .header { display: none; }
+body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none; }
+
 /* ============================================
    Top bar (sticky over the parallax)
    ============================================ */
 .landing-topbar {
-  position: sticky;
+  position: absolute;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 30;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 18px;
+  padding: 14px 18px max(14px, env(safe-area-inset-top));
   background: linear-gradient(180deg, rgba(20, 33, 26, 0.55) 0%, rgba(20, 33, 26, 0) 100%);
   pointer-events: none;
 }
@@ -2044,9 +2047,10 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ============================================
-   PARALLAX STAGE
-   Three layers, each with its own scroll speed.
-   --pscroll is set via JS (px scrolled within the stage).
+   PARALLAX STAGE (first viewport)
+   Window scroll drives transform on each layer.
+   Layers translateY DOWN by `scrollY * factor` to compensate for the
+   natural upward scroll → appear slower (back) or faster (front).
    ============================================ */
 .parallax-stage {
   position: relative;
@@ -2054,28 +2058,30 @@ a { color: inherit; text-decoration: none; }
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  margin-top: -62px;          /* let the topbar overlay the stage */
   background: #0a0e14;
 }
 
-/* BACK: Innsbruck wall — slow vertical drift */
-.parallax-back {
+.parallax-layer {
   position: absolute;
-  inset: -10% 0 -10% 0;
-  z-index: 1;
+  inset: 0;
   will-change: transform;
-  transform: translate3d(0, calc(var(--pscroll, 0) * 0.45), 0);
+}
+
+/* BACK: Innsbruck wall. Slowest — biggest factor → moves DOWN most with scroll */
+.parallax-back {
+  z-index: 1;
+  transform: translate3d(0, calc(var(--pscroll, 0px) * 0.55), 0);
 }
 
 .parallax-back img {
   width: 100%;
-  height: 100%;
+  height: 110%;
   object-fit: cover;
   object-position: center 40%;
   filter: saturate(0.9) brightness(0.78) contrast(1.05);
+  display: block;
 }
 
-/* Vignette overlay over the back layer */
 .parallax-back::after {
   content: '';
   position: absolute;
@@ -2084,15 +2090,13 @@ a { color: inherit; text-decoration: none; }
     linear-gradient(180deg,
       rgba(10, 14, 20, 0.4) 0%,
       rgba(10, 14, 20, 0) 30%,
-      rgba(10, 14, 20, 0.45) 75%,
-      rgba(10, 14, 20, 0.92) 100%);
+      rgba(10, 14, 20, 0.55) 75%,
+      rgba(10, 14, 20, 0.95) 100%);
   pointer-events: none;
 }
 
-/* MID: title block — moderate drift */
+/* MID: title block — moderate compensation + fades out */
 .parallax-mid {
-  position: absolute;
-  inset: 0;
   z-index: 2;
   display: flex;
   flex-direction: column;
@@ -2101,8 +2105,7 @@ a { color: inherit; text-decoration: none; }
   text-align: center;
   padding: 0 24px;
   pointer-events: none;
-  will-change: transform, opacity;
-  transform: translate3d(0, calc(var(--pscroll, 0) * 0.18), 0);
+  transform: translate3d(0, calc(var(--pscroll, 0px) * 0.3), 0);
   opacity: var(--pscroll-fade, 1);
 }
 
@@ -2113,7 +2116,7 @@ a { color: inherit; text-decoration: none; }
   text-transform: uppercase;
   color: var(--cec-red);
   margin: 0 0 18px;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
 }
 
 .parallax-headline {
@@ -2124,7 +2127,7 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: -0.025em;
   color: white;
   margin: 0 0 18px;
-  text-shadow: 0 6px 36px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 6px 36px rgba(0, 0, 0, 0.7);
   max-width: 14ch;
 }
 
@@ -2132,24 +2135,23 @@ a { color: inherit; text-decoration: none; }
   font-size: 15px;
   line-height: 1.5;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.88);
   margin: 0;
   max-width: 28ch;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
 }
 
-/* FRONT: podium silhouettes — moves with scroll (no compensation) +
-   silhouette CSS treatment */
+/* FRONT: podium silhouettes — small factor → scrolls almost normally
+   = appears closest to camera */
 .parallax-front {
   position: absolute;
   left: 50%;
   bottom: 0;
-  transform: translate3d(-50%, calc(var(--pscroll, 0) * -0.05), 0);
-  width: min(680px, 110%);
+  width: min(720px, 110%);
   height: 56%;
   z-index: 3;
   pointer-events: none;
-  will-change: transform;
+  transform: translate3d(-50%, calc(var(--pscroll, 0px) * 0.08), 0);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -2160,29 +2162,27 @@ a { color: inherit; text-decoration: none; }
   height: 100%;
   object-fit: cover;
   object-position: center bottom;
-  /* Silhouette treatment: very dark figures, identity blurred */
-  filter: brightness(0.12) contrast(1.4) saturate(0.5);
+  filter: brightness(0.13) contrast(1.45) saturate(0.45);
   -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 18%, black 100%);
   mask-image: linear-gradient(180deg, transparent 0%, black 18%, black 100%);
+  display: block;
 }
 
-/* Soft red rim at the bottom of the front layer to tie back to CEC */
 .parallax-front::after {
   content: '';
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 6px;
+  height: 4px;
   background: linear-gradient(90deg, transparent 0%, var(--cec-red) 50%, transparent 100%);
   opacity: 0.85;
   pointer-events: none;
 }
 
-/* Scroll cue */
 .parallax-scroll-cue {
   position: absolute;
-  bottom: 18px;
+  bottom: 22px;
   left: 50%;
   transform: translateX(-50%);
   display: inline-flex;
@@ -2192,11 +2192,11 @@ a { color: inherit; text-decoration: none; }
   padding: 6px 14px 4px;
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
   z-index: 5;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  animation: scroll-cue-fade-in 0.6s ease 1s backwards;
+  animation: scroll-cue-fade-in 0.6s ease 0.8s backwards;
   opacity: var(--pscroll-fade, 1);
   transition: opacity 0.3s ease;
 }
@@ -2227,8 +2227,9 @@ a { color: inherit; text-decoration: none; }
    ============================================ */
 .signin-section {
   background: var(--bg-deep);
-  padding: 48px 22px max(40px, env(safe-area-inset-bottom));
+  padding: 48px 22px max(48px, env(safe-area-inset-bottom));
   position: relative;
+  z-index: 4;
 }
 
 .landing-form {
@@ -2371,10 +2372,10 @@ a { color: inherit; text-decoration: none; }
   color: var(--text-tertiary);
 }
 
-/* Profile grid (3 stacked cards) */
+/* Profile grid (2 stacked cards: competing / not-competing) */
 .profile-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
 
@@ -2406,7 +2407,7 @@ a { color: inherit; text-decoration: none; }
 
 .profile-name {
   font-family: var(--font-serif);
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
   letter-spacing: -0.015em;
   line-height: 1.2;
@@ -2416,7 +2417,7 @@ a { color: inherit; text-decoration: none; }
 .profile-card.active .profile-name { color: var(--green-dark); }
 
 .profile-hint {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 500;
   letter-spacing: -0.005em;
   color: var(--text-secondary);
@@ -2484,13 +2485,9 @@ a { color: inherit; text-decoration: none; }
   80% { transform: translateX(4px); }
 }
 
-body:has(.screen-landing:not([hidden])) .header { display: none; }
-body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none; }
-
 @media (min-width: 600px) {
-  .signin-section { padding: 64px 32px 40px; }
+  .signin-section { padding: 64px 32px 48px; }
   .discipline-grid { grid-template-columns: repeat(4, 1fr); }
-  .profile-grid { grid-template-columns: repeat(3, 1fr); }
   .parallax-headline { font-size: clamp(76px, 9vw, 132px); }
 }
 
@@ -2584,12 +2581,12 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
 
       <!-- PARALLAX STAGE -->
       <div class="parallax-stage" id="parallax-stage">
-        <div class="parallax-back" id="parallax-back" aria-hidden="true">
+        <div class="parallax-layer parallax-back" id="parallax-back" aria-hidden="true">
           <img src="https://paraclimbing.org/wp-content/uploads/2020/01/innsbruck-20190705_183552-scaled.jpg"
                alt="" loading="eager" decoding="async" referrerpolicy="no-referrer" />
         </div>
 
-        <div class="parallax-mid" id="parallax-mid">
+        <div class="parallax-layer parallax-mid" id="parallax-mid">
           <div class="parallax-eyebrow" data-i18n="landing.eyebrow">YWCH 2026 · INNSBRUCK PREP</div>
           <h1 class="parallax-headline" data-i18n="landing.title">Check‑in matinal</h1>
           <p class="parallax-sub" data-i18n="landing.sub">60 secondes pour décider la journée. Honnête. Précis. Stratégique.</p>
@@ -2657,19 +2654,15 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
           </div>
 
           <div class="landing-profile">
-            <p class="landing-label" data-i18n="landing.profileLabel">Profil pour Arco</p>
+            <p class="landing-label" data-i18n="landing.profileLabel">Compétition à Arco ?</p>
             <div class="profile-grid" role="radiogroup" aria-label="Profile">
-              <button type="button" class="profile-card" data-profile="top-shape" role="radio" aria-checked="false">
-                <span class="profile-name" data-i18n="landing.profileTopShape">Top shape</span>
-                <span class="profile-hint" data-i18n="landing.profileTopShapeHint">Visée podium · charge maximale</span>
-              </button>
-              <button type="button" class="profile-card" data-profile="fatigue-mgmt" role="radio" aria-checked="false">
-                <span class="profile-name" data-i18n="landing.profileFatigueMgmt">Fatigue management</span>
-                <span class="profile-hint" data-i18n="landing.profileFatigueMgmtHint">Compétition · charge ajustée</span>
+              <button type="button" class="profile-card" data-profile="competing" role="radio" aria-checked="false">
+                <span class="profile-name" data-i18n="landing.profileCompeting">Compétitionne à Arco</span>
+                <span class="profile-hint" data-i18n="landing.profileCompetingHint">YWCH · podium en visée</span>
               </button>
               <button type="button" class="profile-card" data-profile="not-competing" role="radio" aria-checked="false">
-                <span class="profile-name" data-i18n="landing.profileNotCompeting">Pas en compétition</span>
-                <span class="profile-hint" data-i18n="landing.profileNotCompetingHint">Camp d'entraînement seulement</span>
+                <span class="profile-name" data-i18n="landing.profileNotCompeting">Ne compétitionne pas</span>
+                <span class="profile-hint" data-i18n="landing.profileNotCompetingHint">Camp d'entraînement</span>
               </button>
             </div>
           </div>
@@ -3137,13 +3130,11 @@ const translations = {
       speedHint: 'Speed',
       combined: 'Combiné',
       combinedHint: 'Combined',
-      profileLabel: 'Profil pour Arco',
-      profileTopShape: 'Top shape',
-      profileTopShapeHint: 'Visée podium · charge maximale',
-      profileFatigueMgmt: 'Fatigue management',
-      profileFatigueMgmtHint: 'Compétition · charge ajustée',
-      profileNotCompeting: 'Pas en compétition',
-      profileNotCompetingHint: "Camp d'entraînement seulement",
+      profileLabel: 'Compétition à Arco ?',
+      profileCompeting: 'Compétitionne à Arco',
+      profileCompetingHint: 'YWCH · podium en visée',
+      profileNotCompeting: 'Ne compétitionne pas',
+      profileNotCompetingHint: "Camp d'entraînement",
       start: 'Commencer le check-in',
       disclaimer: 'Tes réponses ne quittent ton téléphone que si tu choisis de les envoyer au coach.',
       missingName: 'Indique ton prénom pour démarrer.',
@@ -3361,11 +3352,9 @@ const translations = {
       speedHint: 'Speed',
       combined: 'Combined',
       combinedHint: 'Combined',
-      profileLabel: 'Arco profile',
-      profileTopShape: 'Top shape',
-      profileTopShapeHint: 'Podium target · max load',
-      profileFatigueMgmt: 'Fatigue management',
-      profileFatigueMgmtHint: 'Competing · adjusted load',
+      profileLabel: 'Competing in Arco?',
+      profileCompeting: 'Competing in Arco',
+      profileCompetingHint: 'YWCH · podium target',
       profileNotCompeting: 'Not competing',
       profileNotCompetingHint: 'Training camp only',
       start: 'Start check-in',
@@ -3687,7 +3676,7 @@ function loadPreferences() {
       state.discipline = discipline;
     }
     const profile = localStorage.getItem(STORAGE_KEYS.profile);
-    if (['top-shape', 'fatigue-mgmt', 'not-competing'].includes(profile)) {
+    if (['competing', 'not-competing'].includes(profile)) {
       state.profile = profile;
     }
   } catch (_) {
@@ -4977,7 +4966,10 @@ function wireLandingScreen() {
   if (cue) {
     cue.addEventListener('click', () => {
       const target = document.getElementById('signin-section');
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (target) {
+        const top = target.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
     });
   }
 
@@ -5001,9 +4993,9 @@ function setActiveProfile(p) {
 }
 
 /**
- * Parallax scroll listener. The landing screen scrolls inside its own
- * container (.screen-landing has overflow-y: auto), so we listen on it
- * rather than on window.
+ * Parallax scroll listener. Landing now flows in the document, so we
+ * listen on window scroll. CSS layers compensate via translateY(--pscroll
+ * * factor). Bigger factor = layer appears slower (lags = depth).
  */
 function wireParallax() {
   const screen = document.getElementById('screen-landing');
@@ -5013,7 +5005,7 @@ function wireParallax() {
 
   function update() {
     ticking = false;
-    const sy = screen.scrollTop;
+    const sy = window.scrollY || document.documentElement.scrollTop || 0;
     const stageH = stage.offsetHeight || window.innerHeight;
     const fade = Math.max(0, 1 - sy / (stageH * 0.7));
     screen.style.setProperty('--pscroll', `${sy}px`);
@@ -5026,7 +5018,7 @@ function wireParallax() {
       ticking = true;
     }
   }
-  screen.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('scroll', onScroll, { passive: true });
   update();
 }
 

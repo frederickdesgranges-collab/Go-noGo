@@ -81,7 +81,7 @@ export function loadPreferences() {
       state.discipline = discipline;
     }
     const profile = localStorage.getItem(STORAGE_KEYS.profile);
-    if (['top-shape', 'fatigue-mgmt', 'not-competing'].includes(profile)) {
+    if (['competing', 'not-competing'].includes(profile)) {
       state.profile = profile;
     }
   } catch (_) {
