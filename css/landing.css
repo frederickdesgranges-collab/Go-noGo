@@ -48,19 +48,24 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
 }
 
 .landing-mark-logo {
-  width: 34px;
-  height: 34px;
-  flex: 0 0 34px;
-  border-radius: 9px;
-  background: linear-gradient(135deg, var(--cec-red) 0%, var(--cec-red-dark) 100%);
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border-radius: 11px;
+  background: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
-  font-weight: 800;
-  color: white;
-  letter-spacing: -0.02em;
-  box-shadow: 0 4px 12px rgba(216, 6, 33, 0.3);
+  overflow: hidden;
+  padding: 4px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+}
+
+.landing-mark-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 .landing-mark-meta {

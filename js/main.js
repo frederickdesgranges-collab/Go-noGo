@@ -59,6 +59,9 @@ function wireGlobalEvents() {
   // Scroll-driven hero choreography
   wireScrollChoreography();
 
+  // Form section scroll-reveal + watermark parallax
+  wireSectionParallax();
+
   // Reveal details when they enter the viewport
   const detailsEl = document.getElementById('result-details');
   if (detailsEl && 'IntersectionObserver' in window) {
@@ -420,6 +423,51 @@ function wireScrollChoreography() {
 }
 
 function clamp01(v) { return Math.max(0, Math.min(1, v)); }
+
+/**
+ * Form section reveal-on-scroll + parallax on the giant letter watermark.
+ * Each .section-card-premium fades up when ~20% in view, and its
+ * watermark gets a per-section CSS variable (--section-shift) tied to
+ * its position relative to the viewport — drives a slow vertical drift
+ * via translate3d in CSS.
+ */
+function wireSectionParallax() {
+  const sections = document.querySelectorAll('.section-card-premium');
+  if (!sections.length) return;
+
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+        }
+      });
+    }, { threshold: 0.18, rootMargin: '0px 0px -8% 0px' });
+    sections.forEach((s) => io.observe(s));
+  } else {
+    sections.forEach((s) => s.classList.add('in-view'));
+  }
+
+  let ticking = false;
+  function updateParallax() {
+    ticking = false;
+    const vh = window.innerHeight;
+    const center = vh / 2;
+    sections.forEach((s) => {
+      const rect = s.getBoundingClientRect();
+      const sectionCenter = rect.top + rect.height / 2;
+      const shift = sectionCenter - center; // px from viewport center
+      s.style.setProperty('--section-shift', `${shift.toFixed(0)}px`);
+    });
+  }
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(updateParallax);
+      ticking = true;
+    }
+  }, { passive: true });
+  updateParallax();
+}
 
 /* ============================================
    Toast

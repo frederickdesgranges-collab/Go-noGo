@@ -38,59 +38,111 @@
 }
 
 /* ============================================
-   Section card header
+   Section card · premium editorial header
+   - Huge serif watermark letter behind the content (parallax via JS)
+   - Eyebrow eyebrow + big serif title + hint
+   - Tonal accent line under the eyebrow
    ============================================ */
 .section-card {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 22px;
 }
+
+.section-card-premium {
+  position: relative;
+  padding: 32px 22px 26px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Huge editorial letter behind the section content */
+.section-watermark {
+  position: absolute;
+  right: -10px;
+  top: -36px;
+  font-family: var(--font-serif);
+  font-size: clamp(180px, 42vw, 260px);
+  font-weight: 500;
+  line-height: 0.85;
+  color: rgba(20, 33, 26, 0.05);
+  letter-spacing: -0.06em;
+  pointer-events: none;
+  user-select: none;
+  z-index: -1;
+  /* Parallax: drives by --section-shift set by main.js based on element rect */
+  transform: translate3d(0, calc(var(--section-shift, 0px) * -0.18), 0);
+  will-change: transform;
+}
+
+/* Tonal watermark color per section */
+.section-card-premium.tone-blue .section-watermark { color: rgba(30, 64, 175, 0.085); }
+.section-card-premium.tone-green .section-watermark { color: rgba(42, 111, 71, 0.085); }
+.section-card-premium.tone-orange .section-watermark { color: rgba(194, 65, 12, 0.085); }
+.section-card-premium.tone-purple .section-watermark { color: rgba(91, 33, 182, 0.085); }
 
 .section-header {
   display: flex;
-  align-items: flex-start;
-  gap: 14px;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  z-index: 1;
 }
 
-.section-number {
-  position: relative;
-  flex: 0 0 36px;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-pill);
+.section-eyebrow {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  font-family: var(--font-serif);
-  font-weight: 600;
-  font-size: 17px;
-  letter-spacing: -0.02em;
-  color: var(--text-deep-green);
-  background: var(--green-light);
-  border: 1px solid rgba(42, 111, 71, 0.15);
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
 }
 
-.section-number-blue { background: #d6e4f5; color: #1e3a8a; border-color: rgba(30, 64, 175, 0.18); }
-.section-number-green { background: var(--green-light); color: var(--green-dark); border-color: rgba(42, 111, 71, 0.18); }
-.section-number-orange { background: var(--yellow-light); color: var(--yellow-dark); border-color: rgba(180, 83, 9, 0.18); }
-.section-number-purple { background: #ede5fa; color: #4c1d95; border-color: rgba(91, 33, 182, 0.18); }
+.section-eyebrow::before {
+  content: '';
+  width: 22px;
+  height: 1.5px;
+  background: currentColor;
+  display: inline-block;
+  border-radius: 2px;
+}
 
-.section-titles { flex: 1; min-width: 0; }
+/* Tonal eyebrow accent */
+.section-card-premium.tone-blue .section-eyebrow { color: #1e40af; }
+.section-card-premium.tone-green .section-eyebrow { color: var(--green-dark); }
+.section-card-premium.tone-orange .section-eyebrow { color: var(--yellow-dark); }
+.section-card-premium.tone-purple .section-eyebrow { color: #4c1d95; }
 
 .section-title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-size: clamp(34px, 8vw, 44px);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
   color: var(--text-deep-green);
 }
 
 .section-hint {
-  margin: 4px 0 0;
-  font-size: 13px;
+  margin: 6px 0 0;
+  font-size: 14px;
   color: var(--text-secondary);
-  line-height: 1.45;
+  line-height: 1.5;
+  max-width: 42ch;
+}
+
+/* Scroll-reveal: section-card-premium fades up when entering viewport */
+.section-card-premium {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.34, 1.4, 0.4, 1);
+}
+
+.section-card-premium.in-view {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ============================================

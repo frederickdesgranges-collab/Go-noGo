@@ -52,19 +52,23 @@ export const translations = {
     },
     sections: {
       sleep: {
+        eyebrow: 'Section A · Nuit',
         title: 'Sommeil',
         hint: 'Renseigne tes horaires de la nuit dernière.'
       },
       wellbeing: {
-        title: 'Bien-être',
+        eyebrow: 'Section B · Corps & tête',
+        title: 'Bien‑être',
         hint: 'Échelle uniforme. 1 = très mauvais. 5 = au top. Plus haut = mieux.'
       },
       pain: {
-        title: 'Douleur (NRS 0-10)',
+        eyebrow: 'Section C · Douleur',
+        title: 'Douleur · NRS 0‑10',
         hint: '0 = aucune douleur. 10 = douleur maximale.'
       },
       hydration: {
-        title: 'Hydratation et nutrition',
+        eyebrow: 'Section D · Hydratation',
+        title: 'Hydratation & nutrition',
         hint: 'Indicateurs simples mais cruciaux pour la performance.'
       }
     },
@@ -276,19 +280,23 @@ export const translations = {
     },
     sections: {
       sleep: {
+        eyebrow: 'Section A · Night',
         title: 'Sleep',
         hint: 'Enter your timings from last night.'
       },
       wellbeing: {
-        title: 'Well-being',
+        eyebrow: 'Section B · Body & mind',
+        title: 'Well‑being',
         hint: 'Uniform scale. 1 = very poor. 5 = top form. Higher = better.'
       },
       pain: {
-        title: 'Pain (NRS 0-10)',
+        eyebrow: 'Section C · Pain',
+        title: 'Pain · NRS 0‑10',
         hint: '0 = no pain. 10 = maximum pain.'
       },
       hydration: {
-        title: 'Hydration & Nutrition',
+        eyebrow: 'Section D · Hydration',
+        title: 'Hydration & nutrition',
         hint: 'Simple but crucial performance markers.'
       }
     },
