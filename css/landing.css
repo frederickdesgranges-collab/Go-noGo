@@ -185,20 +185,34 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
 }
 
 .parallax-eyebrow {
-  font-size: clamp(28px, 7.5vw, 40px);
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--cec-red);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
   margin: 0 0 26px;
-  line-height: 1.15;
-  max-width: 22ch;
-  /* Thin white outline on each letter for legibility on the busy wall */
-  -webkit-text-stroke: 0.6px rgba(255, 255, 255, 0.78);
+  color: var(--cec-red);
+  text-transform: uppercase;
+  /* Thin white outline applied uniformly to both lines */
+  -webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.78);
   paint-order: stroke fill;
   text-shadow:
     0 2px 4px rgba(0, 0, 0, 0.55),
     0 0 16px rgba(0, 0, 0, 0.4);
+}
+
+.parallax-eyebrow-main {
+  font-size: clamp(28px, 7.5vw, 40px);
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  line-height: 1.05;
+}
+
+.parallax-eyebrow-sub {
+  font-size: clamp(11px, 2.6vw, 14px);
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 .parallax-headline {

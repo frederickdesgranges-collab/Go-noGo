@@ -2126,20 +2126,34 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
 }
 
 .parallax-eyebrow {
-  font-size: clamp(28px, 7.5vw, 40px);
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--cec-red);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
   margin: 0 0 26px;
-  line-height: 1.15;
-  max-width: 22ch;
-  /* Thin white outline on each letter for legibility on the busy wall */
-  -webkit-text-stroke: 0.6px rgba(255, 255, 255, 0.78);
+  color: var(--cec-red);
+  text-transform: uppercase;
+  /* Thin white outline applied uniformly to both lines */
+  -webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.78);
   paint-order: stroke fill;
   text-shadow:
     0 2px 4px rgba(0, 0, 0, 0.55),
     0 0 16px rgba(0, 0, 0, 0.4);
+}
+
+.parallax-eyebrow-main {
+  font-size: clamp(28px, 7.5vw, 40px);
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  line-height: 1.05;
+}
+
+.parallax-eyebrow-sub {
+  font-size: clamp(11px, 2.6vw, 14px);
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 .parallax-headline {
@@ -2590,7 +2604,10 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
         </div>
 
         <div class="parallax-layer parallax-mid" id="parallax-mid">
-          <div class="parallax-eyebrow" data-i18n="landing.eyebrow">YWCH 2026 · INNSBRUCK TRAINING CAMP</div>
+          <div class="parallax-eyebrow">
+            <span class="parallax-eyebrow-main" data-i18n="landing.eyebrowMain">YWCH 2026</span>
+            <span class="parallax-eyebrow-sub" data-i18n="landing.eyebrowSub">INNSBRUCK TRAINING CAMP</span>
+          </div>
           <h1 class="parallax-headline" data-i18n="landing.title">Check‑in matinal</h1>
           <p class="parallax-sub" data-i18n="landing.sub">60 secondes pour décider la journée. Honnête. Précis. Stratégique.</p>
         </div>
@@ -3112,6 +3129,8 @@ const translations = {
       tag: 'CLIMBING ESCALADE CANADA',
       camp: 'INNSBRUCK · JUILLET 2026',
       eyebrow: 'YWCH 2026 · INNSBRUCK TRAINING CAMP',
+      eyebrowMain: 'YWCH 2026',
+      eyebrowSub: 'INNSBRUCK TRAINING CAMP',
       title: 'Check‑in matinal',
       sub: '60 secondes pour décider la journée. Honnête. Précis. Stratégique.',
       scrollHint: 'Faire défiler',
@@ -3334,6 +3353,8 @@ const translations = {
       tag: 'CLIMBING ESCALADE CANADA',
       camp: 'INNSBRUCK · JULY 2026',
       eyebrow: 'YWCH 2026 · INNSBRUCK TRAINING CAMP',
+      eyebrowMain: 'YWCH 2026',
+      eyebrowSub: 'INNSBRUCK TRAINING CAMP',
       title: 'Morning check-in',
       sub: '60 seconds to set the day. Honest. Precise. Strategic.',
       scrollHint: 'Scroll',
