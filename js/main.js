@@ -48,6 +48,29 @@ function wireGlobalEvents() {
   document.getElementById('edit-btn').addEventListener('click', goToFormScreen);
   document.getElementById('restart-btn').addEventListener('click', restart);
 
+  const scrollCue = document.getElementById('scroll-cue');
+  if (scrollCue) {
+    scrollCue.addEventListener('click', () => {
+      const details = document.getElementById('result-details');
+      if (details) details.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  // Reveal details when they enter the viewport
+  const detailsEl = document.getElementById('result-details');
+  if (detailsEl && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          detailsEl.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -10% 0px' });
+    io.observe(detailsEl);
+  } else if (detailsEl) {
+    detailsEl.classList.add('visible');
+  }
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeSettings();
   });
