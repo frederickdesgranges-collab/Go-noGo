@@ -169,6 +169,20 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
   opacity: var(--pscroll-fade, 1);
 }
 
+/* Soft scrim behind the title for legibility on a busy wall photo */
+.parallax-mid::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(720px, 95%);
+  height: 380px;
+  background: radial-gradient(ellipse at center, rgba(8, 11, 18, 0.62) 0%, rgba(8, 11, 18, 0.32) 50%, rgba(8, 11, 18, 0) 80%);
+  pointer-events: none;
+  z-index: -1;
+}
+
 .parallax-eyebrow {
   font-size: 11px;
   font-weight: 800;
@@ -176,7 +190,9 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
   text-transform: uppercase;
   color: var(--cec-red);
   margin: 0 0 18px;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+  text-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.85),
+    0 0 24px rgba(0, 0, 0, 0.6);
 }
 
 .parallax-headline {
@@ -187,57 +203,37 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
   letter-spacing: -0.025em;
   color: white;
   margin: 0 0 18px;
-  text-shadow: 0 6px 36px rgba(0, 0, 0, 0.7);
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.95),
+    0 6px 24px rgba(0, 0, 0, 0.75),
+    0 12px 48px rgba(0, 0, 0, 0.5);
   max-width: 14ch;
 }
 
 .parallax-sub {
   font-size: 15px;
   line-height: 1.5;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.88);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
   margin: 0;
   max-width: 28ch;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.9),
+    0 4px 16px rgba(0, 0, 0, 0.6);
 }
 
-/* FRONT: podium silhouettes — visible silhouette, not pitch-black */
-.parallax-front {
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  width: min(820px, 120%);
-  height: 50%;
-  z-index: 3;
-  pointer-events: none;
-  transform: translate3d(-50%, calc(var(--pscroll, 0px) * 0.08), 0);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-
-.parallax-front img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center bottom;
-  /* Silhouette but visible: dark + high contrast, identity blurred */
-  filter: brightness(0.55) contrast(1.25) saturate(0.55);
-  -webkit-mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.85) 28%, black 65%);
-  mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.85) 28%, black 65%);
-  display: block;
-}
-
-.parallax-front::after {
+/* CEC accent line at the bottom of the parallax stage */
+.parallax-stage::after {
   content: '';
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 4px;
+  height: 3px;
   background: linear-gradient(90deg, transparent 0%, var(--cec-red) 50%, transparent 100%);
   opacity: 0.85;
   pointer-events: none;
+  z-index: 4;
 }
 
 .parallax-scroll-cue {
