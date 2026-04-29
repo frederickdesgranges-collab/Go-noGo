@@ -364,7 +364,7 @@
             <span class="ring-orbit ring-orbit-4"></span>
             <span class="ring-orbit ring-orbit-5"></span>
 
-            <svg class="ring-svg" width="340" height="340" viewBox="0 0 340 340">
+            <svg class="ring-svg" width="360" height="360" viewBox="0 0 360 360">
               <defs>
                 <linearGradient id="donut-gradient-green" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#34d399"/>
@@ -385,10 +385,10 @@
               </defs>
 
               <!-- Background guide ring -->
-              <circle class="ring-bg" cx="170" cy="170" r="148" fill="none" stroke-width="3"></circle>
+              <circle class="ring-bg" cx="180" cy="180" r="158" fill="none" stroke-width="3"></circle>
 
               <!-- Inner thin spinner ring -->
-              <circle class="ring-inner-spinner" cx="170" cy="170" r="124" fill="none" stroke-width="1.5"></circle>
+              <circle class="ring-inner-spinner" cx="180" cy="180" r="132" fill="none" stroke-width="1.5"></circle>
 
               <!-- Outer tick decoration -->
               <g id="ring-ticks"></g>
@@ -398,8 +398,17 @@
             </svg>
 
             <div class="track-core">
-              <div class="track-climber" id="track-climber"></div>
-              <div class="athlete-initial" id="athlete-initial">—</div>
+              <div class="track-core-bg" aria-hidden="true"></div>
+              <div class="readiness">
+                <span class="readiness-label" data-i18n="result.readiness">READINESS</span>
+                <span class="readiness-value" id="readiness-value">—</span>
+                <span class="readiness-unit">/100</span>
+              </div>
+              <div class="track-meta">
+                <span id="track-meta-name">—</span>
+                <span class="track-meta-sep">·</span>
+                <span id="track-meta-date">—</span>
+              </div>
             </div>
           </div>
 

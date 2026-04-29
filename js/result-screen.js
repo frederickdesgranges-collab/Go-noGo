@@ -6,18 +6,16 @@
 
 import { state } from './state.js';
 import { t } from './translations.js';
-import { mountScene } from './animations.js';
 import { formatHours } from './form-logic.js';
-
-const RING_RADIUS = 148;
-const RING_CIRC = 2 * Math.PI * RING_RADIUS;
 
 const DONUT_RADIUS = 22;
 const DONUT_CIRC = 2 * Math.PI * DONUT_RADIUS;
 
-const ARC_RADIUS = 148;
+const RING_CX = 180;
+const RING_CY = 180;
+const ARC_RADIUS = 158;
 const ARC_COUNT = 12;
-const ARC_GAP_DEG = 4;
+const ARC_GAP_DEG = 3;
 const ARC_SEG_DEG = 360 / ARC_COUNT - ARC_GAP_DEG;
 
 let ringTicksRendered = false;
@@ -43,12 +41,10 @@ export function renderResult(evalResult) {
   document.getElementById('hero-message').textContent = t(lang, evalResult.messageKey);
   document.getElementById('hero-kindness').textContent = t(lang, evalResult.kindnessKey);
 
-  setAthleteInitial();
   ensureRingTicks();
   renderRingArcs(evalResult.color, evalResult.ringRatio);
-
-  const climberHost = document.getElementById('track-climber');
-  mountScene(climberHost, evalResult.color);
+  renderReadiness(evalResult.score);
+  renderTrackMeta();
 
   renderStats();
   renderIndicators(evalResult.flags);
@@ -57,11 +53,40 @@ export function renderResult(evalResult) {
   setTimeout(() => screen.classList.remove('entering'), 1200);
 }
 
-function setAthleteInitial() {
-  const el = document.getElementById('athlete-initial');
+/**
+ * Animate the readiness score from 0 to target over ~900ms.
+ */
+function renderReadiness(target) {
+  const el = document.getElementById('readiness-value');
   if (!el) return;
-  const name = (state.athleteName || '').trim();
-  el.textContent = name ? name.charAt(0).toUpperCase() : '—';
+  const final = Math.max(0, Math.min(100, Math.round(target ?? 0)));
+  const duration = 900;
+  const start = performance.now();
+  function tick(now) {
+    const t = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = String(Math.round(eased * final));
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  el.textContent = '0';
+  requestAnimationFrame(tick);
+}
+
+/**
+ * Show "NAME · DATE" inside the inner core.
+ */
+function renderTrackMeta() {
+  const nameEl = document.getElementById('track-meta-name');
+  const dateEl = document.getElementById('track-meta-date');
+  if (!nameEl || !dateEl) return;
+  const name = (state.athleteName || '').trim().toUpperCase();
+  const locale = state.lang === 'en' ? 'en-CA' : 'fr-CA';
+  const date = new Date().toLocaleDateString(locale, {
+    day: 'numeric',
+    month: 'short'
+  }).toUpperCase().replace(/\.$/, '');
+  nameEl.textContent = name || '—';
+  dateEl.textContent = date;
 }
 
 /**
@@ -71,7 +96,7 @@ function ensureRingTicks() {
   if (ringTicksRendered) return;
   const host = document.getElementById('ring-ticks');
   if (!host) return;
-  const cx = 170, cy = 170, rOut = 134, rIn = 128;
+  const cx = RING_CX, cy = RING_CY, rOut = 142;
   const ticks = [];
   for (let i = 0; i < 60; i++) {
     const angle = (i / 60) * Math.PI * 2 - Math.PI / 2;
@@ -97,7 +122,7 @@ function renderRingArcs(color, ratio = 1) {
   const host = document.getElementById('ring-arcs');
   if (!host) return;
   const palette = PALETTES[color] || PALETTES.green;
-  const cx = 170, cy = 170, r = ARC_RADIUS;
+  const cx = RING_CX, cy = RING_CY, r = ARC_RADIUS;
   const circ = 2 * Math.PI * r;
   const segLen = (ARC_SEG_DEG / 360) * circ;
   const gapLen = circ - segLen;
@@ -107,30 +132,22 @@ function renderRingArcs(color, ratio = 1) {
     const startDeg = i * (360 / ARC_COUNT) - 90;
     const fill = palette[i % palette.length];
     const isActive = i < activeCount;
-    const baseOpacity = isActive ? 0.95 : 0.18;
-    const pulseHi = isActive ? 1 : 0.22;
-    const pulseLo = isActive ? 0.7 : 0.14;
+    const baseOpacity = isActive ? 1 : 0.16;
     arcs.push(`
       <circle cx="${cx}" cy="${cy}" r="${r}"
               fill="none"
               stroke="${fill}"
-              stroke-width="20"
+              stroke-width="22"
               stroke-linecap="round"
               stroke-dasharray="${segLen.toFixed(2)} ${gapLen.toFixed(2)}"
               transform="rotate(${startDeg.toFixed(2)} ${cx} ${cy})"
-              filter="drop-shadow(0 0 6px ${fill}) drop-shadow(0 0 14px ${fill}aa)"
+              filter="drop-shadow(0 0 8px ${fill})"
               opacity="0">
         <animate attributeName="opacity"
-                 values="0;${baseOpacity};${pulseLo};${pulseHi};${baseOpacity}"
-                 keyTimes="0;0.4;0.65;0.85;1"
-                 dur="${(1 + i * 0.07 + 1.6).toFixed(2)}s"
+                 values="0;${baseOpacity}"
+                 dur="0.7s"
                  begin="${(i * 0.06).toFixed(2)}s"
                  fill="freeze"/>
-        <animate attributeName="opacity"
-                 values="${pulseLo};${pulseHi};${pulseLo}"
-                 dur="${(2.4 + (i * 0.1)).toFixed(2)}s"
-                 begin="${(2.5 + i * 0.06).toFixed(2)}s"
-                 repeatCount="indefinite"/>
       </circle>
     `);
   }

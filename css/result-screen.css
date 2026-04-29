@@ -102,8 +102,8 @@
 
 .track-ring {
   position: relative;
-  width: 340px;
-  height: 340px;
+  width: 360px;
+  height: 360px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -129,13 +129,13 @@
 .ring-inner-spinner {
   stroke: rgba(255, 255, 255, 0.06);
   stroke-dasharray: 6 12;
-  transform-origin: 170px 170px;
+  transform-origin: 180px 180px;
   animation: ring-spin 30s linear infinite reverse;
 }
 
 /* The 12 arcs container — rotates slowly */
 .ring-arcs {
-  transform-origin: 170px 170px;
+  transform-origin: 180px 180px;
   animation: ring-spin 24s linear infinite;
 }
 
@@ -146,24 +146,28 @@
   transition: opacity 0.4s ease;
 }
 
-/* Inner core: glassy pod with the climber */
+/* ============================================
+   Inner core: glassy pod with READINESS score
+   ============================================ */
 .track-core {
   position: relative;
-  width: 222px;
-  height: 222px;
+  width: 240px;
+  height: 240px;
   border-radius: 50%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   background:
-    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.06) 0%, transparent 55%),
-    radial-gradient(circle at 50% 100%, rgba(0, 0, 0, 0.5) 0%, transparent 60%),
-    rgba(8, 11, 22, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08) 0%, transparent 55%),
+    radial-gradient(circle at 50% 100%, rgba(0, 0, 0, 0.55) 0%, transparent 60%),
+    rgba(6, 9, 18, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow:
-    0 0 40px rgba(0, 0, 0, 0.7) inset,
-    0 0 0 8px rgba(10, 14, 26, 0.7),
-    0 0 0 9px rgba(255, 255, 255, 0.05);
+    0 0 50px rgba(0, 0, 0, 0.75) inset,
+    0 0 0 10px rgba(8, 11, 22, 0.85),
+    0 0 0 11px rgba(255, 255, 255, 0.06);
   overflow: hidden;
   z-index: 1;
 }
@@ -173,36 +177,112 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.06) 0%, transparent 45%);
+  background:
+    radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.09) 0%, transparent 45%),
+    radial-gradient(circle at 70% 90%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
   pointer-events: none;
   z-index: 1;
 }
 
-.track-climber {
+/* Track-tone diffuse glow inside the core (gives tone identity) */
+.track-core-bg {
   position: absolute;
-  inset: 0;
-  z-index: 2;
+  inset: 12%;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle, var(--green) 0%, transparent 60%);
+  transition: background 0.5s ease;
 }
 
-.athlete-initial {
+.hero-card.track-yellow .track-core-bg { background: radial-gradient(circle, var(--yellow) 0%, transparent 60%); }
+.hero-card.track-red .track-core-bg { background: radial-gradient(circle, var(--red) 0%, transparent 60%); }
+
+.readiness {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  z-index: 2;
+  position: relative;
+}
+
+.readiness-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.readiness-value {
+  font-size: 96px;
+  line-height: 0.85;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.5));
+  animation: readiness-in 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+.hero-card.track-green .readiness-value {
+  background: linear-gradient(180deg, #d1fae5 0%, #34d399 50%, #10b981 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 18px rgba(16, 185, 129, 0.55));
+}
+.hero-card.track-yellow .readiness-value {
+  background: linear-gradient(180deg, #fef3c7 0%, #fbbf24 50%, #d97706 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 18px rgba(245, 158, 11, 0.55));
+}
+.hero-card.track-red .readiness-value {
+  background: linear-gradient(180deg, #fecaca 0%, #ef4444 50%, #b91c1c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 18px rgba(239, 68, 68, 0.6));
+}
+
+.readiness-unit {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+}
+
+.track-meta {
   position: absolute;
-  bottom: 14px;
-  right: 14px;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
+  bottom: 26px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 17px;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, var(--cec-red) 0%, var(--cec-red-dark) 100%);
-  color: white;
-  box-shadow:
-    0 6px 18px rgba(248, 5, 4, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  z-index: 3;
+  gap: 6px;
+  z-index: 2;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.track-meta-sep {
+  opacity: 0.5;
+}
+
+@keyframes readiness-in {
+  0% { opacity: 0; transform: scale(0.6) translateY(8px); filter: blur(8px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
 }
 
 /* Floating mini-orbits around the ring */
@@ -570,7 +650,8 @@
 
 /* Tablet+ tweak: even bigger ring */
 @media (min-width: 480px) {
-  .track-ring { width: 380px; height: 380px; }
-  .track-core { width: 240px; height: 240px; }
+  .track-ring { width: 400px; height: 400px; }
+  .track-core { width: 260px; height: 260px; }
+  .readiness-value { font-size: 110px; }
   .hero-letter { font-size: 124px; }
 }

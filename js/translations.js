@@ -100,6 +100,7 @@ export const translations = {
     result: {
       trackA: 'TRACK A',
       trackB: 'TRACK B',
+      readiness: 'READINESS',
       indicators: 'Indicateurs',
       noFlags: "Aucun signal d'alerte. Belle nuit, beau profil.",
       sendWhatsapp: 'Envoyer au coach via WhatsApp',
@@ -286,6 +287,7 @@ export const translations = {
     result: {
       trackA: 'TRACK A',
       trackB: 'TRACK B',
+      readiness: 'READINESS',
       indicators: 'Indicators',
       noFlags: 'No alert signals. Solid night, solid profile.',
       sendWhatsapp: 'Send to coach via WhatsApp',
