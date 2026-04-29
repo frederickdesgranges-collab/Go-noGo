@@ -155,8 +155,10 @@
   transition: background-image 0.3s ease;
 }
 
+/* Per-track photo positioning so the subject is centered */
 .hero-fold.track-green .hero-photo-bg {
   background-image: url("https://www.theglobeandmail.com/resizer/v2/TWBAHPRXWBHJJCEBO575W2OFWE.jpg?auth=bdb094e810f4a2934fd96a1a3a3171eead59bcb34ad003d51c35217b54bace08&width=1200&height=1200&quality=85&smart=true");
+  background-position: 62% center;
 }
 
 .hero-fold.track-yellow .hero-photo-bg {
@@ -170,6 +172,7 @@
 
 .hero-fold.track-red .hero-photo-bg {
   background-image: url("https://cdn.mos.cms.futurecdn.net/CMgKVrgme4bVEPvvE2j3yD-1920-80.jpg");
+  background-position: 50% 35%;
 }
 
 .hero-photo-overlay {

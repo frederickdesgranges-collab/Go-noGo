@@ -297,10 +297,12 @@ function restart() {
 /* ============================================
    Scroll-driven hero choreography
    ============================================
-   Phase 1 (0   → 0.35): photo full screen, no score yet
-   Phase 2 (0.35 → 0.7): photo shrinks/fades, score fades in big
-   Phase 3 (0.7  → 1.0): score+photo gone, mini-header sticky, hero-text appears
-   Past 1.0:           details revealed, mini-header pinned at top
+   Phase 1 (0    → 0.22): photo full, score hidden
+   Phase 2 (0.22 → 0.55): photo shrinks/fades, big score fades in
+   Phase 3 (0.45 → 1.0):  mini-header slides down (overlaps with big score)
+   Phase 4 (0.7  → 1.0):  big score fades out, mini stays sticky
+   The mini-header now appears WHILE the big score is still visible,
+   so the user always sees a score number on screen ("le score doit rester").
    ============================================ */
 function wireScrollChoreography() {
   const photoCard = document.getElementById('hero-photo-card');
@@ -308,7 +310,6 @@ function wireScrollChoreography() {
   const heroText = document.getElementById('hero-text-block');
   const scrollCue = document.getElementById('scroll-cue');
   const miniHeader = document.getElementById('mini-header');
-  const sentinel = document.getElementById('hero-sentinel');
   if (!photoCard || !scoreStage) return;
 
   let ticking = false;
@@ -317,27 +318,35 @@ function wireScrollChoreography() {
     ticking = false;
     const sy = window.scrollY;
     const vh = window.innerHeight;
-    const range = vh * 1.2; // total scroll-distance to fully transition
-    const p = Math.max(0, Math.min(1, sy / range));
+    const range = vh * 1.2; // total scroll-distance for the full choreography
+    const p = clamp01(sy / range);
 
-    // Photo: scales down 1 → 0.55 over the whole range, fades from 1 → 0.15
-    const scale = 1 - 0.5 * p;
+    // Photo: scales down 1 → 0.55, opacity 1 → 0.05, drift up to -40px
+    const scale = 1 - 0.45 * p;
     const photoOpacity = Math.max(0.05, 1 - 1.05 * p);
-    const photoY = -40 * p;
-    photoCard.style.transform = `translateY(${photoY}px) scale(${scale})`;
+    photoCard.style.transform = `translateY(${(-40 * p).toFixed(1)}px) scale(${scale.toFixed(3)})`;
     photoCard.style.opacity = String(photoOpacity);
 
-    // Score stage: fades in starting at 0.25, fully visible at 0.55
-    const scoreP = clamp01((p - 0.22) / 0.33);
-    scoreStage.classList.toggle('visible', scoreP > 0.05);
-    if (heroText) heroText.classList.toggle('visible', p > 0.55);
-    // Score moves up slightly past the photo as user scrolls more
-    const scoreY = -60 * Math.max(0, p - 0.6) * 1.5;
-    scoreStage.style.transform = `translateY(${scoreY}px)`;
-    scoreStage.style.opacity = String(scoreP);
+    // Big score: fades IN from 0.22 to 0.55, then OUT from 0.7 to 0.95
+    const fadeIn = clamp01((p - 0.22) / 0.33);
+    const fadeOut = 1 - clamp01((p - 0.7) / 0.25);
+    const scoreOpacity = fadeIn * fadeOut;
+    scoreStage.classList.toggle('visible', scoreOpacity > 0.05);
+    scoreStage.style.opacity = String(scoreOpacity);
+    // Subtle upward drift past the photo midpoint
+    const scoreY = -50 * Math.max(0, p - 0.5);
+    scoreStage.style.transform = `translateY(${scoreY.toFixed(1)}px)`;
 
-    // Scroll cue fades out once user has started scrolling
+    // Hero text (message + kindness) appears once big score is fading out
+    if (heroText) heroText.classList.toggle('visible', p > 0.55);
+
+    // Scroll cue
     if (scrollCue) scrollCue.classList.toggle('faded', p > 0.08);
+
+    // Mini header: appears DURING phase 2 (around p = 0.45) so the
+    // small score is on top of the screen by the time the big one
+    // starts fading away. The mini stays sticky from there on.
+    if (miniHeader) miniHeader.classList.toggle('visible', p > 0.45);
   }
 
   function onScroll() {
@@ -348,19 +357,6 @@ function wireScrollChoreography() {
   }
   window.addEventListener('scroll', onScroll, { passive: true });
   update();
-
-  // Mini header reveal: when sentinel scrolls past the top
-  if (sentinel && miniHeader && 'IntersectionObserver' in window) {
-    const mio = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        // sentinel is at the END of the hero fold; it leaves the viewport
-        // when we're past the hero → show mini header
-        const past = entry.boundingClientRect.top < 0;
-        miniHeader.classList.toggle('visible', past);
-      });
-    }, { threshold: [0, 1], rootMargin: '0px' });
-    mio.observe(sentinel);
-  }
 }
 
 function clamp01(v) { return Math.max(0, Math.min(1, v)); }
