@@ -443,33 +443,43 @@
     <!-- ============================================ -->
     <section class="screen screen-result" id="screen-result" hidden>
 
-      <div class="hero-card hero-fullscreen" id="hero-card">
-        <div class="hero-halo" aria-hidden="true"></div>
-
-        <div class="hero-athlete-pill" id="hero-athlete-pill">
-          <span class="pill-avatar" id="pill-avatar">—</span>
-          <span class="pill-text"><span data-i18n="result.helloPrefix">Bonjour</span> <strong id="pill-name">—</strong></span>
+      <!-- Sticky mini header (appears once you scroll past the photo fold) -->
+      <header class="mini-header" id="mini-header">
+        <span class="mini-avatar" id="mini-avatar">—</span>
+        <div class="mini-stack">
+          <span class="mini-eyebrow" data-i18n="result.readiness">READINESS</span>
+          <span class="mini-name" id="mini-name">—</span>
         </div>
+        <span class="mini-score">
+          <span class="mini-score-value" id="mini-score-value">—</span>
+          <span class="mini-score-suffix">/100</span>
+        </span>
+        <span class="mini-track-pill" id="mini-track-pill">A</span>
+      </header>
 
-        <div class="hero-score">
-          <span class="hero-score-eyebrow" data-i18n="result.readiness">READINESS</span>
-          <span class="hero-score-value" id="readiness-value">—</span>
-          <span class="hero-score-suffix">/ 100</span>
-        </div>
-
-        <span class="track-pill" id="hero-track-label" data-i18n="result.trackA">TRACK A</span>
-
-        <div class="hero-art" aria-hidden="true">
-          <div class="hero-art-photo"></div>
-          <div class="hero-art-overlay"></div>
-          <div class="hero-art-meta">
+      <!-- HERO PHOTO FOLD: photo fills viewport, shrinks on scroll -->
+      <div class="hero-fold" id="hero-card">
+        <div class="hero-photo-card" id="hero-photo-card" aria-hidden="true">
+          <div class="hero-photo-bg" id="hero-photo-bg"></div>
+          <div class="hero-photo-overlay"></div>
+          <div class="hero-photo-meta">
+            <span class="meta-name" id="meta-name">—</span>
+            <span class="meta-sep">·</span>
             <span id="track-meta-date">—</span>
-            <span class="hero-art-meta-sep" id="track-meta-discipline-sep" hidden>·</span>
+            <span class="meta-sep" id="track-meta-discipline-sep" hidden>·</span>
             <span id="track-meta-discipline" hidden></span>
           </div>
         </div>
 
-        <div class="hero-text">
+        <!-- Score stage: appears as photo shrinks -->
+        <div class="hero-score-stage" id="hero-score-stage">
+          <span class="hero-score-eyebrow" data-i18n="result.readiness">READINESS</span>
+          <span class="hero-score-value" id="readiness-value">—</span>
+          <span class="hero-score-suffix">/ 100</span>
+          <span class="track-pill" id="hero-track-label" data-i18n="result.trackA">TRACK A</span>
+        </div>
+
+        <div class="hero-text" id="hero-text-block">
           <h2 class="hero-message" id="hero-message">—</h2>
           <p class="hero-kindness" id="hero-kindness">—</p>
         </div>
@@ -484,6 +494,10 @@
         </button>
       </div>
 
+      <!-- Sentinel: when this enters viewport, mini header gets revealed -->
+      <div class="hero-sentinel" id="hero-sentinel" aria-hidden="true"></div>
+
+      <!-- DETAILS panel: revealed in cascade once scrolled into view -->
       <div class="result-details" id="result-details">
 
       <!-- Stats list (compact rows) -->

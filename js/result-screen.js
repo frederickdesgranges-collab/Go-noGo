@@ -12,8 +12,13 @@ export function renderResult(evalResult) {
   const screen = document.getElementById('screen-result');
   const hero = document.getElementById('hero-card');
 
-  hero.classList.remove('track-green', 'track-yellow', 'track-red');
-  hero.classList.add(`track-${evalResult.color}`);
+  // Track tone applied on both the screen (for mini-header pill) and the hero fold
+  screen.classList.remove('track-green', 'track-yellow', 'track-red');
+  screen.classList.add(`track-${evalResult.color}`);
+  if (hero) {
+    hero.classList.remove('track-green', 'track-yellow', 'track-red');
+    hero.classList.add(`track-${evalResult.color}`);
+  }
 
   // Track pill
   const labelKey = evalResult.track === 'A' ? 'result.trackA' : 'result.trackB';
@@ -23,11 +28,11 @@ export function renderResult(evalResult) {
   document.getElementById('hero-message').textContent = t(lang, evalResult.messageKey);
   document.getElementById('hero-kindness').textContent = t(lang, evalResult.kindnessKey);
 
-  // Athlete pill (top of hero)
-  setAthletePill();
+  // Date + discipline overlaid on the photo
+  renderPhotoMeta();
 
-  // Date + discipline below the photo
-  renderTrackMeta();
+  // Mini sticky header
+  renderMiniHeader(evalResult);
 
   // Score (count up)
   renderReadiness(evalResult.score);
@@ -38,17 +43,49 @@ export function renderResult(evalResult) {
   // Indicators
   renderIndicators(evalResult.flags);
 
-  screen.classList.add('entering');
-  setTimeout(() => screen.classList.remove('entering'), 1200);
+  // Reset scroll position so user starts on the photo full-screen
+  window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
-function setAthletePill() {
-  const avatar = document.getElementById('pill-avatar');
-  const name = document.getElementById('pill-name');
-  if (!avatar || !name) return;
+function renderMiniHeader(evalResult) {
+  const lang = state.lang;
+  const avatar = document.getElementById('mini-avatar');
+  const nameEl = document.getElementById('mini-name');
+  const scoreEl = document.getElementById('mini-score-value');
+  const trackEl = document.getElementById('mini-track-pill');
   const raw = (state.athleteName || '').trim();
-  avatar.textContent = raw ? raw.charAt(0).toUpperCase() : '—';
-  name.textContent = raw || '—';
+  if (avatar) avatar.textContent = raw ? raw.charAt(0).toUpperCase() : '—';
+  if (nameEl) {
+    const disc = state.discipline ? ` · ${t(lang, `landing.${state.discipline}`).toUpperCase()}` : '';
+    nameEl.textContent = (raw ? raw.toUpperCase() : '—') + disc;
+  }
+  if (scoreEl) scoreEl.textContent = String(evalResult.score ?? 0);
+  if (trackEl) trackEl.textContent = evalResult.track;
+}
+
+function renderPhotoMeta() {
+  const lang = state.lang;
+  const nameEl = document.getElementById('meta-name');
+  const dateEl = document.getElementById('track-meta-date');
+  const discEl = document.getElementById('track-meta-discipline');
+  const discSep = document.getElementById('track-meta-discipline-sep');
+  const raw = (state.athleteName || '').trim();
+  if (nameEl) nameEl.textContent = raw ? raw.toUpperCase() : '—';
+  if (dateEl) {
+    const locale = lang === 'en' ? 'en-CA' : 'fr-CA';
+    dateEl.textContent = new Date().toLocaleDateString(locale, {
+      day: 'numeric',
+      month: 'short'
+    }).toUpperCase().replace(/\.$/, '');
+  }
+  if (state.discipline && discEl && discSep) {
+    discEl.textContent = t(lang, `landing.${state.discipline}`).toUpperCase();
+    discEl.hidden = false;
+    discSep.hidden = false;
+  } else if (discEl && discSep) {
+    discEl.hidden = true;
+    discSep.hidden = true;
+  }
 }
 
 function renderReadiness(target) {
@@ -65,27 +102,6 @@ function renderReadiness(target) {
   }
   el.textContent = '0';
   requestAnimationFrame(tick);
-}
-
-function renderTrackMeta() {
-  const dateEl = document.getElementById('track-meta-date');
-  const discEl = document.getElementById('track-meta-discipline');
-  const discSep = document.getElementById('track-meta-discipline-sep');
-  if (!dateEl) return;
-  const locale = state.lang === 'en' ? 'en-CA' : 'fr-CA';
-  const date = new Date().toLocaleDateString(locale, {
-    day: 'numeric',
-    month: 'short'
-  }).toUpperCase().replace(/\.$/, '');
-  dateEl.textContent = date;
-  if (state.discipline && discEl && discSep) {
-    discEl.textContent = t(state.lang, `landing.${state.discipline}`).toUpperCase();
-    discEl.hidden = false;
-    discSep.hidden = false;
-  } else if (discEl && discSep) {
-    discEl.hidden = true;
-    discSep.hidden = true;
-  }
 }
 
 function renderStatsList() {

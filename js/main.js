@@ -56,6 +56,9 @@ function wireGlobalEvents() {
     });
   }
 
+  // Scroll-driven hero choreography
+  wireScrollChoreography();
+
   // Reveal details when they enter the viewport
   const detailsEl = document.getElementById('result-details');
   if (detailsEl && 'IntersectionObserver' in window) {
@@ -290,6 +293,77 @@ function restart() {
   updateProgressBar();
   backToLanding();
 }
+
+/* ============================================
+   Scroll-driven hero choreography
+   ============================================
+   Phase 1 (0   → 0.35): photo full screen, no score yet
+   Phase 2 (0.35 → 0.7): photo shrinks/fades, score fades in big
+   Phase 3 (0.7  → 1.0): score+photo gone, mini-header sticky, hero-text appears
+   Past 1.0:           details revealed, mini-header pinned at top
+   ============================================ */
+function wireScrollChoreography() {
+  const photoCard = document.getElementById('hero-photo-card');
+  const scoreStage = document.getElementById('hero-score-stage');
+  const heroText = document.getElementById('hero-text-block');
+  const scrollCue = document.getElementById('scroll-cue');
+  const miniHeader = document.getElementById('mini-header');
+  const sentinel = document.getElementById('hero-sentinel');
+  if (!photoCard || !scoreStage) return;
+
+  let ticking = false;
+
+  function update() {
+    ticking = false;
+    const sy = window.scrollY;
+    const vh = window.innerHeight;
+    const range = vh * 1.2; // total scroll-distance to fully transition
+    const p = Math.max(0, Math.min(1, sy / range));
+
+    // Photo: scales down 1 → 0.55 over the whole range, fades from 1 → 0.15
+    const scale = 1 - 0.5 * p;
+    const photoOpacity = Math.max(0.05, 1 - 1.05 * p);
+    const photoY = -40 * p;
+    photoCard.style.transform = `translateY(${photoY}px) scale(${scale})`;
+    photoCard.style.opacity = String(photoOpacity);
+
+    // Score stage: fades in starting at 0.25, fully visible at 0.55
+    const scoreP = clamp01((p - 0.22) / 0.33);
+    scoreStage.classList.toggle('visible', scoreP > 0.05);
+    if (heroText) heroText.classList.toggle('visible', p > 0.55);
+    // Score moves up slightly past the photo as user scrolls more
+    const scoreY = -60 * Math.max(0, p - 0.6) * 1.5;
+    scoreStage.style.transform = `translateY(${scoreY}px)`;
+    scoreStage.style.opacity = String(scoreP);
+
+    // Scroll cue fades out once user has started scrolling
+    if (scrollCue) scrollCue.classList.toggle('faded', p > 0.08);
+  }
+
+  function onScroll() {
+    if (!ticking) {
+      requestAnimationFrame(update);
+      ticking = true;
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  update();
+
+  // Mini header reveal: when sentinel scrolls past the top
+  if (sentinel && miniHeader && 'IntersectionObserver' in window) {
+    const mio = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        // sentinel is at the END of the hero fold; it leaves the viewport
+        // when we're past the hero → show mini header
+        const past = entry.boundingClientRect.top < 0;
+        miniHeader.classList.toggle('visible', past);
+      });
+    }, { threshold: [0, 1], rootMargin: '0px' });
+    mio.observe(sentinel);
+  }
+}
+
+function clamp01(v) { return Math.max(0, Math.min(1, v)); }
 
 /* ============================================
    Toast
