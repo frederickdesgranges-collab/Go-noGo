@@ -222,32 +222,6 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
     0 4px 16px rgba(0, 0, 0, 0.6);
 }
 
-/* FRONT: vector podium illustration (lights + 1/2/3) */
-.parallax-front {
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  width: min(680px, 95%);
-  height: 42%;
-  z-index: 3;
-  pointer-events: none;
-  transform: translate3d(-50%, calc(var(--pscroll, 0px) * 0.08), 0);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  /* Blend the dark vector bg with the wall photo behind */
-  mix-blend-mode: screen;
-}
-
-.parallax-front img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center bottom;
-  filter: brightness(1.05) contrast(1.1) saturate(1.05);
-  display: block;
-}
-
 /* CEC accent line at the bottom of the parallax stage */
 .parallax-stage::after {
   content: '';
