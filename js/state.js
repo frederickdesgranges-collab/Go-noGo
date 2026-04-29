@@ -6,7 +6,8 @@
 const STORAGE_KEYS = {
   lang: 'cec_lang',
   coachPhone: 'cec_coach_phone',
-  athleteName: 'cec_athlete_name'
+  athleteName: 'cec_athlete_name',
+  discipline: 'cec_discipline'
 };
 
 const DEFAULT_COACH_PHONE = '14186095751';
@@ -15,6 +16,7 @@ const initial = {
   lang: 'fr',
   coachPhone: DEFAULT_COACH_PHONE,
   athleteName: '',
+  discipline: null,
 
   sleep: {
     bedtime: '23:00',
@@ -52,14 +54,15 @@ const initial = {
 export const state = structuredClone(initial);
 
 /**
- * Reset the in-memory state but keep user preferences (lang, phone, name).
+ * Reset the in-memory state but keep user preferences (lang, phone, name, discipline).
  */
 export function resetForm() {
-  const { lang, coachPhone, athleteName } = state;
+  const { lang, coachPhone, athleteName, discipline } = state;
   Object.assign(state, structuredClone(initial));
   state.lang = lang;
   state.coachPhone = coachPhone;
   state.athleteName = athleteName;
+  state.discipline = discipline;
 }
 
 export function loadPreferences() {
@@ -70,9 +73,21 @@ export function loadPreferences() {
     if (phone) state.coachPhone = phone;
     const name = localStorage.getItem(STORAGE_KEYS.athleteName);
     if (name) state.athleteName = name;
+    const discipline = localStorage.getItem(STORAGE_KEYS.discipline);
+    if (['lead', 'boulder', 'speed', 'combined'].includes(discipline)) {
+      state.discipline = discipline;
+    }
   } catch (_) {
     // localStorage unavailable; keep defaults
   }
+}
+
+export function saveDiscipline(d) {
+  state.discipline = d;
+  try {
+    if (d) localStorage.setItem(STORAGE_KEYS.discipline, d);
+    else localStorage.removeItem(STORAGE_KEYS.discipline);
+  } catch (_) {}
 }
 
 export function saveLang(lang) {

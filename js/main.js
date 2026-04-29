@@ -1,9 +1,9 @@
 /**
  * CEC Check-in - main.js
- * Boot, global event wiring, screen transitions.
+ * Boot, landing → form → result flow, global events.
  */
 
-import { state, loadPreferences, saveLang, saveCoachPhone, resetForm } from './state.js';
+import { state, loadPreferences, saveLang, saveCoachPhone, saveDiscipline, resetForm, saveAthleteName } from './state.js';
 import { applyTranslations, t } from './translations.js';
 import {
   buildLikertScales,
@@ -22,7 +22,6 @@ let lastEvaluation = null;
 function boot() {
   loadPreferences();
 
-  // Build dynamic UI parts before applying translations so labels are present.
   buildLikertScales();
   wireFormControls();
   onAnyChange(() => updateProgressBar());
@@ -34,6 +33,8 @@ function boot() {
   updateProgressBar();
 
   wireGlobalEvents();
+  wireLandingScreen();
+  showLanding();
 }
 
 function wireGlobalEvents() {
@@ -52,13 +53,111 @@ function wireGlobalEvents() {
   });
 }
 
+/* ============================================
+   Landing screen
+   ============================================ */
+function wireLandingScreen() {
+  const form = document.getElementById('landing-form');
+  const nameInput = document.getElementById('landing-athlete-name');
+  if (state.athleteName) nameInput.value = state.athleteName;
+
+  // Pre-select previously chosen discipline
+  if (state.discipline) {
+    setActiveDiscipline(state.discipline);
+  }
+
+  document.querySelectorAll('.discipline-card').forEach((card) => {
+    card.addEventListener('click', () => {
+      const d = card.dataset.discipline;
+      setActiveDiscipline(d);
+      saveDiscipline(d);
+    });
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    onLandingStart();
+  });
+}
+
+function setActiveDiscipline(d) {
+  document.querySelectorAll('.discipline-card').forEach((card) => {
+    const isActive = card.dataset.discipline === d;
+    card.classList.toggle('active', isActive);
+    card.setAttribute('aria-checked', isActive ? 'true' : 'false');
+  });
+}
+
+function onLandingStart() {
+  const nameInput = document.getElementById('landing-athlete-name');
+  const name = nameInput.value.trim();
+  if (!name) {
+    nameInput.classList.remove('invalid');
+    void nameInput.offsetWidth;
+    nameInput.classList.add('invalid');
+    nameInput.focus();
+    showToast(t(state.lang, 'landing.missingName'), 'error');
+    return;
+  }
+  if (!state.discipline) {
+    showToast(t(state.lang, 'landing.missingDiscipline'), 'error');
+    return;
+  }
+  saveAthleteName(name);
+  // Also seed the (hidden) form input value for downstream code that reads it
+  const hiddenName = document.getElementById('athlete-name');
+  if (hiddenName) hiddenName.value = name;
+
+  transitionLandingToForm();
+}
+
+function showLanding() {
+  const landing = document.getElementById('screen-landing');
+  const form = document.getElementById('screen-form');
+  const result = document.getElementById('screen-result');
+  if (landing) landing.hidden = false;
+  if (form) form.hidden = true;
+  if (result) result.hidden = true;
+}
+
+function transitionLandingToForm() {
+  const landing = document.getElementById('screen-landing');
+  const form = document.getElementById('screen-form');
+  if (!landing || !form) return;
+  landing.classList.add('exiting');
+  // After the photo zoom and content fade, hide landing and reveal form
+  setTimeout(() => {
+    landing.hidden = true;
+    landing.classList.remove('exiting');
+    form.hidden = false;
+    form.classList.add('entering-from-landing');
+    setTimeout(() => form.classList.remove('entering-from-landing'), 1000);
+    syncFormFromState();
+    refreshHeaderDate();
+    updateProgressBar();
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, 700);
+}
+
+function backToLanding() {
+  const landing = document.getElementById('screen-landing');
+  const form = document.getElementById('screen-form');
+  const result = document.getElementById('screen-result');
+  if (landing) landing.hidden = false;
+  if (form) form.hidden = true;
+  if (result) result.hidden = true;
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+/* ============================================
+   Language
+   ============================================ */
 function toggleLanguage() {
   const next = state.lang === 'fr' ? 'en' : 'fr';
   saveLang(next);
   applyTranslations(next);
   refreshHeaderDate();
   refreshLangButton();
-  // Re-render result if visible (translated copy)
   if (lastEvaluation && !document.getElementById('screen-result').hidden) {
     renderResult(lastEvaluation);
   }
@@ -66,7 +165,8 @@ function toggleLanguage() {
 }
 
 function refreshLangButton() {
-  document.getElementById('lang-code').textContent = state.lang.toUpperCase();
+  const el = document.getElementById('lang-code');
+  if (el) el.textContent = state.lang.toUpperCase();
 }
 
 function refreshHeaderDate() {
@@ -76,9 +176,13 @@ function refreshHeaderDate() {
     day: 'numeric',
     month: 'long'
   });
-  document.getElementById('header-date').textContent = formatted;
+  const el = document.getElementById('header-date');
+  if (el) el.textContent = formatted;
 }
 
+/* ============================================
+   Settings modal
+   ============================================ */
 function openSettings() {
   const modal = document.getElementById('settings-modal');
   document.getElementById('coach-phone').value = state.coachPhone || '';
@@ -107,6 +211,9 @@ function saveSettings() {
   closeSettings();
 }
 
+/* ============================================
+   Form submit / result
+   ============================================ */
 function onSubmit() {
   const validation = validateForm();
   if (!validation.ok) {
@@ -151,9 +258,12 @@ function restart() {
   });
   syncFormFromState();
   updateProgressBar();
-  goToFormScreen();
+  backToLanding();
 }
 
+/* ============================================
+   Toast
+   ============================================ */
 let toastTimer = null;
 function showToast(message, kind = 'info') {
   const toast = document.getElementById('toast');
@@ -162,7 +272,6 @@ function showToast(message, kind = 'info') {
   if (kind === 'error') toast.classList.add('toast-error');
   else if (kind === 'success') toast.classList.add('toast-success');
   toast.hidden = false;
-  // Force reflow so the transition runs
   void toast.offsetWidth;
   toast.classList.add('visible');
   if (toastTimer) clearTimeout(toastTimer);

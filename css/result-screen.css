@@ -148,6 +148,7 @@
 
 /* ============================================
    Inner core: glassy pod with READINESS score
+   Real photo background per track
    ============================================ */
 .track-core {
   position: relative;
@@ -159,54 +160,67 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08) 0%, transparent 55%),
-    radial-gradient(circle at 50% 100%, rgba(0, 0, 0, 0.55) 0%, transparent 60%),
-    rgba(6, 9, 18, 0.92);
+  background-color: #06090f;
+  background-size: cover;
+  background-position: center;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow:
-    0 0 50px rgba(0, 0, 0, 0.75) inset,
     0 0 0 10px rgba(8, 11, 22, 0.85),
     0 0 0 11px rgba(255, 255, 255, 0.06);
   overflow: hidden;
   z-index: 1;
+  isolation: isolate;
 }
 
+.hero-card.track-green .track-core {
+  background-image: url("https://www.theglobeandmail.com/resizer/v2/5SVJPNEF4JJQFPPPJ77ZPMJBWQ.JPG?auth=ab0d8d1360a130f1bd601db84920f9ca3362c73c3b364623f12babea09132c65&width=600&height=400&quality=80&smart=true");
+}
+
+.hero-card.track-yellow .track-core {
+  background-image: url("https://www.theglobeandmail.com/resizer/v2/TWBAHPRXWBHJJCEBO575W2OFWE.jpg?auth=bdb094e810f4a2934fd96a1a3a3171eead59bcb34ad003d51c35217b54bace08&width=600&height=400&quality=80&smart=true");
+}
+
+.hero-card.track-red .track-core {
+  background-image: url("https://cdn.mos.cms.futurecdn.net/CMgKVrgme4bVEPvvE2j3yD-1920-80.jpg");
+}
+
+/* Photo darkening / track-tone tint overlay */
 .track-core::before {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
   background:
-    radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.09) 0%, transparent 45%),
-    radial-gradient(circle at 70% 90%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+    radial-gradient(circle at 50% 30%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.45) 70%, rgba(0, 0, 0, 0.85) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.55) 100%);
   pointer-events: none;
   z-index: 1;
 }
 
-/* Track-tone diffuse glow inside the core (gives tone identity) */
+/* Top-glow rim that tints the photo with the track color */
 .track-core-bg {
   position: absolute;
-  inset: 12%;
-  border-radius: 50%;
-  filter: blur(40px);
-  opacity: 0.55;
+  inset: 0;
+  border-radius: inherit;
   pointer-events: none;
-  z-index: 0;
-  background: radial-gradient(circle, var(--green) 0%, transparent 60%);
+  z-index: 1;
+  mix-blend-mode: color;
+  opacity: 0.45;
+  background: radial-gradient(circle at 50% 30%, var(--green) 0%, transparent 70%);
   transition: background 0.5s ease;
 }
 
-.hero-card.track-yellow .track-core-bg { background: radial-gradient(circle, var(--yellow) 0%, transparent 60%); }
-.hero-card.track-red .track-core-bg { background: radial-gradient(circle, var(--red) 0%, transparent 60%); }
+.hero-card.track-yellow .track-core-bg { background: radial-gradient(circle at 50% 30%, var(--yellow) 0%, transparent 70%); }
+.hero-card.track-red .track-core-bg { background: radial-gradient(circle at 50% 30%, var(--red) 0%, transparent 70%); }
 
 .readiness {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0;
-  z-index: 2;
+  z-index: 3;
   position: relative;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.85);
 }
 
 .readiness-label {
@@ -261,19 +275,20 @@
 
 .track-meta {
   position: absolute;
-  bottom: 26px;
+  bottom: 22px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 6px;
-  z-index: 2;
+  z-index: 3;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-tertiary);
+  color: rgba(255, 255, 255, 0.9);
   white-space: nowrap;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
 }
 
 .track-meta-sep {

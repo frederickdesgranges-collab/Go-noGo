@@ -73,11 +73,13 @@ function renderReadiness(target) {
 }
 
 /**
- * Show "NAME · DATE" inside the inner core.
+ * Show "NAME · DATE · DISCIPLINE" inside the inner core.
  */
 function renderTrackMeta() {
   const nameEl = document.getElementById('track-meta-name');
   const dateEl = document.getElementById('track-meta-date');
+  const discEl = document.getElementById('track-meta-discipline');
+  const discSep = document.getElementById('track-meta-discipline-sep');
   if (!nameEl || !dateEl) return;
   const name = (state.athleteName || '').trim().toUpperCase();
   const locale = state.lang === 'en' ? 'en-CA' : 'fr-CA';
@@ -87,6 +89,14 @@ function renderTrackMeta() {
   }).toUpperCase().replace(/\.$/, '');
   nameEl.textContent = name || '—';
   dateEl.textContent = date;
+  if (state.discipline && discEl && discSep) {
+    discEl.textContent = t(state.lang, `landing.${state.discipline}`).toUpperCase();
+    discEl.hidden = false;
+    discSep.hidden = false;
+  } else if (discEl && discSep) {
+    discEl.hidden = true;
+    discSep.hidden = true;
+  }
 }
 
 /**

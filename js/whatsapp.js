@@ -43,11 +43,15 @@ export function buildMessage(evalResult) {
     `• ${tt('whatsapp.pip')} : ${state.pain.pipDorsal ? tt('whatsapp.pipYes') : tt('whatsapp.pipNo')}`
   ].join('\n');
 
+  const disciplineLine = state.discipline
+    ? `\n*${tt('whatsapp.labelDiscipline') || 'Discipline'}* : ${tt(`landing.${state.discipline}`)}`
+    : '';
+
   const lines = [
     `*${tt('whatsapp.title')}*`,
     '',
     `*${tt('whatsapp.labelAthlete')}* : ${state.athleteName || '—'}`,
-    `*${tt('whatsapp.labelDate')}* : ${dateStr}`,
+    `*${tt('whatsapp.labelDate')}* : ${dateStr}${disciplineLine}`,
     `*${tt('whatsapp.labelTrack')}* : ${emoji} ${trackLabel}`,
     '',
     `*${tt('whatsapp.labelMessage')}* : ${message}`,

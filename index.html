@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/animations.css" />
   <link rel="stylesheet" href="css/result-screen.css" />
+  <link rel="stylesheet" href="css/landing.css" />
 </head>
 <body>
   <!-- Ambient background mesh + gradients -->
@@ -78,15 +79,94 @@
 
   <main class="container">
     <!-- ============================================ -->
+    <!-- LANDING SCREEN (cinematic hero) -->
+    <!-- ============================================ -->
+    <section class="screen screen-landing" id="screen-landing">
+      <div class="landing-photo" aria-hidden="true">
+        <img src="https://cdn.mos.cms.futurecdn.net/CMgKVrgme4bVEPvvE2j3yD-1920-80.jpg"
+             alt="" loading="eager" decoding="async" referrerpolicy="no-referrer" />
+      </div>
+      <div class="landing-overlay" aria-hidden="true"></div>
+      <div class="landing-grain" aria-hidden="true"></div>
+
+      <div class="landing-content">
+        <div class="landing-mark">
+          <div class="landing-mark-logo">CEC</div>
+          <div class="landing-mark-meta">
+            <span data-i18n="landing.tag">CLIMBING ESCALADE CANADA</span>
+            <span class="landing-mark-sep">·</span>
+            <span data-i18n="landing.camp">INNSBRUCK · JULY 2026</span>
+          </div>
+        </div>
+
+        <div class="landing-hero">
+          <p class="landing-eyebrow" data-i18n="landing.eyebrow">YWCH 2026 PREP CAMP</p>
+          <h1 class="landing-title" data-i18n="landing.title">Morning Check-in</h1>
+          <p class="landing-sub" data-i18n="landing.sub">60 secondes pour décider la journée. Honnête. Précis. Stratégique.</p>
+        </div>
+
+        <form class="landing-form" id="landing-form" autocomplete="off">
+          <div class="landing-name">
+            <label class="landing-label" for="landing-athlete-name" data-i18n="landing.athleteLabel">Athlète</label>
+            <input class="landing-input" id="landing-athlete-name" type="text"
+                   autocomplete="given-name" required
+                   data-i18n="landing.athletePlaceholder" data-i18n-attr="placeholder"
+                   placeholder="Ton prénom" />
+          </div>
+
+          <div class="landing-discipline">
+            <p class="landing-label" data-i18n="landing.disciplineLabel">Discipline du jour</p>
+            <div class="discipline-grid" role="radiogroup" aria-label="Discipline">
+              <button type="button" class="discipline-card" data-discipline="lead" role="radio" aria-checked="false">
+                <span class="discipline-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v18M6 7l4-2M6 11l4-2M6 15l4-2M6 19l4-2"/></svg>
+                </span>
+                <span class="discipline-name" data-i18n="landing.lead">Lead</span>
+                <span class="discipline-hint" data-i18n="landing.leadHint">Difficulté</span>
+              </button>
+              <button type="button" class="discipline-card" data-discipline="boulder" role="radio" aria-checked="false">
+                <span class="discipline-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-6 9 6-9 6z"/><path d="M3 9v8l9 6 9-6V9"/><path d="M12 15v8"/></svg>
+                </span>
+                <span class="discipline-name" data-i18n="landing.boulder">Bloc</span>
+                <span class="discipline-hint" data-i18n="landing.boulderHint">Boulder</span>
+              </button>
+              <button type="button" class="discipline-card" data-discipline="speed" role="radio" aria-checked="false">
+                <span class="discipline-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M9 2h6"/></svg>
+                </span>
+                <span class="discipline-name" data-i18n="landing.speed">Vitesse</span>
+                <span class="discipline-hint" data-i18n="landing.speedHint">Speed</span>
+              </button>
+              <button type="button" class="discipline-card" data-discipline="combined" role="radio" aria-checked="false">
+                <span class="discipline-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><circle cx="15" cy="15" r="6"/></svg>
+                </span>
+                <span class="discipline-name" data-i18n="landing.combined">Combiné</span>
+                <span class="discipline-hint" data-i18n="landing.combinedHint">Combined</span>
+              </button>
+            </div>
+          </div>
+
+          <button class="btn btn-cinematic" id="landing-start" type="submit">
+            <span data-i18n="landing.start">Commencer le check-in</span>
+            <svg class="btn-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6"/>
+            </svg>
+          </button>
+        </form>
+
+        <p class="landing-disclaimer" data-i18n="landing.disclaimer">Tes réponses ne quittent ton téléphone que si tu choisis de les envoyer au coach.</p>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
     <!-- FORM SCREEN -->
     <!-- ============================================ -->
-    <section class="screen screen-form" id="screen-form">
+    <section class="screen screen-form" id="screen-form" hidden>
 
-      <!-- Athlete name -->
-      <div class="card card-athlete">
-        <label class="field-label" for="athlete-name" data-i18n="athlete.label">Athlète</label>
-        <input class="text-input" id="athlete-name" name="athlete-name" type="text" autocomplete="name" required data-i18n="athlete.placeholder" data-i18n-attr="placeholder" placeholder="Ton prénom" />
-      </div>
+      <!-- Athlete name (hidden, set from landing) -->
+      <input type="hidden" id="athlete-name" name="athlete-name" />
 
       <!-- ===== Section A : Sommeil ===== -->
       <article class="card section-card" data-section="sleep">
@@ -408,6 +488,8 @@
                 <span id="track-meta-name">—</span>
                 <span class="track-meta-sep">·</span>
                 <span id="track-meta-date">—</span>
+                <span class="track-meta-sep" id="track-meta-discipline-sep" hidden>·</span>
+                <span id="track-meta-discipline" hidden></span>
               </div>
             </div>
           </div>

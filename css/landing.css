@@ -1,0 +1,441 @@
+/* ============================================
+   CEC Check-in - landing.css
+   Cinematic full-bleed landing screen + transitions
+   ============================================ */
+
+.screen-landing {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  z-index: 60;
+  overflow: hidden;
+  background: #050811;
+  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), filter 0.7s ease;
+}
+
+.screen-landing[hidden] {
+  display: none;
+}
+
+/* Background photo */
+.landing-photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.landing-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  filter: saturate(0.95) contrast(1.05) brightness(0.85);
+  animation: landing-zoom 20s ease-in-out infinite alternate;
+  transform-origin: center 40%;
+  will-change: transform;
+}
+
+@keyframes landing-zoom {
+  from { transform: scale(1.04); }
+  to { transform: scale(1.16); }
+}
+
+/* Dark cinematic gradient overlay */
+.landing-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(248, 5, 4, 0.08) 0%, transparent 45%),
+    linear-gradient(180deg, rgba(5, 8, 17, 0.65) 0%, rgba(5, 8, 17, 0.35) 35%, rgba(5, 8, 17, 0.85) 70%, rgba(5, 8, 17, 1) 100%);
+  pointer-events: none;
+}
+
+/* Subtle film grain */
+.landing-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 240px;
+  pointer-events: none;
+}
+
+/* Content */
+.landing-content {
+  position: relative;
+  z-index: 5;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 22px max(28px, env(safe-area-inset-bottom));
+  max-width: 560px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Top brand mark */
+.landing-mark {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: auto;
+  animation: landing-fade-in 0.8s ease 0.1s backwards;
+}
+
+.landing-mark-logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--cec-red) 0%, var(--cec-red-dark) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.02em;
+  box-shadow: 0 6px 18px rgba(248, 5, 4, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  flex: 0 0 38px;
+}
+
+.landing-mark-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.landing-mark-sep {
+  opacity: 0.5;
+}
+
+/* Hero text block */
+.landing-hero {
+  margin: 32px 0 28px;
+  animation: landing-rise-in 0.9s cubic-bezier(0.34, 1.4, 0.4, 1) 0.25s backwards;
+}
+
+.landing-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--cec-red);
+  margin: 0 0 16px;
+  filter: drop-shadow(0 0 12px rgba(248, 5, 4, 0.4));
+}
+
+.landing-title {
+  font-size: clamp(40px, 11vw, 64px);
+  line-height: 0.95;
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  color: white;
+  margin: 0 0 14px;
+  text-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+.landing-sub {
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.78);
+  margin: 0;
+  max-width: 38ch;
+  letter-spacing: -0.005em;
+}
+
+/* Form block */
+.landing-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: landing-rise-in 0.9s cubic-bezier(0.34, 1.4, 0.4, 1) 0.45s backwards;
+}
+
+.landing-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 8px;
+}
+
+.landing-name {
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-input {
+  width: 100%;
+  padding: 16px 18px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: white;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.landing-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.landing-input:focus {
+  border-color: rgba(248, 5, 4, 0.6);
+  background: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 0 0 4px rgba(248, 5, 4, 0.15);
+}
+
+.landing-input.invalid {
+  border-color: rgba(239, 68, 68, 0.7);
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+  animation: shake 0.4s ease;
+}
+
+/* Discipline grid */
+.discipline-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.discipline-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px 14px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: transform 0.18s ease, background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  text-align: left;
+}
+
+.discipline-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, transparent 50%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.discipline-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.discipline-card.active {
+  background: linear-gradient(135deg, rgba(248, 5, 4, 0.18) 0%, rgba(248, 5, 4, 0.06) 100%);
+  border-color: rgba(248, 5, 4, 0.55);
+  color: white;
+  box-shadow:
+    0 8px 24px rgba(248, 5, 4, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.discipline-card.active .discipline-icon {
+  color: var(--cec-red);
+  filter: drop-shadow(0 0 10px rgba(248, 5, 4, 0.6));
+}
+
+.discipline-icon {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 4px;
+  transition: color 0.2s ease, filter 0.25s ease, background 0.2s ease;
+}
+
+.discipline-card.active .discipline-icon {
+  background: rgba(248, 5, 4, 0.18);
+}
+
+.discipline-name {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.discipline-hint {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.discipline-card.active .discipline-hint {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* CTA button */
+.btn-cinematic {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 18px 24px;
+  font-size: 15.5px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: white;
+  background:
+    linear-gradient(135deg, #ff2a29 0%, var(--cec-red) 50%, var(--cec-red-dark) 100%);
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow:
+    0 12px 32px rgba(248, 5, 4, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.18);
+  transition: transform 0.15s ease, box-shadow 0.25s ease;
+  margin-top: 6px;
+}
+
+.btn-cinematic::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.42) 50%, transparent 100%);
+  transition: left 0.7s ease;
+}
+
+.btn-cinematic:hover::before { left: 130%; }
+.btn-cinematic:hover {
+  box-shadow:
+    0 14px 38px rgba(248, 5, 4, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.36);
+}
+
+.btn-cinematic:active {
+  transform: scale(0.985);
+}
+
+.btn-arrow {
+  transition: transform 0.25s ease;
+}
+
+.btn-cinematic:hover .btn-arrow {
+  transform: translateX(4px);
+}
+
+/* Disclaimer */
+.landing-disclaimer {
+  margin: 18px 0 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  letter-spacing: -0.005em;
+  animation: landing-fade-in 0.8s ease 0.7s backwards;
+}
+
+/* ============================================
+   Transition: landing → form (hero scrub)
+   ============================================ */
+.screen-landing.exiting {
+  opacity: 0;
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+.screen-landing.exiting .landing-photo img {
+  transform: scale(1.4);
+  transition: transform 0.85s cubic-bezier(0.7, 0, 0.3, 1);
+}
+
+.screen-landing.exiting .landing-content {
+  transform: translateY(-30px);
+  opacity: 0;
+  transition: transform 0.6s ease, opacity 0.5s ease;
+}
+
+.screen-form.entering-from-landing {
+  animation: form-rise-in 0.9s cubic-bezier(0.34, 1.4, 0.4, 1);
+}
+
+@keyframes landing-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes landing-rise-in {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes form-rise-in {
+  from { opacity: 0; transform: translateY(40px) scale(0.96); filter: blur(6px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+/* When landing is visible, hide the main header */
+body:has(.screen-landing:not([hidden])) .header {
+  display: none;
+}
+
+body:has(.screen-landing:not([hidden])) .container {
+  padding: 0;
+  max-width: none;
+}
+
+/* Tablet+ tweaks */
+@media (min-width: 600px) {
+  .landing-content {
+    padding: 36px 32px 36px;
+  }
+  .discipline-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .discipline-card {
+    align-items: flex-start;
+  }
+  .landing-title {
+    font-size: clamp(56px, 6vw, 72px);
+  }
+}

@@ -13,6 +13,28 @@ export const translations = {
       title: 'Check-in Matinal',
       settings: 'Paramètres'
     },
+    landing: {
+      tag: 'CLIMBING ESCALADE CANADA',
+      camp: 'INNSBRUCK · JUILLET 2026',
+      eyebrow: 'CAMP YWCH 2026',
+      title: 'Check-in Matinal',
+      sub: '60 secondes pour décider la journée. Honnête. Précis. Stratégique.',
+      athleteLabel: 'Athlète',
+      athletePlaceholder: 'Ton prénom',
+      disciplineLabel: 'Discipline du jour',
+      lead: 'Lead',
+      leadHint: 'Difficulté',
+      boulder: 'Bloc',
+      boulderHint: 'Boulder',
+      speed: 'Vitesse',
+      speedHint: 'Speed',
+      combined: 'Combiné',
+      combinedHint: 'Combined',
+      start: 'Commencer le check-in',
+      disclaimer: 'Tes réponses ne quittent ton téléphone que si tu choisis de les envoyer au coach.',
+      missingName: 'Indique ton prénom pour démarrer.',
+      missingDiscipline: 'Choisis une discipline.'
+    },
     athlete: {
       label: 'Athlète',
       placeholder: 'Ton prénom'
@@ -172,6 +194,7 @@ export const translations = {
       noPhone: "Configure d'abord le numéro du coach dans les Paramètres.",
       labelAthlete: 'Athlète',
       labelDate: 'Date',
+      labelDiscipline: 'Discipline',
       labelTrack: 'Track du jour',
       labelMessage: 'Message',
       labelFlags: 'Indicateurs',
@@ -199,6 +222,28 @@ export const translations = {
     header: {
       title: 'Morning Check-in',
       settings: 'Settings'
+    },
+    landing: {
+      tag: 'CLIMBING ESCALADE CANADA',
+      camp: 'INNSBRUCK · JULY 2026',
+      eyebrow: 'YWCH 2026 PREP CAMP',
+      title: 'Morning Check-in',
+      sub: '60 seconds to set the day. Honest. Precise. Strategic.',
+      athleteLabel: 'Athlete',
+      athletePlaceholder: 'Your first name',
+      disciplineLabel: "Today's discipline",
+      lead: 'Lead',
+      leadHint: 'Difficulty',
+      boulder: 'Boulder',
+      boulderHint: 'Bouldering',
+      speed: 'Speed',
+      speedHint: 'Speed',
+      combined: 'Combined',
+      combinedHint: 'Combined',
+      start: 'Start check-in',
+      disclaimer: 'Your answers stay on your phone until you choose to send them to coach.',
+      missingName: 'Enter your first name to start.',
+      missingDiscipline: 'Pick a discipline.'
     },
     athlete: {
       label: 'Athlete',
@@ -359,6 +404,7 @@ export const translations = {
       noPhone: "First, set the coach's number in Settings.",
       labelAthlete: 'Athlete',
       labelDate: 'Date',
+      labelDiscipline: 'Discipline',
       labelTrack: "Today's track",
       labelMessage: 'Message',
       labelFlags: 'Indicators',
