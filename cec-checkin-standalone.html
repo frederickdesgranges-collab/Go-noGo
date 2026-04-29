@@ -2096,15 +2096,16 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
   pointer-events: none;
 }
 
-/* MID: title block — moderate compensation + fades out */
+/* MID: title block — sits in the upper third of the stage,
+   moderate compensation + fades out */
 .parallax-mid {
   z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   text-align: center;
-  padding: 0 24px;
+  padding: clamp(60px, 14vh, 130px) 24px 0;
   pointer-events: none;
   transform: translate3d(0, calc(var(--pscroll, 0px) * 0.3), 0);
   opacity: var(--pscroll-fade, 1);
@@ -2125,18 +2126,20 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
 }
 
 .parallax-eyebrow {
-  font-size: 19.5px;
+  font-size: clamp(28px, 7.5vw, 40px);
   font-weight: 800;
-  letter-spacing: 0.32em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--cec-red);
-  margin: 0 0 22px;
+  margin: 0 0 26px;
+  line-height: 1.15;
+  max-width: 22ch;
   /* Thin white outline on each letter for legibility on the busy wall */
-  -webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.72);
+  -webkit-text-stroke: 0.6px rgba(255, 255, 255, 0.78);
   paint-order: stroke fill;
   text-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.55),
-    0 0 12px rgba(0, 0, 0, 0.35);
+    0 2px 4px rgba(0, 0, 0, 0.55),
+    0 0 16px rgba(0, 0, 0, 0.4);
 }
 
 .parallax-headline {
