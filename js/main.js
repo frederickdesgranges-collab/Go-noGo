@@ -78,6 +78,10 @@ function wireLandingScreen() {
     e.preventDefault();
     onLandingStart();
   });
+
+  // Landing-only language toggle
+  const landingLang = document.getElementById('landing-lang-toggle');
+  if (landingLang) landingLang.addEventListener('click', toggleLanguage);
 }
 
 function setActiveDiscipline(d) {
@@ -165,8 +169,11 @@ function toggleLanguage() {
 }
 
 function refreshLangButton() {
-  const el = document.getElementById('lang-code');
-  if (el) el.textContent = state.lang.toUpperCase();
+  const code = state.lang.toUpperCase();
+  const headerEl = document.getElementById('lang-code');
+  if (headerEl) headerEl.textContent = code;
+  const landingEl = document.getElementById('landing-lang-code');
+  if (landingEl) landingEl.textContent = code;
 }
 
 function refreshHeaderDate() {

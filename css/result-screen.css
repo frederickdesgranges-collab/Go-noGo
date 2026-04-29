@@ -173,13 +173,18 @@
 }
 
 .hero-card.track-green .track-core {
-  background-image: url("https://www.theglobeandmail.com/resizer/v2/5SVJPNEF4JJQFPPPJ77ZPMJBWQ.JPG?auth=ab0d8d1360a130f1bd601db84920f9ca3362c73c3b364623f12babea09132c65&width=600&height=400&quality=80&smart=true");
+  background-image: url("https://www.theglobeandmail.com/resizer/v2/TWBAHPRXWBHJJCEBO575W2OFWE.jpg?auth=bdb094e810f4a2934fd96a1a3a3171eead59bcb34ad003d51c35217b54bace08&width=600&height=400&quality=85&smart=true");
 }
 
+/* Yellow track has no photo: abstract warm gradient evokes "neutral, evaluate" */
 .hero-card.track-yellow .track-core {
-  background-image: url("https://www.theglobeandmail.com/resizer/v2/TWBAHPRXWBHJJCEBO575W2OFWE.jpg?auth=bdb094e810f4a2934fd96a1a3a3171eead59bcb34ad003d51c35217b54bace08&width=600&height=400&quality=80&smart=true");
+  background-image:
+    radial-gradient(circle at 30% 20%, rgba(245, 158, 11, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 70% 80%, rgba(249, 115, 22, 0.3) 0%, transparent 55%),
+    linear-gradient(160deg, #1a1209 0%, #0a0e1a 100%);
 }
 
+/* Red track keeps the finger-taping photo (medical / injury context) */
 .hero-card.track-red .track-core {
   background-image: url("https://cdn.mos.cms.futurecdn.net/CMgKVrgme4bVEPvvE2j3yD-1920-80.jpg");
 }
