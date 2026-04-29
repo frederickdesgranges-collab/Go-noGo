@@ -175,10 +175,19 @@ function bindSlider(id, path) {
   const el = document.getElementById(id);
   const valueEl = document.getElementById(`${id}-value`);
   if (!el || !valueEl) return;
+  let lastValue = null;
   const update = () => {
     const v = parseInt(el.value, 10) || 0;
     setNested(state, path, v);
-    valueEl.textContent = String(v);
+    if (valueEl.textContent !== String(v)) {
+      valueEl.textContent = String(v);
+      if (lastValue !== null) {
+        valueEl.classList.remove('pulse');
+        void valueEl.offsetWidth;
+        valueEl.classList.add('pulse');
+      }
+      lastValue = v;
+    }
     onChangeCallback();
   };
   el.addEventListener('input', update);

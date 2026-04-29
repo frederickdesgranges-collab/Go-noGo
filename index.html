@@ -13,12 +13,16 @@
   <link rel="stylesheet" href="css/result-screen.css" />
 </head>
 <body>
-  <!-- Ambient background gradients -->
+  <!-- Ambient background mesh + gradients -->
   <div class="bg-gradients" aria-hidden="true">
     <div class="bg-gradient bg-gradient-red"></div>
     <div class="bg-gradient bg-gradient-blue"></div>
     <div class="bg-gradient bg-gradient-purple"></div>
+    <div class="bg-gradient bg-gradient-green"></div>
+    <div class="bg-gradient bg-gradient-pink"></div>
   </div>
+  <div class="bg-noise" aria-hidden="true"></div>
+  <div class="bg-vignette" aria-hidden="true"></div>
 
   <!-- Floating ambient particles -->
   <div class="particles" aria-hidden="true">
@@ -29,6 +33,17 @@
     <span class="particle particle-5"></span>
     <span class="particle particle-6"></span>
     <span class="particle particle-7"></span>
+    <span class="particle particle-8"></span>
+    <span class="particle particle-9"></span>
+    <span class="particle particle-10"></span>
+    <span class="particle particle-11"></span>
+    <span class="particle particle-12"></span>
+    <span class="particle particle-13"></span>
+    <span class="particle particle-14"></span>
+    <span class="particle particle-15"></span>
+    <span class="particle particle-16"></span>
+    <span class="particle particle-17"></span>
+    <span class="particle particle-18"></span>
   </div>
 
   <!-- Sticky header -->
@@ -343,25 +358,59 @@
 
         <div class="hero-track">
           <div class="track-ring" aria-hidden="true">
-            <svg width="240" height="240" viewBox="0 0 240 240">
+            <span class="ring-orbit ring-orbit-1"></span>
+            <span class="ring-orbit ring-orbit-2"></span>
+            <span class="ring-orbit ring-orbit-3"></span>
+            <span class="ring-orbit ring-orbit-4"></span>
+            <span class="ring-orbit ring-orbit-5"></span>
+
+            <svg class="ring-svg" width="280" height="280" viewBox="0 0 280 280">
               <defs>
-                <linearGradient id="ring-gradient-green" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#34d399"/>
-                  <stop offset="100%" stop-color="#047857"/>
-                </linearGradient>
                 <linearGradient id="ring-gradient-yellow" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#fbbf24"/>
+                  <stop offset="0%" stop-color="#fde68a"/>
+                  <stop offset="50%" stop-color="#fbbf24"/>
                   <stop offset="100%" stop-color="#b45309"/>
                 </linearGradient>
                 <linearGradient id="ring-gradient-red" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fca5a5"/>
+                  <stop offset="50%" stop-color="#ef4444"/>
+                  <stop offset="100%" stop-color="#7f1d1d"/>
+                </linearGradient>
+                <linearGradient id="ring-gradient-rainbow" x1="0%" y1="0%" x2="100%" y2="100%" gradientTransform="rotate(45)">
+                  <stop offset="0%" stop-color="#10b981"/>
+                  <stop offset="20%" stop-color="#14b8a6"/>
+                  <stop offset="40%" stop-color="#3b82f6"/>
+                  <stop offset="60%" stop-color="#8b5cf6"/>
+                  <stop offset="80%" stop-color="#ec4899"/>
+                  <stop offset="100%" stop-color="#f59e0b"/>
+                </linearGradient>
+
+                <linearGradient id="donut-gradient-green" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#34d399"/>
+                  <stop offset="100%" stop-color="#047857"/>
+                </linearGradient>
+                <linearGradient id="donut-gradient-yellow" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fbbf24"/>
+                  <stop offset="100%" stop-color="#b45309"/>
+                </linearGradient>
+                <linearGradient id="donut-gradient-red" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#f87171"/>
                   <stop offset="100%" stop-color="#b91c1c"/>
                 </linearGradient>
+                <linearGradient id="donut-gradient-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#60a5fa"/>
+                  <stop offset="100%" stop-color="#1d4ed8"/>
+                </linearGradient>
               </defs>
-              <circle class="ring-bg" cx="120" cy="120" r="108" fill="none" stroke-width="14"></circle>
-              <circle class="ring-fg" id="ring-fg" cx="120" cy="120" r="108" fill="none" stroke-width="14" stroke-linecap="round" transform="rotate(-90 120 120)"></circle>
+              <g id="ring-ticks"></g>
+              <circle class="ring-bg" cx="140" cy="140" r="126" fill="none" stroke-width="14"></circle>
+              <circle class="ring-fg" id="ring-fg" cx="140" cy="140" r="126" fill="none" stroke-width="14" stroke-linecap="round" transform="rotate(-90 140 140)"></circle>
             </svg>
-            <div class="track-climber" id="track-climber"></div>
+
+            <div class="track-core">
+              <div class="track-climber" id="track-climber"></div>
+              <div class="athlete-initial" id="athlete-initial">—</div>
+            </div>
           </div>
 
           <div class="hero-letter" id="hero-letter">A</div>
@@ -379,9 +428,12 @@
 
       <!-- Indicators list -->
       <div class="card indicators-card">
-        <h3 class="card-title" data-i18n="result.indicators">Indicateurs</h3>
+        <h3 class="card-title">
+          <span data-i18n="result.indicators">Indicateurs</span>
+          <span class="card-title-count" id="indicators-count">0</span>
+        </h3>
         <ul class="indicators-list" id="indicators-list">
-          <li class="indicator indicator-empty" data-i18n="result.noFlags">Aucun signal d'alerte. Belle nuit, beau profil.</li>
+          <li class="indicator dot-green" data-i18n="result.noFlags">Aucun signal d'alerte. Belle nuit, beau profil.</li>
         </ul>
       </div>
 
