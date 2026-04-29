@@ -83,39 +83,58 @@
 
   <main class="container">
     <!-- ============================================ -->
-    <!-- LANDING SCREEN (cinematic hero) -->
+    <!-- LANDING SCREEN: parallax stage + sign-in -->
     <!-- ============================================ -->
     <section class="screen screen-landing" id="screen-landing">
-      <div class="landing-photo" aria-hidden="true">
-        <img src="https://www.theglobeandmail.com/resizer/v2/5SVJPNEF4JJQFPPPJ77ZPMJBWQ.JPG?auth=ab0d8d1360a130f1bd601db84920f9ca3362c73c3b364623f12babea09132c65&width=1200&height=900&quality=85&smart=true"
-             alt="" loading="eager" decoding="async" referrerpolicy="no-referrer" />
-      </div>
-      <div class="landing-overlay" aria-hidden="true"></div>
-      <div class="landing-grain" aria-hidden="true"></div>
 
-      <div class="landing-content">
-        <div class="landing-top">
-          <div class="landing-mark">
-            <div class="landing-mark-logo">CEC</div>
-            <div class="landing-mark-meta">
-              <span data-i18n="landing.tag">CLIMBING ESCALADE CANADA</span>
-              <span class="landing-mark-sep">·</span>
-              <span data-i18n="landing.camp">INNSBRUCK · JULY 2026</span>
-            </div>
+      <!-- Top bar (always visible above the parallax stage) -->
+      <header class="landing-topbar">
+        <div class="landing-mark">
+          <div class="landing-mark-logo">CEC</div>
+          <div class="landing-mark-meta">
+            <span data-i18n="landing.tag">CLIMBING ESCALADE CANADA</span>
+            <span class="landing-mark-sep">·</span>
+            <span data-i18n="landing.camp">INNSBRUCK · JULY 2026</span>
           </div>
-          <button class="landing-lang" id="landing-lang-toggle" type="button" aria-label="Toggle language">
-            <span class="flag" aria-hidden="true">🇨🇦</span>
-            <span class="lang-code" id="landing-lang-code">FR</span>
-          </button>
+        </div>
+        <button class="landing-lang" id="landing-lang-toggle" type="button" aria-label="Toggle language">
+          <span class="flag" aria-hidden="true">🇨🇦</span>
+          <span class="lang-code" id="landing-lang-code">FR</span>
+        </button>
+      </header>
+
+      <!-- PARALLAX STAGE -->
+      <div class="parallax-stage" id="parallax-stage">
+        <div class="parallax-back" id="parallax-back" aria-hidden="true">
+          <img src="https://paraclimbing.org/wp-content/uploads/2020/01/innsbruck-20190705_183552-scaled.jpg"
+               alt="" loading="eager" decoding="async" referrerpolicy="no-referrer" />
         </div>
 
-        <div class="landing-hero">
-          <p class="landing-eyebrow" data-i18n="landing.eyebrow">YWCH 2026 PREP CAMP</p>
-          <h1 class="landing-title" data-i18n="landing.title">Morning Check-in</h1>
-          <p class="landing-sub" data-i18n="landing.sub">60 secondes pour décider la journée. Honnête. Précis. Stratégique.</p>
+        <div class="parallax-mid" id="parallax-mid">
+          <div class="parallax-eyebrow" data-i18n="landing.eyebrow">YWCH 2026 · INNSBRUCK PREP</div>
+          <h1 class="parallax-headline" data-i18n="landing.title">Check‑in matinal</h1>
+          <p class="parallax-sub" data-i18n="landing.sub">60 secondes pour décider la journée. Honnête. Précis. Stratégique.</p>
         </div>
 
+        <div class="parallax-front" id="parallax-front" aria-hidden="true">
+          <img src="https://cdn.climbing.com/wp-content/uploads/2019/07/16-women_s-lead-podium.jpg?width=1200"
+               alt="" loading="eager" decoding="async" referrerpolicy="no-referrer" />
+        </div>
+
+        <button class="parallax-scroll-cue" id="parallax-scroll-cue" type="button" aria-label="Scroll to sign in">
+          <span class="scroll-cue-label" data-i18n="landing.scrollHint">Faire défiler</span>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <!-- SIGN-IN SECTION (revealed after scrolling past the parallax stage) -->
+      <div class="signin-section" id="signin-section">
         <form class="landing-form" id="landing-form" autocomplete="off">
+          <p class="landing-form-eyebrow" data-i18n="landing.signinEyebrow">Bienvenue, athlète</p>
+          <h2 class="landing-form-title" data-i18n="landing.signinTitle">Identifie‑toi pour commencer</h2>
+
           <div class="landing-name">
             <label class="landing-label" for="landing-athlete-name" data-i18n="landing.athleteLabel">Athlète</label>
             <input class="landing-input" id="landing-athlete-name" type="text"
@@ -158,15 +177,33 @@
             </div>
           </div>
 
+          <div class="landing-profile">
+            <p class="landing-label" data-i18n="landing.profileLabel">Profil pour Arco</p>
+            <div class="profile-grid" role="radiogroup" aria-label="Profile">
+              <button type="button" class="profile-card" data-profile="top-shape" role="radio" aria-checked="false">
+                <span class="profile-name" data-i18n="landing.profileTopShape">Top shape</span>
+                <span class="profile-hint" data-i18n="landing.profileTopShapeHint">Visée podium · charge maximale</span>
+              </button>
+              <button type="button" class="profile-card" data-profile="fatigue-mgmt" role="radio" aria-checked="false">
+                <span class="profile-name" data-i18n="landing.profileFatigueMgmt">Fatigue management</span>
+                <span class="profile-hint" data-i18n="landing.profileFatigueMgmtHint">Compétition · charge ajustée</span>
+              </button>
+              <button type="button" class="profile-card" data-profile="not-competing" role="radio" aria-checked="false">
+                <span class="profile-name" data-i18n="landing.profileNotCompeting">Pas en compétition</span>
+                <span class="profile-hint" data-i18n="landing.profileNotCompetingHint">Camp d'entraînement seulement</span>
+              </button>
+            </div>
+          </div>
+
           <button class="btn btn-cinematic" id="landing-start" type="submit">
             <span data-i18n="landing.start">Commencer le check-in</span>
             <svg class="btn-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M5 12h14M13 6l6 6-6 6"/>
             </svg>
           </button>
-        </form>
 
-        <p class="landing-disclaimer" data-i18n="landing.disclaimer">Tes réponses ne quittent ton téléphone que si tu choisis de les envoyer au coach.</p>
+          <p class="landing-disclaimer" data-i18n="landing.disclaimer">Tes réponses ne quittent ton téléphone que si tu choisis de les envoyer au coach.</p>
+        </form>
       </div>
     </section>
 

@@ -3,7 +3,7 @@
  * Boot, landing → form → result flow, global events.
  */
 
-import { state, loadPreferences, saveLang, saveCoachPhone, saveDiscipline, resetForm, saveAthleteName } from './state.js';
+import { state, loadPreferences, saveLang, saveCoachPhone, saveDiscipline, saveProfile, resetForm, saveAthleteName } from './state.js';
 import { applyTranslations, t } from './translations.js';
 import {
   buildLikertScales,
@@ -87,10 +87,8 @@ function wireLandingScreen() {
   const nameInput = document.getElementById('landing-athlete-name');
   if (state.athleteName) nameInput.value = state.athleteName;
 
-  // Pre-select previously chosen discipline
-  if (state.discipline) {
-    setActiveDiscipline(state.discipline);
-  }
+  if (state.discipline) setActiveDiscipline(state.discipline);
+  if (state.profile) setActiveProfile(state.profile);
 
   document.querySelectorAll('.discipline-card').forEach((card) => {
     card.addEventListener('click', () => {
@@ -100,14 +98,32 @@ function wireLandingScreen() {
     });
   });
 
+  document.querySelectorAll('.profile-card').forEach((card) => {
+    card.addEventListener('click', () => {
+      const p = card.dataset.profile;
+      setActiveProfile(p);
+      saveProfile(p);
+    });
+  });
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     onLandingStart();
   });
 
-  // Landing-only language toggle
   const landingLang = document.getElementById('landing-lang-toggle');
   if (landingLang) landingLang.addEventListener('click', toggleLanguage);
+
+  // Smooth scroll cue → signin section
+  const cue = document.getElementById('parallax-scroll-cue');
+  if (cue) {
+    cue.addEventListener('click', () => {
+      const target = document.getElementById('signin-section');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  wireParallax();
 }
 
 function setActiveDiscipline(d) {
@@ -116,6 +132,44 @@ function setActiveDiscipline(d) {
     card.classList.toggle('active', isActive);
     card.setAttribute('aria-checked', isActive ? 'true' : 'false');
   });
+}
+
+function setActiveProfile(p) {
+  document.querySelectorAll('.profile-card').forEach((card) => {
+    const isActive = card.dataset.profile === p;
+    card.classList.toggle('active', isActive);
+    card.setAttribute('aria-checked', isActive ? 'true' : 'false');
+  });
+}
+
+/**
+ * Parallax scroll listener. The landing screen scrolls inside its own
+ * container (.screen-landing has overflow-y: auto), so we listen on it
+ * rather than on window.
+ */
+function wireParallax() {
+  const screen = document.getElementById('screen-landing');
+  const stage = document.getElementById('parallax-stage');
+  if (!screen || !stage) return;
+  let ticking = false;
+
+  function update() {
+    ticking = false;
+    const sy = screen.scrollTop;
+    const stageH = stage.offsetHeight || window.innerHeight;
+    const fade = Math.max(0, 1 - sy / (stageH * 0.7));
+    screen.style.setProperty('--pscroll', `${sy}px`);
+    screen.style.setProperty('--pscroll-fade', String(fade));
+  }
+
+  function onScroll() {
+    if (!ticking) {
+      requestAnimationFrame(update);
+      ticking = true;
+    }
+  }
+  screen.addEventListener('scroll', onScroll, { passive: true });
+  update();
 }
 
 function onLandingStart() {
@@ -133,8 +187,11 @@ function onLandingStart() {
     showToast(t(state.lang, 'landing.missingDiscipline'), 'error');
     return;
   }
+  if (!state.profile) {
+    showToast(t(state.lang, 'landing.missingProfile'), 'error');
+    return;
+  }
   saveAthleteName(name);
-  // Also seed the (hidden) form input value for downstream code that reads it
   const hiddenName = document.getElementById('athlete-name');
   if (hiddenName) hiddenName.value = name;
 
