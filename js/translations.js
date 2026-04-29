@@ -243,7 +243,7 @@ export const translations = {
       eyebrow: 'YWCH 2026 · INNSBRUCK TRAINING CAMP',
       eyebrowMain: 'YWCH 2026',
       eyebrowSub: 'INNSBRUCK TRAINING CAMP',
-      title: 'Morning check-in',
+      title: 'Morning check‑in',
       sub: '60 seconds to set the day. Honest. Precise. Strategic.',
       scrollHint: 'Scroll',
       signinEyebrow: 'Welcome, athlete',
