@@ -364,27 +364,8 @@
             <span class="ring-orbit ring-orbit-4"></span>
             <span class="ring-orbit ring-orbit-5"></span>
 
-            <svg class="ring-svg" width="280" height="280" viewBox="0 0 280 280">
+            <svg class="ring-svg" width="340" height="340" viewBox="0 0 340 340">
               <defs>
-                <linearGradient id="ring-gradient-yellow" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#fde68a"/>
-                  <stop offset="50%" stop-color="#fbbf24"/>
-                  <stop offset="100%" stop-color="#b45309"/>
-                </linearGradient>
-                <linearGradient id="ring-gradient-red" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#fca5a5"/>
-                  <stop offset="50%" stop-color="#ef4444"/>
-                  <stop offset="100%" stop-color="#7f1d1d"/>
-                </linearGradient>
-                <linearGradient id="ring-gradient-rainbow" x1="0%" y1="0%" x2="100%" y2="100%" gradientTransform="rotate(45)">
-                  <stop offset="0%" stop-color="#10b981"/>
-                  <stop offset="20%" stop-color="#14b8a6"/>
-                  <stop offset="40%" stop-color="#3b82f6"/>
-                  <stop offset="60%" stop-color="#8b5cf6"/>
-                  <stop offset="80%" stop-color="#ec4899"/>
-                  <stop offset="100%" stop-color="#f59e0b"/>
-                </linearGradient>
-
                 <linearGradient id="donut-gradient-green" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#34d399"/>
                   <stop offset="100%" stop-color="#047857"/>
@@ -402,9 +383,18 @@
                   <stop offset="100%" stop-color="#1d4ed8"/>
                 </linearGradient>
               </defs>
+
+              <!-- Background guide ring -->
+              <circle class="ring-bg" cx="170" cy="170" r="148" fill="none" stroke-width="3"></circle>
+
+              <!-- Inner thin spinner ring -->
+              <circle class="ring-inner-spinner" cx="170" cy="170" r="124" fill="none" stroke-width="1.5"></circle>
+
+              <!-- Outer tick decoration -->
               <g id="ring-ticks"></g>
-              <circle class="ring-bg" cx="140" cy="140" r="126" fill="none" stroke-width="14"></circle>
-              <circle class="ring-fg" id="ring-fg" cx="140" cy="140" r="126" fill="none" stroke-width="14" stroke-linecap="round" transform="rotate(-90 140 140)"></circle>
+
+              <!-- 12 colored arc segments injected by JS -->
+              <g id="ring-arcs" class="ring-arcs"></g>
             </svg>
 
             <div class="track-core">
