@@ -450,6 +450,9 @@
             <span class="ring-orbit ring-orbit-4"></span>
             <span class="ring-orbit ring-orbit-5"></span>
 
+            <!-- Smooth conic-gradient rainbow ring (CSS) -->
+            <div class="conic-ring" id="conic-ring"></div>
+
             <svg class="ring-svg" width="360" height="360" viewBox="0 0 360 360">
               <defs>
                 <linearGradient id="donut-gradient-green" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -470,17 +473,14 @@
                 </linearGradient>
               </defs>
 
-              <!-- Background guide ring -->
-              <circle class="ring-bg" cx="180" cy="180" r="158" fill="none" stroke-width="3"></circle>
+              <!-- Background guide ring (kept as decoration) -->
+              <circle class="ring-bg" cx="180" cy="180" r="158" fill="none" stroke-width="2"></circle>
 
-              <!-- Inner thin spinner ring -->
-              <circle class="ring-inner-spinner" cx="180" cy="180" r="132" fill="none" stroke-width="1.5"></circle>
+              <!-- Inner thin spinner ring (decoration) -->
+              <circle class="ring-inner-spinner" cx="180" cy="180" r="132" fill="none" stroke-width="1"></circle>
 
-              <!-- Outer tick decoration -->
+              <!-- Tick decoration -->
               <g id="ring-ticks"></g>
-
-              <!-- 12 colored arc segments injected by JS -->
-              <g id="ring-arcs" class="ring-arcs"></g>
             </svg>
 
             <div class="track-core">

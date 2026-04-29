@@ -13,18 +13,8 @@ const DONUT_CIRC = 2 * Math.PI * DONUT_RADIUS;
 
 const RING_CX = 180;
 const RING_CY = 180;
-const ARC_RADIUS = 158;
-const ARC_COUNT = 12;
-const ARC_GAP_DEG = 3;
-const ARC_SEG_DEG = 360 / ARC_COUNT - ARC_GAP_DEG;
 
 let ringTicksRendered = false;
-
-const PALETTES = {
-  green: ['#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#f43f5e', '#f59e0b'],
-  yellow: ['#fde68a', '#fcd34d', '#fbbf24', '#f59e0b', '#fb923c', '#f97316', '#ea580c', '#d97706', '#b45309', '#92400e', '#78350f', '#facc15'],
-  red: ['#fecaca', '#fca5a5', '#f87171', '#ef4444', '#dc2626', '#b91c1c', '#991b1b', '#7f1d1d', '#dc2626', '#ef4444', '#f87171', '#fca5a5']
-};
 
 export function renderResult(evalResult) {
   const lang = state.lang;
@@ -42,7 +32,6 @@ export function renderResult(evalResult) {
   document.getElementById('hero-kindness').textContent = t(lang, evalResult.kindnessKey);
 
   ensureRingTicks();
-  renderRingArcs(evalResult.color, evalResult.ringRatio);
   renderReadiness(evalResult.score);
   renderTrackMeta();
 
@@ -123,46 +112,6 @@ function ensureRingTicks() {
   ringTicksRendered = true;
 }
 
-/**
- * Render 12 neon colored arcs at radius ARC_RADIUS, each rotated to its slot.
- * The first N (= round(ratio * 12)) arcs are full opacity; the rest are faded.
- * Animated entry: each arc fades in with a small delay.
- */
-function renderRingArcs(color, ratio = 1) {
-  const host = document.getElementById('ring-arcs');
-  if (!host) return;
-  const palette = PALETTES[color] || PALETTES.green;
-  const cx = RING_CX, cy = RING_CY, r = ARC_RADIUS;
-  const circ = 2 * Math.PI * r;
-  const segLen = (ARC_SEG_DEG / 360) * circ;
-  const gapLen = circ - segLen;
-  const activeCount = Math.max(1, Math.round(ratio * ARC_COUNT));
-  const arcs = [];
-  for (let i = 0; i < ARC_COUNT; i++) {
-    const startDeg = i * (360 / ARC_COUNT) - 90;
-    const fill = palette[i % palette.length];
-    const isActive = i < activeCount;
-    const baseOpacity = isActive ? 1 : 0.16;
-    arcs.push(`
-      <circle cx="${cx}" cy="${cy}" r="${r}"
-              fill="none"
-              stroke="${fill}"
-              stroke-width="22"
-              stroke-linecap="round"
-              stroke-dasharray="${segLen.toFixed(2)} ${gapLen.toFixed(2)}"
-              transform="rotate(${startDeg.toFixed(2)} ${cx} ${cy})"
-              filter="drop-shadow(0 0 8px ${fill})"
-              opacity="0">
-        <animate attributeName="opacity"
-                 values="0;${baseOpacity}"
-                 dur="0.7s"
-                 begin="${(i * 0.06).toFixed(2)}s"
-                 fill="freeze"/>
-      </circle>
-    `);
-  }
-  host.innerHTML = arcs.join('');
-}
 
 function renderStats() {
   const lang = state.lang;
