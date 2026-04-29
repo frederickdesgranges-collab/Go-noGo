@@ -50,6 +50,26 @@ export const translations = {
       label: 'Athlète',
       placeholder: 'Ton prénom'
     },
+    block: {
+      progressive: 'Charge progressive',
+      accumulation: 'Accumulation',
+      overreach: 'Overreaching planifié',
+      noOverreach: 'Pas d\'overreaching',
+      midOff: 'Off · récupération',
+      taper: 'Affûtage complet',
+      taperLight: 'Affûtage allégé',
+      overreach2: '2e overreach · volume',
+      off: 'Jour off',
+      transit: 'Transit · jour de voyage'
+    },
+    reco: {
+      followPlan: 'Tu peux faire l\'intensité prévue. On respecte le plan.',
+      pushHard: 'Tu es prêt. On pousse fort comme prévu.',
+      cautious: 'On démarre prudemment. Réévalue après le warm-up.',
+      lighter: 'On allège la journée. Volume et intensité réduits.',
+      medical: 'STOP. Évaluation médicale avant toute charge.',
+      offDay: 'Journée off. Récupération active uniquement.'
+    },
     sections: {
       sleep: {
         eyebrow: 'Section A · Nuit',
@@ -140,6 +160,15 @@ export const translations = {
       readiness: 'READINESS',
       todaysCheckin: 'Check-in du jour',
       helloPrefix: 'Bonjour',
+      planTitle: 'Plan du jour',
+      planDayLabel: 'Jour',
+      planOf: 'sur',
+      planIntensity: 'Intensité',
+      planAdjusted: 'Ajustée selon ton score',
+      planTracking: 'Suivi du camp',
+      planTrackingSub: '10 jours d\'entraînement Innsbruck',
+      planAm: 'Matin',
+      planPm: 'Après-midi',
       indicators: 'Indicateurs',
       noFlags: "Aucun signal d'alerte. Belle nuit, beau profil.",
       scrollHint: 'Voir les détails',
@@ -278,6 +307,26 @@ export const translations = {
       label: 'Athlete',
       placeholder: 'Your first name'
     },
+    block: {
+      progressive: 'Progressive load',
+      accumulation: 'Accumulation',
+      overreach: 'Planned overreaching',
+      noOverreach: 'No overreaching',
+      midOff: 'Off · recovery',
+      taper: 'Complete saw taper',
+      taperLight: 'Lightweight taper',
+      overreach2: '2nd overreach · volume',
+      off: 'Off day',
+      transit: 'Transit · travel day'
+    },
+    reco: {
+      followPlan: 'Run the planned intensity. Stick to the plan.',
+      pushHard: 'You\'re ready. Push hard as planned.',
+      cautious: 'Start cautiously. Reassess after warm-up.',
+      lighter: 'Lighter day today. Reduced volume and intensity.',
+      medical: 'STOP. Medical evaluation before any load.',
+      offDay: 'Off day. Active recovery only.'
+    },
     sections: {
       sleep: {
         eyebrow: 'Section A · Night',
@@ -368,6 +417,15 @@ export const translations = {
       readiness: 'READINESS',
       todaysCheckin: "Today's check-in",
       helloPrefix: 'Hello',
+      planTitle: "Today's plan",
+      planDayLabel: 'Day',
+      planOf: 'of',
+      planIntensity: 'Intensity',
+      planAdjusted: 'Adjusted to your score',
+      planTracking: 'Camp tracker',
+      planTrackingSub: '10 training days in Innsbruck',
+      planAm: 'AM',
+      planPm: 'PM',
       indicators: 'Indicators',
       noFlags: 'No alert signals. Solid night, solid profile.',
       scrollHint: 'See details',

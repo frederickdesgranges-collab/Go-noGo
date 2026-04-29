@@ -37,6 +37,10 @@ export function renderResult(evalResult) {
   // Score (count up)
   renderReadiness(evalResult.score);
 
+  // Today's plan card + 10-day tracker
+  renderPlanCard(evalResult);
+  renderTracker(evalResult);
+
   // Stats list
   renderStatsList();
 
@@ -102,6 +106,95 @@ function renderReadiness(target) {
   }
   el.textContent = '0';
   requestAnimationFrame(tick);
+}
+
+function renderPlanCard(evalResult) {
+  const lang = state.lang;
+  const card = document.getElementById('plan-card');
+  if (!card) return;
+
+  const dayNum = document.getElementById('plan-day-num');
+  const intensityEl = document.getElementById('plan-intensity');
+  const blockTagEl = document.getElementById('plan-block-tag');
+  const recoEl = document.getElementById('plan-reco');
+  const amEl = document.getElementById('plan-am');
+  const pmEl = document.getElementById('plan-pm');
+  const noteEl = document.getElementById('plan-intensity-note');
+
+  // Off-camp fallback (testing): show day 1 of the top-shape plan as a default preview
+  let today = evalResult.today;
+  let dayIdx = evalResult.dayIdx;
+  if (!today) {
+    today = evalResult.plan[0];
+    dayIdx = 0; // signals "preview"
+  }
+
+  if (dayNum) dayNum.textContent = dayIdx ? String(dayIdx) : '—';
+  const intensity = evalResult.adjustedIntensity ?? today.intensity;
+  if (intensityEl) intensityEl.textContent = String(intensity);
+
+  // Tag block
+  const blockKey = today.blockKey || 'block.progressive';
+  const tagText = t(lang, blockKey);
+  if (blockTagEl) blockTagEl.textContent = tagText;
+  // Set data-block attribute for tone variants (extract last segment of key)
+  const blockSlug = blockKey.split('.').pop();
+  card.setAttribute('data-block', blockSlug);
+
+  // Recommendation
+  if (recoEl) recoEl.textContent = t(lang, evalResult.adviceKey || 'reco.followPlan');
+
+  // AM / PM activities
+  if (amEl) amEl.textContent = today.am || '—';
+  if (pmEl) pmEl.textContent = today.pm || '—';
+
+  // Note: hide if not adjusted (intensity unchanged from plan)
+  if (noteEl) {
+    const adjusted = intensity !== today.intensity;
+    noteEl.style.display = adjusted ? '' : 'none';
+  }
+}
+
+function renderTracker(evalResult) {
+  const lang = state.lang;
+  const host = document.getElementById('tracker-chart');
+  if (!host) return;
+
+  const plan = evalResult.plan;
+  const todayIdx = evalResult.dayIdx; // 1..10 or null
+  const maxIntensity = 120; // cap for bar scaling
+
+  const days = plan.map((row, i) => {
+    const idx = i + 1;
+    const isToday = idx === todayIdx;
+    const heightPct = Math.min(100, (row.intensity / maxIntensity) * 100);
+    const blockSlug = (row.blockKey || '').split('.').pop();
+    return `
+      <div class="tracker-day ${isToday ? 'today' : ''}" data-block="${blockSlug}">
+        <div class="tracker-bar-wrap">
+          <span class="tracker-pct">${row.intensity}%</span>
+          <div class="tracker-bar" style="height:${heightPct.toFixed(1)}%; --bar-delay:${(i * 0.06).toFixed(2)}s"></div>
+        </div>
+        <span class="tracker-label">J${idx}</span>
+      </div>
+    `;
+  }).join('');
+
+  host.innerHTML = days;
+
+  // Append legend if not present
+  const card = document.getElementById('tracker-card');
+  if (card && !card.querySelector('.tracker-legend')) {
+    const legend = document.createElement('div');
+    legend.className = 'tracker-legend';
+    legend.innerHTML = `
+      <span class="tracker-legend-item"><span class="tracker-legend-dot dot-load"></span>${escapeHtml(t(lang, 'block.progressive'))}</span>
+      <span class="tracker-legend-item"><span class="tracker-legend-dot dot-overreach"></span>${escapeHtml(t(lang, 'block.overreach'))}</span>
+      <span class="tracker-legend-item"><span class="tracker-legend-dot dot-taper"></span>${escapeHtml(t(lang, 'block.taper'))}</span>
+      <span class="tracker-legend-item"><span class="tracker-legend-dot dot-off"></span>${escapeHtml(t(lang, 'block.off'))}</span>
+    `;
+    card.appendChild(legend);
+  }
 }
 
 function renderStatsList() {

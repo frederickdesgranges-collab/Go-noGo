@@ -1,11 +1,96 @@
 /**
  * CEC Check-in - evaluation.js
- * Pure logic: state -> { track, color, flags, message keys }
- * Track A = vert (charge complète)
- * Track B = jaune (allégé) ou rouge (récup) ou medical (stop)
+ * Pure logic: state -> { track, color, flags, message keys, score }
+ * Plus: 10-day camp plan and per-day intensity recommendation.
  */
 
 import { state } from './state.js';
+
+/* ============================================
+   10-day Innsbruck camp plan (July 4 → July 13, 2026)
+   Intensity is % of max load planned by the coach.
+   "Overreaching" labels appear ONLY on days 5-6 per coach's note.
+   ============================================ */
+const CAMP_START_ISO = '2026-07-04';
+
+/**
+ * Day-of-camp for a given Date (1..10), or null if outside the window.
+ * Uses local-date math so timezones don't drift the boundary.
+ */
+export function dayOfCamp(date = new Date()) {
+  const start = new Date(`${CAMP_START_ISO}T00:00:00`);
+  const today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const diffMs = today - start;
+  const diffDays = Math.floor(diffMs / (24 * 60 * 60 * 1000));
+  if (diffDays < 0 || diffDays > 9) return null;
+  return diffDays + 1;
+}
+
+/**
+ * Each plan row = { day, dateLabel, intensity, blockKey, isOff, amKey, pmKey }
+ * blockKey is i18n key for the phase label ('block.progressive', etc.)
+ */
+const PLANS = {
+  // Competing in Arco · Top shape (auto-selected when score is high)
+  'top-shape': [
+    { day: 1,  date: '2026-07-04', intensity: 70,  blockKey: 'block.progressive', isOff: false, am: 'AM', pm: 'PM' },
+    { day: 2,  date: '2026-07-05', intensity: 100, blockKey: 'block.progressive', isOff: false, am: 'AM', pm: 'PM' },
+    { day: 3,  date: '2026-07-06', intensity: 40,  blockKey: 'block.off',         isOff: true,  am: 'AM', pm: 'Nordkette' },
+    { day: 4,  date: '2026-07-07', intensity: 120, blockKey: 'block.overreach',   isOff: false, am: 'AM', pm: 'PM' },
+    { day: 5,  date: '2026-07-08', intensity: 110, blockKey: 'block.overreach',   isOff: false, am: 'AM', pm: 'PM' },
+    { day: 6,  date: '2026-07-09', intensity: 25,  blockKey: 'block.off',         isOff: true,  am: 'Alpine / Museum', pm: 'PM' },
+    { day: 7,  date: '2026-07-10', intensity: 85,  blockKey: 'block.taper',       isOff: false, am: 'AM', pm: 'PM' },
+    { day: 8,  date: '2026-07-11', intensity: 30,  blockKey: 'block.taper',       isOff: false, am: 'AM', pm: 'Reflection' },
+    { day: 9,  date: '2026-07-12', intensity: 5,   blockKey: 'block.off',         isOff: true,  am: 'AM', pm: 'AM' },
+    { day: 10, date: '2026-07-13', intensity: 5,   blockKey: 'block.transit',     isOff: false, am: 'Transit', pm: 'Transit' }
+  ],
+  // Competing in Arco · Fatigue management (auto when score is mid)
+  'fatigue-mgmt': [
+    { day: 1,  date: '2026-07-04', intensity: 70, blockKey: 'block.progressive', isOff: false, am: 'AM', pm: 'PM' },
+    { day: 2,  date: '2026-07-05', intensity: 75, blockKey: 'block.progressive', isOff: false, am: 'AM', pm: 'PM' },
+    { day: 3,  date: '2026-07-06', intensity: 40, blockKey: 'block.off',         isOff: true,  am: 'AM', pm: 'Nordkette' },
+    { day: 4,  date: '2026-07-07', intensity: 90, blockKey: 'block.noOverreach', isOff: false, am: 'AM', pm: 'PM' },
+    { day: 5,  date: '2026-07-08', intensity: 80, blockKey: 'block.noOverreach', isOff: false, am: 'AM', pm: 'PM' },
+    { day: 6,  date: '2026-07-09', intensity: 15, blockKey: 'block.off',         isOff: true,  am: 'Alpine / Museum', pm: 'PM' },
+    { day: 7,  date: '2026-07-10', intensity: 60, blockKey: 'block.taperLight',  isOff: false, am: 'AM', pm: 'PM' },
+    { day: 8,  date: '2026-07-11', intensity: 20, blockKey: 'block.taperLight',  isOff: false, am: 'AM', pm: 'Reflection' },
+    { day: 9,  date: '2026-07-12', intensity: 5,  blockKey: 'block.off',         isOff: true,  am: 'AM', pm: 'AM' },
+    { day: 10, date: '2026-07-13', intensity: 5,  blockKey: 'block.transit',     isOff: false, am: 'Transit', pm: 'Transit' }
+  ],
+  // Not competing in Arco — training camp only
+  'not-competing': [
+    { day: 1,  date: '2026-07-04', intensity: 70,  blockKey: 'block.accumulation', isOff: false, am: 'AM', pm: 'PM' },
+    { day: 2,  date: '2026-07-05', intensity: 100, blockKey: 'block.accumulation', isOff: false, am: 'AM', pm: 'PM' },
+    { day: 3,  date: '2026-07-06', intensity: 40,  blockKey: 'block.off',          isOff: true,  am: 'AM', pm: 'Nordkette' },
+    { day: 4,  date: '2026-07-07', intensity: 120, blockKey: 'block.overreach',    isOff: false, am: 'AM', pm: 'PM' },
+    { day: 5,  date: '2026-07-08', intensity: 110, blockKey: 'block.overreach',    isOff: false, am: 'AM', pm: 'PM' },
+    { day: 6,  date: '2026-07-09', intensity: 60,  blockKey: 'block.midOff',       isOff: false, am: 'Alpine / Museum', pm: 'PM' },
+    { day: 7,  date: '2026-07-10', intensity: 85,  blockKey: 'block.overreach2',   isOff: false, am: 'AM', pm: 'PM' },
+    { day: 8,  date: '2026-07-11', intensity: 70,  blockKey: 'block.overreach2',   isOff: false, am: 'AM', pm: 'Reflection' },
+    { day: 9,  date: '2026-07-12', intensity: 5,   blockKey: 'block.off',          isOff: true,  am: 'AM', pm: 'AM' },
+    { day: 10, date: '2026-07-13', intensity: 5,   blockKey: 'block.transit',      isOff: false, am: 'Transit', pm: 'Transit' }
+  ]
+};
+
+/**
+ * Resolve which plan (sub-profile) applies given the user's profile and
+ * today's score. For competing athletes the score auto-decides between
+ * top-shape and fatigue-mgmt; "not-competing" always uses its own plan.
+ */
+export function resolvePlanKey(score) {
+  if (state.profile === 'not-competing') return 'not-competing';
+  if (state.profile === 'competing') {
+    return score >= 75 ? 'top-shape' : 'fatigue-mgmt';
+  }
+  return 'top-shape'; // sensible default if profile unset
+}
+
+/**
+ * Return the full 10-day plan rows for a given plan key.
+ */
+export function getPlan(planKey) {
+  return PLANS[planKey] || PLANS['top-shape'];
+}
 
 /**
  * Evaluate the current state and return a structured result.
@@ -104,6 +189,31 @@ export function evaluate() {
   // Granular readiness score 0-100 (independent of track decision)
   const score = computeReadinessScore(medicalOverride);
 
+  // Plan + today's recommendation (depends on profile + day + score)
+  const planKey = resolvePlanKey(score);
+  const plan = getPlan(planKey);
+  const dayIdx = dayOfCamp();
+  const today = dayIdx ? plan[dayIdx - 1] : null;
+
+  // Adjusted intensity = planned × score factor
+  // (score < 50 cuts intensity in half, 100 = full plan)
+  let adjustedIntensity = today ? today.intensity : null;
+  let adviceKey = 'reco.followPlan';
+  if (today && !medicalOverride) {
+    if (score < 50) {
+      adjustedIntensity = Math.round(today.intensity * 0.5);
+      adviceKey = 'reco.lighter';
+    } else if (score < 75) {
+      adjustedIntensity = Math.round(today.intensity * 0.85);
+      adviceKey = 'reco.cautious';
+    } else {
+      adviceKey = today.intensity >= 100 ? 'reco.pushHard' : 'reco.followPlan';
+    }
+  } else if (medicalOverride) {
+    adjustedIntensity = 0;
+    adviceKey = 'reco.medical';
+  }
+
   return {
     track,
     color,
@@ -112,7 +222,13 @@ export function evaluate() {
     messageKey,
     kindnessKey,
     ringRatio,
-    score
+    score,
+    planKey,
+    plan,
+    dayIdx,
+    today,
+    adjustedIntensity,
+    adviceKey
   };
 }
 

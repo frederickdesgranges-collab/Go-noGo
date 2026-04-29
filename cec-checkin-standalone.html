@@ -1874,6 +1874,407 @@ a { color: inherit; text-decoration: none; }
 .result-details.visible > *:nth-child(4) { transition-delay: 0.24s; }
 
 /* ============================================
+   PLAN CARD (today's recommendation)
+   Editorial dark dashboard panel inside the cream UI.
+   ============================================ */
+.plan-card {
+  position: relative;
+  padding: 28px 24px 24px;
+  background:
+    linear-gradient(180deg, #0f1a2a 0%, #08111d 100%);
+  color: white;
+  border: none;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.plan-card::before {
+  content: '';
+  position: absolute;
+  top: -120px;
+  right: -120px;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(216, 6, 33, 0.35) 0%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.plan-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 18px;
+}
+
+.plan-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.plan-eyebrow::before {
+  content: '';
+  width: 22px;
+  height: 1.5px;
+  background: var(--cec-red);
+  display: inline-block;
+}
+
+.plan-day {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.52);
+}
+
+.plan-day strong {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: white;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.plan-body {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.plan-intensity-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.plan-intensity-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 4px;
+}
+
+.plan-intensity-value {
+  font-family: var(--font-serif);
+  font-size: clamp(80px, 22vw, 120px);
+  line-height: 0.85;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  color: white;
+  display: inline-block;
+}
+
+.plan-intensity-suffix {
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 8vw, 44px);
+  line-height: 1;
+  font-weight: 500;
+  color: var(--cec-red);
+  margin-left: 4px;
+  margin-top: -8px;
+  align-self: flex-start;
+}
+
+.plan-intensity-note {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: 6px;
+  text-transform: none;
+}
+
+.plan-block-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: white;
+  white-space: nowrap;
+  align-self: end;
+}
+
+/* Block tone variants */
+.plan-card[data-block="overreach"] .plan-block-tag,
+.plan-card[data-block="overreach2"] .plan-block-tag {
+  background: rgba(216, 6, 33, 0.22);
+  border-color: rgba(216, 6, 33, 0.5);
+  color: #ffd0d3;
+}
+
+.plan-card[data-block="off"] .plan-block-tag,
+.plan-card[data-block="midOff"] .plan-block-tag {
+  background: rgba(96, 165, 250, 0.18);
+  border-color: rgba(96, 165, 250, 0.4);
+  color: #d6e4f5;
+}
+
+.plan-card[data-block="taper"] .plan-block-tag,
+.plan-card[data-block="taperLight"] .plan-block-tag {
+  background: rgba(52, 211, 153, 0.18);
+  border-color: rgba(52, 211, 153, 0.4);
+  color: #d2e6d8;
+}
+
+.plan-recommendation {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 18px;
+  font-family: var(--font-serif);
+  font-size: clamp(17px, 4.5vw, 21px);
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.92);
+  letter-spacing: -0.01em;
+}
+
+.plan-am-pm {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.plan-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.plan-slot-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.plan-slot-value {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+  letter-spacing: -0.01em;
+}
+
+/* ============================================
+   CAMP TRACKER (10-day vertical bar chart)
+   ============================================ */
+.tracker-card {
+  padding: 24px 16px 18px;
+}
+
+.tracker-head {
+  margin-bottom: 18px;
+  padding: 0 8px;
+}
+
+.tracker-sub {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+
+.tracker-chart {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 6px;
+  align-items: end;
+  height: 180px;
+  padding: 0 4px;
+}
+
+.tracker-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  position: relative;
+  cursor: default;
+}
+
+.tracker-bar-wrap {
+  position: relative;
+  width: 100%;
+  height: 130px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  border-radius: 8px;
+  background: rgba(20, 33, 26, 0.04);
+  overflow: hidden;
+}
+
+.tracker-bar {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, var(--green) 0%, var(--green-dark) 100%);
+  transform-origin: bottom;
+  transform: scaleY(0);
+  animation: tracker-bar-rise 0.9s cubic-bezier(0.34, 1.4, 0.4, 1) forwards;
+  animation-delay: var(--bar-delay, 0s);
+}
+
+@keyframes tracker-bar-rise {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+.tracker-day[data-block="overreach"] .tracker-bar,
+.tracker-day[data-block="overreach2"] .tracker-bar {
+  background: linear-gradient(180deg, #ff4747 0%, var(--cec-red-dark) 100%);
+}
+
+.tracker-day[data-block="off"] .tracker-bar {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(96, 165, 250, 0.55) 0,
+    rgba(96, 165, 250, 0.55) 4px,
+    rgba(96, 165, 250, 0.25) 4px,
+    rgba(96, 165, 250, 0.25) 8px
+  );
+}
+
+.tracker-day[data-block="taper"] .tracker-bar,
+.tracker-day[data-block="taperLight"] .tracker-bar {
+  background: linear-gradient(180deg, var(--turquoise) 0%, #0f766e 100%);
+}
+
+.tracker-day[data-block="transit"] .tracker-bar {
+  background: rgba(20, 33, 26, 0.18);
+}
+
+/* Today's bar gets a pulsing red ring */
+.tracker-day.today .tracker-bar-wrap {
+  outline: 2px solid var(--cec-red);
+  outline-offset: 1px;
+  background: rgba(216, 6, 33, 0.05);
+}
+
+.tracker-day.today::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cec-red);
+  box-shadow: 0 0 10px rgba(216, 6, 33, 0.85);
+  animation: tracker-today-pulse 2s ease-in-out infinite;
+}
+
+@keyframes tracker-today-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 1; }
+}
+
+.tracker-pct {
+  position: absolute;
+  top: -18px;
+  font-family: var(--font-serif);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-deep-green);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.tracker-day.today .tracker-pct {
+  color: var(--cec-red-dark);
+  font-weight: 700;
+  font-size: 13px;
+  top: -22px;
+}
+
+.tracker-label {
+  margin-top: 6px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+.tracker-day.today .tracker-label {
+  color: var(--cec-red-dark);
+  font-weight: 800;
+}
+
+.tracker-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 16px;
+  margin-top: 18px;
+  padding: 0 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.tracker-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tracker-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.tracker-legend-dot.dot-load { background: linear-gradient(180deg, var(--green), var(--green-dark)); }
+.tracker-legend-dot.dot-overreach { background: linear-gradient(180deg, #ff4747, var(--cec-red-dark)); }
+.tracker-legend-dot.dot-taper { background: linear-gradient(180deg, var(--turquoise), #0f766e); }
+.tracker-legend-dot.dot-off { background: repeating-linear-gradient(-45deg, #60a5fa 0, #60a5fa 3px, rgba(96,165,250,0.3) 3px, rgba(96,165,250,0.3) 6px); }
+
+/* ============================================
    Stats list (compact rows)
    ============================================ */
 .stats-list {
@@ -3146,6 +3547,51 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
       <!-- DETAILS panel: revealed in cascade once scrolled into view -->
       <div class="result-details" id="result-details">
 
+      <!-- Today's plan card -->
+      <article class="card plan-card" id="plan-card" data-i18n-attr-tone="" data-tone="green">
+        <header class="plan-head">
+          <span class="plan-eyebrow"><span data-i18n="result.planTitle">Plan du jour</span></span>
+          <span class="plan-day">
+            <span data-i18n="result.planDayLabel">Jour</span>
+            <strong id="plan-day-num">—</strong>
+            <span data-i18n="result.planOf">sur</span>
+            10
+          </span>
+        </header>
+
+        <div class="plan-body">
+          <div class="plan-intensity-block">
+            <span class="plan-intensity-label" data-i18n="result.planIntensity">Intensité</span>
+            <span class="plan-intensity-value" id="plan-intensity">—</span>
+            <span class="plan-intensity-suffix">%</span>
+            <span class="plan-intensity-note" id="plan-intensity-note" data-i18n="result.planAdjusted">Ajustée selon ton score</span>
+          </div>
+          <div class="plan-block-tag" id="plan-block-tag">—</div>
+        </div>
+
+        <p class="plan-recommendation" id="plan-reco">—</p>
+
+        <div class="plan-am-pm">
+          <div class="plan-slot">
+            <span class="plan-slot-label" data-i18n="result.planAm">Matin</span>
+            <span class="plan-slot-value" id="plan-am">—</span>
+          </div>
+          <div class="plan-slot">
+            <span class="plan-slot-label" data-i18n="result.planPm">Après-midi</span>
+            <span class="plan-slot-value" id="plan-pm">—</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- 10-day camp tracker -->
+      <article class="card tracker-card" id="tracker-card">
+        <header class="tracker-head">
+          <span class="plan-eyebrow"><span data-i18n="result.planTracking">Suivi du camp</span></span>
+          <p class="tracker-sub" data-i18n="result.planTrackingSub">10 jours d'entraînement Innsbruck</p>
+        </header>
+        <div class="tracker-chart" id="tracker-chart"></div>
+      </article>
+
       <!-- Stats list (compact rows) -->
       <div class="card stats-card">
         <h3 class="card-title">
@@ -3284,6 +3730,26 @@ const translations = {
       label: 'Athlète',
       placeholder: 'Ton prénom'
     },
+    block: {
+      progressive: 'Charge progressive',
+      accumulation: 'Accumulation',
+      overreach: 'Overreaching planifié',
+      noOverreach: 'Pas d\'overreaching',
+      midOff: 'Off · récupération',
+      taper: 'Affûtage complet',
+      taperLight: 'Affûtage allégé',
+      overreach2: '2e overreach · volume',
+      off: 'Jour off',
+      transit: 'Transit · jour de voyage'
+    },
+    reco: {
+      followPlan: 'Tu peux faire l\'intensité prévue. On respecte le plan.',
+      pushHard: 'Tu es prêt. On pousse fort comme prévu.',
+      cautious: 'On démarre prudemment. Réévalue après le warm-up.',
+      lighter: 'On allège la journée. Volume et intensité réduits.',
+      medical: 'STOP. Évaluation médicale avant toute charge.',
+      offDay: 'Journée off. Récupération active uniquement.'
+    },
     sections: {
       sleep: {
         eyebrow: 'Section A · Nuit',
@@ -3374,6 +3840,15 @@ const translations = {
       readiness: 'READINESS',
       todaysCheckin: 'Check-in du jour',
       helloPrefix: 'Bonjour',
+      planTitle: 'Plan du jour',
+      planDayLabel: 'Jour',
+      planOf: 'sur',
+      planIntensity: 'Intensité',
+      planAdjusted: 'Ajustée selon ton score',
+      planTracking: 'Suivi du camp',
+      planTrackingSub: '10 jours d\'entraînement Innsbruck',
+      planAm: 'Matin',
+      planPm: 'Après-midi',
       indicators: 'Indicateurs',
       noFlags: "Aucun signal d'alerte. Belle nuit, beau profil.",
       scrollHint: 'Voir les détails',
@@ -3512,6 +3987,26 @@ const translations = {
       label: 'Athlete',
       placeholder: 'Your first name'
     },
+    block: {
+      progressive: 'Progressive load',
+      accumulation: 'Accumulation',
+      overreach: 'Planned overreaching',
+      noOverreach: 'No overreaching',
+      midOff: 'Off · recovery',
+      taper: 'Complete saw taper',
+      taperLight: 'Lightweight taper',
+      overreach2: '2nd overreach · volume',
+      off: 'Off day',
+      transit: 'Transit · travel day'
+    },
+    reco: {
+      followPlan: 'Run the planned intensity. Stick to the plan.',
+      pushHard: 'You\'re ready. Push hard as planned.',
+      cautious: 'Start cautiously. Reassess after warm-up.',
+      lighter: 'Lighter day today. Reduced volume and intensity.',
+      medical: 'STOP. Medical evaluation before any load.',
+      offDay: 'Off day. Active recovery only.'
+    },
     sections: {
       sleep: {
         eyebrow: 'Section A · Night',
@@ -3602,6 +4097,15 @@ const translations = {
       readiness: 'READINESS',
       todaysCheckin: "Today's check-in",
       helloPrefix: 'Hello',
+      planTitle: "Today's plan",
+      planDayLabel: 'Day',
+      planOf: 'of',
+      planIntensity: 'Intensity',
+      planAdjusted: 'Adjusted to your score',
+      planTracking: 'Camp tracker',
+      planTrackingSub: '10 training days in Innsbruck',
+      planAm: 'AM',
+      planPm: 'PM',
       indicators: 'Indicators',
       noFlags: 'No alert signals. Solid night, solid profile.',
       scrollHint: 'See details',
@@ -4501,10 +5005,95 @@ function formatHours(hours, lang) {
 
 /**
  * CEC Check-in - evaluation.js
- * Pure logic: state -> { track, color, flags, message keys }
- * Track A = vert (charge complète)
- * Track B = jaune (allégé) ou rouge (récup) ou medical (stop)
+ * Pure logic: state -> { track, color, flags, message keys, score }
+ * Plus: 10-day camp plan and per-day intensity recommendation.
  */
+
+/* ============================================
+   10-day Innsbruck camp plan (July 4 → July 13, 2026)
+   Intensity is % of max load planned by the coach.
+   "Overreaching" labels appear ONLY on days 5-6 per coach's note.
+   ============================================ */
+const CAMP_START_ISO = '2026-07-04';
+
+/**
+ * Day-of-camp for a given Date (1..10), or null if outside the window.
+ * Uses local-date math so timezones don't drift the boundary.
+ */
+function dayOfCamp(date = new Date()) {
+  const start = new Date(`${CAMP_START_ISO}T00:00:00`);
+  const today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const diffMs = today - start;
+  const diffDays = Math.floor(diffMs / (24 * 60 * 60 * 1000));
+  if (diffDays < 0 || diffDays > 9) return null;
+  return diffDays + 1;
+}
+
+/**
+ * Each plan row = { day, dateLabel, intensity, blockKey, isOff, amKey, pmKey }
+ * blockKey is i18n key for the phase label ('block.progressive', etc.)
+ */
+const PLANS = {
+  // Competing in Arco · Top shape (auto-selected when score is high)
+  'top-shape': [
+    { day: 1,  date: '2026-07-04', intensity: 70,  blockKey: 'block.progressive', isOff: false, am: 'AM', pm: 'PM' },
+    { day: 2,  date: '2026-07-05', intensity: 100, blockKey: 'block.progressive', isOff: false, am: 'AM', pm: 'PM' },
+    { day: 3,  date: '2026-07-06', intensity: 40,  blockKey: 'block.off',         isOff: true,  am: 'AM', pm: 'Nordkette' },
+    { day: 4,  date: '2026-07-07', intensity: 120, blockKey: 'block.overreach',   isOff: false, am: 'AM', pm: 'PM' },
+    { day: 5,  date: '2026-07-08', intensity: 110, blockKey: 'block.overreach',   isOff: false, am: 'AM', pm: 'PM' },
+    { day: 6,  date: '2026-07-09', intensity: 25,  blockKey: 'block.off',         isOff: true,  am: 'Alpine / Museum', pm: 'PM' },
+    { day: 7,  date: '2026-07-10', intensity: 85,  blockKey: 'block.taper',       isOff: false, am: 'AM', pm: 'PM' },
+    { day: 8,  date: '2026-07-11', intensity: 30,  blockKey: 'block.taper',       isOff: false, am: 'AM', pm: 'Reflection' },
+    { day: 9,  date: '2026-07-12', intensity: 5,   blockKey: 'block.off',         isOff: true,  am: 'AM', pm: 'AM' },
+    { day: 10, date: '2026-07-13', intensity: 5,   blockKey: 'block.transit',     isOff: false, am: 'Transit', pm: 'Transit' }
+  ],
+  // Competing in Arco · Fatigue management (auto when score is mid)
+  'fatigue-mgmt': [
+    { day: 1,  date: '2026-07-04', intensity: 70, blockKey: 'block.progressive', isOff: false, am: 'AM', pm: 'PM' },
+    { day: 2,  date: '2026-07-05', intensity: 75, blockKey: 'block.progressive', isOff: false, am: 'AM', pm: 'PM' },
+    { day: 3,  date: '2026-07-06', intensity: 40, blockKey: 'block.off',         isOff: true,  am: 'AM', pm: 'Nordkette' },
+    { day: 4,  date: '2026-07-07', intensity: 90, blockKey: 'block.noOverreach', isOff: false, am: 'AM', pm: 'PM' },
+    { day: 5,  date: '2026-07-08', intensity: 80, blockKey: 'block.noOverreach', isOff: false, am: 'AM', pm: 'PM' },
+    { day: 6,  date: '2026-07-09', intensity: 15, blockKey: 'block.off',         isOff: true,  am: 'Alpine / Museum', pm: 'PM' },
+    { day: 7,  date: '2026-07-10', intensity: 60, blockKey: 'block.taperLight',  isOff: false, am: 'AM', pm: 'PM' },
+    { day: 8,  date: '2026-07-11', intensity: 20, blockKey: 'block.taperLight',  isOff: false, am: 'AM', pm: 'Reflection' },
+    { day: 9,  date: '2026-07-12', intensity: 5,  blockKey: 'block.off',         isOff: true,  am: 'AM', pm: 'AM' },
+    { day: 10, date: '2026-07-13', intensity: 5,  blockKey: 'block.transit',     isOff: false, am: 'Transit', pm: 'Transit' }
+  ],
+  // Not competing in Arco — training camp only
+  'not-competing': [
+    { day: 1,  date: '2026-07-04', intensity: 70,  blockKey: 'block.accumulation', isOff: false, am: 'AM', pm: 'PM' },
+    { day: 2,  date: '2026-07-05', intensity: 100, blockKey: 'block.accumulation', isOff: false, am: 'AM', pm: 'PM' },
+    { day: 3,  date: '2026-07-06', intensity: 40,  blockKey: 'block.off',          isOff: true,  am: 'AM', pm: 'Nordkette' },
+    { day: 4,  date: '2026-07-07', intensity: 120, blockKey: 'block.overreach',    isOff: false, am: 'AM', pm: 'PM' },
+    { day: 5,  date: '2026-07-08', intensity: 110, blockKey: 'block.overreach',    isOff: false, am: 'AM', pm: 'PM' },
+    { day: 6,  date: '2026-07-09', intensity: 60,  blockKey: 'block.midOff',       isOff: false, am: 'Alpine / Museum', pm: 'PM' },
+    { day: 7,  date: '2026-07-10', intensity: 85,  blockKey: 'block.overreach2',   isOff: false, am: 'AM', pm: 'PM' },
+    { day: 8,  date: '2026-07-11', intensity: 70,  blockKey: 'block.overreach2',   isOff: false, am: 'AM', pm: 'Reflection' },
+    { day: 9,  date: '2026-07-12', intensity: 5,   blockKey: 'block.off',          isOff: true,  am: 'AM', pm: 'AM' },
+    { day: 10, date: '2026-07-13', intensity: 5,   blockKey: 'block.transit',      isOff: false, am: 'Transit', pm: 'Transit' }
+  ]
+};
+
+/**
+ * Resolve which plan (sub-profile) applies given the user's profile and
+ * today's score. For competing athletes the score auto-decides between
+ * top-shape and fatigue-mgmt; "not-competing" always uses its own plan.
+ */
+function resolvePlanKey(score) {
+  if (state.profile === 'not-competing') return 'not-competing';
+  if (state.profile === 'competing') {
+    return score >= 75 ? 'top-shape' : 'fatigue-mgmt';
+  }
+  return 'top-shape'; // sensible default if profile unset
+}
+
+/**
+ * Return the full 10-day plan rows for a given plan key.
+ */
+function getPlan(planKey) {
+  return PLANS[planKey] || PLANS['top-shape'];
+}
 
 /**
  * Evaluate the current state and return a structured result.
@@ -4603,6 +5192,31 @@ function evaluate() {
   // Granular readiness score 0-100 (independent of track decision)
   const score = computeReadinessScore(medicalOverride);
 
+  // Plan + today's recommendation (depends on profile + day + score)
+  const planKey = resolvePlanKey(score);
+  const plan = getPlan(planKey);
+  const dayIdx = dayOfCamp();
+  const today = dayIdx ? plan[dayIdx - 1] : null;
+
+  // Adjusted intensity = planned × score factor
+  // (score < 50 cuts intensity in half, 100 = full plan)
+  let adjustedIntensity = today ? today.intensity : null;
+  let adviceKey = 'reco.followPlan';
+  if (today && !medicalOverride) {
+    if (score < 50) {
+      adjustedIntensity = Math.round(today.intensity * 0.5);
+      adviceKey = 'reco.lighter';
+    } else if (score < 75) {
+      adjustedIntensity = Math.round(today.intensity * 0.85);
+      adviceKey = 'reco.cautious';
+    } else {
+      adviceKey = today.intensity >= 100 ? 'reco.pushHard' : 'reco.followPlan';
+    }
+  } else if (medicalOverride) {
+    adjustedIntensity = 0;
+    adviceKey = 'reco.medical';
+  }
+
   return {
     track,
     color,
@@ -4611,7 +5225,13 @@ function evaluate() {
     messageKey,
     kindnessKey,
     ringRatio,
-    score
+    score,
+    planKey,
+    plan,
+    dayIdx,
+    today,
+    adjustedIntensity,
+    adviceKey
   };
 }
 
@@ -4806,6 +5426,10 @@ function renderResult(evalResult) {
   // Score (count up)
   renderReadiness(evalResult.score);
 
+  // Today's plan card + 10-day tracker
+  renderPlanCard(evalResult);
+  renderTracker(evalResult);
+
   // Stats list
   renderStatsList();
 
@@ -4871,6 +5495,95 @@ function renderReadiness(target) {
   }
   el.textContent = '0';
   requestAnimationFrame(tick);
+}
+
+function renderPlanCard(evalResult) {
+  const lang = state.lang;
+  const card = document.getElementById('plan-card');
+  if (!card) return;
+
+  const dayNum = document.getElementById('plan-day-num');
+  const intensityEl = document.getElementById('plan-intensity');
+  const blockTagEl = document.getElementById('plan-block-tag');
+  const recoEl = document.getElementById('plan-reco');
+  const amEl = document.getElementById('plan-am');
+  const pmEl = document.getElementById('plan-pm');
+  const noteEl = document.getElementById('plan-intensity-note');
+
+  // Off-camp fallback (testing): show day 1 of the top-shape plan as a default preview
+  let today = evalResult.today;
+  let dayIdx = evalResult.dayIdx;
+  if (!today) {
+    today = evalResult.plan[0];
+    dayIdx = 0; // signals "preview"
+  }
+
+  if (dayNum) dayNum.textContent = dayIdx ? String(dayIdx) : '—';
+  const intensity = evalResult.adjustedIntensity ?? today.intensity;
+  if (intensityEl) intensityEl.textContent = String(intensity);
+
+  // Tag block
+  const blockKey = today.blockKey || 'block.progressive';
+  const tagText = t(lang, blockKey);
+  if (blockTagEl) blockTagEl.textContent = tagText;
+  // Set data-block attribute for tone variants (extract last segment of key)
+  const blockSlug = blockKey.split('.').pop();
+  card.setAttribute('data-block', blockSlug);
+
+  // Recommendation
+  if (recoEl) recoEl.textContent = t(lang, evalResult.adviceKey || 'reco.followPlan');
+
+  // AM / PM activities
+  if (amEl) amEl.textContent = today.am || '—';
+  if (pmEl) pmEl.textContent = today.pm || '—';
+
+  // Note: hide if not adjusted (intensity unchanged from plan)
+  if (noteEl) {
+    const adjusted = intensity !== today.intensity;
+    noteEl.style.display = adjusted ? '' : 'none';
+  }
+}
+
+function renderTracker(evalResult) {
+  const lang = state.lang;
+  const host = document.getElementById('tracker-chart');
+  if (!host) return;
+
+  const plan = evalResult.plan;
+  const todayIdx = evalResult.dayIdx; // 1..10 or null
+  const maxIntensity = 120; // cap for bar scaling
+
+  const days = plan.map((row, i) => {
+    const idx = i + 1;
+    const isToday = idx === todayIdx;
+    const heightPct = Math.min(100, (row.intensity / maxIntensity) * 100);
+    const blockSlug = (row.blockKey || '').split('.').pop();
+    return `
+      <div class="tracker-day ${isToday ? 'today' : ''}" data-block="${blockSlug}">
+        <div class="tracker-bar-wrap">
+          <span class="tracker-pct">${row.intensity}%</span>
+          <div class="tracker-bar" style="height:${heightPct.toFixed(1)}%; --bar-delay:${(i * 0.06).toFixed(2)}s"></div>
+        </div>
+        <span class="tracker-label">J${idx}</span>
+      </div>
+    `;
+  }).join('');
+
+  host.innerHTML = days;
+
+  // Append legend if not present
+  const card = document.getElementById('tracker-card');
+  if (card && !card.querySelector('.tracker-legend')) {
+    const legend = document.createElement('div');
+    legend.className = 'tracker-legend';
+    legend.innerHTML = `
+      <span class="tracker-legend-item"><span class="tracker-legend-dot dot-load"></span>${escapeHtml(t(lang, 'block.progressive'))}</span>
+      <span class="tracker-legend-item"><span class="tracker-legend-dot dot-overreach"></span>${escapeHtml(t(lang, 'block.overreach'))}</span>
+      <span class="tracker-legend-item"><span class="tracker-legend-dot dot-taper"></span>${escapeHtml(t(lang, 'block.taper'))}</span>
+      <span class="tracker-legend-item"><span class="tracker-legend-dot dot-off"></span>${escapeHtml(t(lang, 'block.off'))}</span>
+    `;
+    card.appendChild(legend);
+  }
 }
 
 function renderStatsList() {
