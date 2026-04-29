@@ -2096,49 +2096,62 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
   pointer-events: none;
 }
 
-/* MID: title block — sits in the upper third of the stage,
+/* MID: title block — sits in the lower third of the stage,
    moderate compensation + fades out */
 .parallax-mid {
   z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: flex-end;
   text-align: center;
-  padding: clamp(60px, 14vh, 130px) 24px 0;
+  padding: 0 24px clamp(70px, 18vh, 140px);
   pointer-events: none;
   transform: translate3d(0, calc(var(--pscroll, 0px) * 0.3), 0);
   opacity: var(--pscroll-fade, 1);
 }
 
-/* Soft scrim behind the title for legibility on a busy wall photo */
+/* Soft dark scrim behind the title + subtitle for legibility on the wall */
 .parallax-mid::before {
   content: '';
   position: absolute;
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: min(720px, 95%);
-  height: 380px;
-  background: radial-gradient(ellipse at center, rgba(8, 11, 18, 0.62) 0%, rgba(8, 11, 18, 0.32) 50%, rgba(8, 11, 18, 0) 80%);
+  bottom: 16vh;
+  transform: translateX(-50%);
+  width: min(640px, 92%);
+  height: 320px;
+  background: radial-gradient(ellipse at center, rgba(8, 11, 18, 0.55) 0%, rgba(8, 11, 18, 0.28) 50%, rgba(8, 11, 18, 0) 80%);
   pointer-events: none;
   z-index: -1;
 }
 
 .parallax-eyebrow {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
   margin: 0 0 28px;
+  padding: 14px 28px;
   color: var(--cec-red);
   text-transform: uppercase;
   /* Thin white outline applied uniformly to both lines */
   -webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.78);
   paint-order: stroke fill;
   text-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.55),
-    0 0 16px rgba(0, 0, 0, 0.4);
+    0 2px 4px rgba(0, 0, 0, 0.65),
+    0 0 18px rgba(0, 0, 0, 0.5);
+}
+
+/* Soft scrim behind the eyebrow text */
+.parallax-eyebrow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(8, 11, 18, 0.5) 0%, rgba(8, 11, 18, 0.25) 55%, rgba(8, 11, 18, 0) 85%);
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(2px);
 }
 
 .parallax-eyebrow-main {
