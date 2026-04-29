@@ -16,7 +16,7 @@ export const translations = {
     landing: {
       tag: 'CLIMBING ESCALADE CANADA',
       camp: 'INNSBRUCK · JUILLET 2026',
-      eyebrow: 'YWCH 2026 · INNSBRUCK PREP',
+      eyebrow: 'YWCH 2026 · INNSBRUCK TRAINING CAMP',
       title: 'Check‑in matinal',
       sub: '60 secondes pour décider la journée. Honnête. Précis. Stratégique.',
       scrollHint: 'Faire défiler',
@@ -238,7 +238,7 @@ export const translations = {
     landing: {
       tag: 'CLIMBING ESCALADE CANADA',
       camp: 'INNSBRUCK · JULY 2026',
-      eyebrow: 'YWCH 2026 · INNSBRUCK PREP',
+      eyebrow: 'YWCH 2026 · INNSBRUCK TRAINING CAMP',
       title: 'Morning check-in',
       sub: '60 seconds to set the day. Honest. Precise. Strategic.',
       scrollHint: 'Scroll',
