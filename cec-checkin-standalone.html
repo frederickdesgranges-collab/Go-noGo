@@ -2163,6 +2163,32 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
     0 4px 16px rgba(0, 0, 0, 0.6);
 }
 
+/* FRONT: vector podium illustration (lights + 1/2/3) */
+.parallax-front {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: min(680px, 95%);
+  height: 42%;
+  z-index: 3;
+  pointer-events: none;
+  transform: translate3d(-50%, calc(var(--pscroll, 0px) * 0.08), 0);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  /* Blend the dark vector bg with the wall photo behind */
+  mix-blend-mode: screen;
+}
+
+.parallax-front img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: brightness(1.05) contrast(1.1) saturate(1.05);
+  display: block;
+}
+
 /* CEC accent line at the bottom of the parallax stage */
 .parallax-stage::after {
   content: '';
@@ -2172,7 +2198,7 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
   bottom: 0;
   height: 3px;
   background: linear-gradient(90deg, transparent 0%, var(--cec-red) 50%, transparent 100%);
-  opacity: 0.85;
+  opacity: 0.9;
   pointer-events: none;
   z-index: 4;
 }
@@ -2587,6 +2613,11 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
           <div class="parallax-eyebrow" data-i18n="landing.eyebrow">YWCH 2026 · INNSBRUCK PREP</div>
           <h1 class="parallax-headline" data-i18n="landing.title">Check‑in matinal</h1>
           <p class="parallax-sub" data-i18n="landing.sub">60 secondes pour décider la journée. Honnête. Précis. Stratégique.</p>
+        </div>
+
+        <div class="parallax-front" id="parallax-front" aria-hidden="true">
+          <img src="https://img.myloview.com/posters/realistic-winners-podium-on-a-transparent-background-with-beautiful-lights-and-candy-vector-graphics-700-213068778.jpg"
+               alt="" loading="eager" decoding="async" referrerpolicy="no-referrer" />
         </div>
 
         <button class="parallax-scroll-cue" id="parallax-scroll-cue" type="button" aria-label="Scroll to sign in">
