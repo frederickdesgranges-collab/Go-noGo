@@ -7,6 +7,10 @@
   <meta name="description" content="CEC Check-in matinal - Camp Innsbruck 2026" data-i18n="meta.description" data-i18n-attr="content" />
   <title data-i18n="meta.title">CEC Check-in Matinal · Innsbruck 2026</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/animations.css" />
@@ -442,66 +446,27 @@
       <div class="hero-card hero-fullscreen" id="hero-card">
         <div class="hero-halo" aria-hidden="true"></div>
 
-        <div class="hero-track">
-          <div class="track-ring" aria-hidden="true">
-            <span class="ring-orbit ring-orbit-1"></span>
-            <span class="ring-orbit ring-orbit-2"></span>
-            <span class="ring-orbit ring-orbit-3"></span>
-            <span class="ring-orbit ring-orbit-4"></span>
-            <span class="ring-orbit ring-orbit-5"></span>
+        <div class="hero-athlete-pill" id="hero-athlete-pill">
+          <span class="pill-avatar" id="pill-avatar">—</span>
+          <span class="pill-text"><span data-i18n="result.helloPrefix">Bonjour</span> <strong id="pill-name">—</strong></span>
+        </div>
 
-            <!-- Smooth conic-gradient rainbow ring (CSS) -->
-            <div class="conic-ring" id="conic-ring"></div>
+        <div class="hero-score">
+          <span class="hero-score-eyebrow" data-i18n="result.readiness">READINESS</span>
+          <span class="hero-score-value" id="readiness-value">—</span>
+          <span class="hero-score-suffix">/ 100</span>
+        </div>
 
-            <svg class="ring-svg" width="360" height="360" viewBox="0 0 360 360">
-              <defs>
-                <linearGradient id="donut-gradient-green" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#34d399"/>
-                  <stop offset="100%" stop-color="#047857"/>
-                </linearGradient>
-                <linearGradient id="donut-gradient-yellow" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#fbbf24"/>
-                  <stop offset="100%" stop-color="#b45309"/>
-                </linearGradient>
-                <linearGradient id="donut-gradient-red" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#f87171"/>
-                  <stop offset="100%" stop-color="#b91c1c"/>
-                </linearGradient>
-                <linearGradient id="donut-gradient-blue" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#60a5fa"/>
-                  <stop offset="100%" stop-color="#1d4ed8"/>
-                </linearGradient>
-              </defs>
+        <span class="track-pill" id="hero-track-label" data-i18n="result.trackA">TRACK A</span>
 
-              <!-- Background guide ring (kept as decoration) -->
-              <circle class="ring-bg" cx="180" cy="180" r="158" fill="none" stroke-width="2"></circle>
-
-              <!-- Inner thin spinner ring (decoration) -->
-              <circle class="ring-inner-spinner" cx="180" cy="180" r="132" fill="none" stroke-width="1"></circle>
-
-              <!-- Tick decoration -->
-              <g id="ring-ticks"></g>
-            </svg>
-
-            <div class="track-core">
-              <div class="track-core-bg" aria-hidden="true"></div>
-              <div class="readiness">
-                <span class="readiness-label" data-i18n="result.readiness">READINESS</span>
-                <span class="readiness-value" id="readiness-value">—</span>
-                <span class="readiness-unit">/100</span>
-              </div>
-              <div class="track-meta">
-                <span id="track-meta-name">—</span>
-                <span class="track-meta-sep">·</span>
-                <span id="track-meta-date">—</span>
-                <span class="track-meta-sep" id="track-meta-discipline-sep" hidden>·</span>
-                <span id="track-meta-discipline" hidden></span>
-              </div>
-            </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="hero-art-photo"></div>
+          <div class="hero-art-overlay"></div>
+          <div class="hero-art-meta">
+            <span id="track-meta-date">—</span>
+            <span class="hero-art-meta-sep" id="track-meta-discipline-sep" hidden>·</span>
+            <span id="track-meta-discipline" hidden></span>
           </div>
-
-          <div class="hero-letter" id="hero-letter">A</div>
-          <p class="hero-track-label" id="hero-track-label" data-i18n="result.trackA">TRACK A</p>
         </div>
 
         <div class="hero-text">
@@ -521,8 +486,13 @@
 
       <div class="result-details" id="result-details">
 
-      <!-- Stats grid 2x4 -->
-      <div class="stats-grid" id="stats-grid"></div>
+      <!-- Stats list (compact rows) -->
+      <div class="card stats-card">
+        <h3 class="card-title">
+          <span data-i18n="result.todaysCheckin">Check-in du jour</span>
+        </h3>
+        <div class="stats-list" id="stats-list"></div>
+      </div>
 
       <!-- Indicators list -->
       <div class="card indicators-card">

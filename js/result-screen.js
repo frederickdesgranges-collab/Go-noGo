@@ -1,20 +1,11 @@
 /**
  * CEC Check-in - result-screen.js
- * Render the dashboard: hero card, 12-arc neon ring,
- * donut stats grid, indicators, athlete initial.
+ * Editorial light · Cormorant serif · stats list (Next Exchange-style)
  */
 
 import { state } from './state.js';
 import { t } from './translations.js';
 import { formatHours } from './form-logic.js';
-
-const DONUT_RADIUS = 22;
-const DONUT_CIRC = 2 * Math.PI * DONUT_RADIUS;
-
-const RING_CX = 180;
-const RING_CY = 180;
-
-let ringTicksRendered = false;
 
 export function renderResult(evalResult) {
   const lang = state.lang;
@@ -24,27 +15,42 @@ export function renderResult(evalResult) {
   hero.classList.remove('track-green', 'track-yellow', 'track-red');
   hero.classList.add(`track-${evalResult.color}`);
 
-  document.getElementById('hero-letter').textContent = evalResult.track;
+  // Track pill
   const labelKey = evalResult.track === 'A' ? 'result.trackA' : 'result.trackB';
   document.getElementById('hero-track-label').textContent = t(lang, labelKey);
 
+  // Messages
   document.getElementById('hero-message').textContent = t(lang, evalResult.messageKey);
   document.getElementById('hero-kindness').textContent = t(lang, evalResult.kindnessKey);
 
-  ensureRingTicks();
-  renderReadiness(evalResult.score);
+  // Athlete pill (top of hero)
+  setAthletePill();
+
+  // Date + discipline below the photo
   renderTrackMeta();
 
-  renderStats();
+  // Score (count up)
+  renderReadiness(evalResult.score);
+
+  // Stats list
+  renderStatsList();
+
+  // Indicators
   renderIndicators(evalResult.flags);
 
   screen.classList.add('entering');
   setTimeout(() => screen.classList.remove('entering'), 1200);
 }
 
-/**
- * Animate the readiness score from 0 to target over ~900ms.
- */
+function setAthletePill() {
+  const avatar = document.getElementById('pill-avatar');
+  const name = document.getElementById('pill-name');
+  if (!avatar || !name) return;
+  const raw = (state.athleteName || '').trim();
+  avatar.textContent = raw ? raw.charAt(0).toUpperCase() : '—';
+  name.textContent = raw || '—';
+}
+
 function renderReadiness(target) {
   const el = document.getElementById('readiness-value');
   if (!el) return;
@@ -61,22 +67,16 @@ function renderReadiness(target) {
   requestAnimationFrame(tick);
 }
 
-/**
- * Show "NAME · DATE · DISCIPLINE" inside the inner core.
- */
 function renderTrackMeta() {
-  const nameEl = document.getElementById('track-meta-name');
   const dateEl = document.getElementById('track-meta-date');
   const discEl = document.getElementById('track-meta-discipline');
   const discSep = document.getElementById('track-meta-discipline-sep');
-  if (!nameEl || !dateEl) return;
-  const name = (state.athleteName || '').trim().toUpperCase();
+  if (!dateEl) return;
   const locale = state.lang === 'en' ? 'en-CA' : 'fr-CA';
   const date = new Date().toLocaleDateString(locale, {
     day: 'numeric',
     month: 'short'
   }).toUpperCase().replace(/\.$/, '');
-  nameEl.textContent = name || '—';
   dateEl.textContent = date;
   if (state.discipline && discEl && discSep) {
     discEl.textContent = t(state.lang, `landing.${state.discipline}`).toUpperCase();
@@ -88,96 +88,90 @@ function renderTrackMeta() {
   }
 }
 
-/**
- * Light decorative tick marks every 6° (60 ticks total) on the inner side.
- */
-function ensureRingTicks() {
-  if (ringTicksRendered) return;
-  const host = document.getElementById('ring-ticks');
-  if (!host) return;
-  const cx = RING_CX, cy = RING_CY, rOut = 142;
-  const ticks = [];
-  for (let i = 0; i < 60; i++) {
-    const angle = (i / 60) * Math.PI * 2 - Math.PI / 2;
-    const major = i % 5 === 0;
-    const r1 = rOut;
-    const r2 = rOut - (major ? 8 : 4);
-    const x1 = cx + Math.cos(angle) * r1;
-    const y1 = cy + Math.sin(angle) * r1;
-    const x2 = cx + Math.cos(angle) * r2;
-    const y2 = cy + Math.sin(angle) * r2;
-    ticks.push(`<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="rgba(255,255,255,${major ? 0.32 : 0.14})" stroke-width="${major ? 1.4 : 1}"/>`);
-  }
-  host.innerHTML = ticks.join('');
-  ringTicksRendered = true;
-}
-
-
-function renderStats() {
+function renderStatsList() {
   const lang = state.lang;
-  const grid = document.getElementById('stats-grid');
+  const list = document.getElementById('stats-list');
+  if (!list) return;
+
   const items = [
-    { labelKey: 'result.stat.sleep', value: state.sleep.durationHours, unitKey: 'result.stat.unitHours',
-      tone: toneFromSleep(state.sleep.durationHours), ratio: clamp01(state.sleep.durationHours / 9),
-      donutText: state.sleep.durationHours ? `${state.sleep.durationHours.toFixed(1)}` : '—',
-      formatter: (v) => formatHours(v, lang) },
-    { labelKey: 'result.stat.energy', value: state.wellbeing.energy, unitKey: 'result.stat.unitOf5',
-      tone: toneFromLikert(state.wellbeing.energy), ratio: ratioLikert(state.wellbeing.energy) },
-    { labelKey: 'result.stat.muscles', value: state.wellbeing.muscles, unitKey: 'result.stat.unitOf5',
-      tone: toneFromLikert(state.wellbeing.muscles), ratio: ratioLikert(state.wellbeing.muscles) },
-    { labelKey: 'result.stat.forearms', value: state.wellbeing.forearms, unitKey: 'result.stat.unitOf5',
-      tone: toneFromLikert(state.wellbeing.forearms), ratio: ratioLikert(state.wellbeing.forearms) },
-    { labelKey: 'result.stat.calm', value: state.wellbeing.calm, unitKey: 'result.stat.unitOf5',
-      tone: toneFromLikert(state.wellbeing.calm), ratio: ratioLikert(state.wellbeing.calm) },
-    { labelKey: 'result.stat.mood', value: state.wellbeing.mood, unitKey: 'result.stat.unitOf5',
-      tone: toneFromLikert(state.wellbeing.mood), ratio: ratioLikert(state.wellbeing.mood) },
-    { labelKey: 'result.stat.willingness', value: state.wellbeing.willingness, unitKey: 'result.stat.unitOf10',
-      tone: toneFromHigherIsBetter(state.wellbeing.willingness), ratio: clamp01(state.wellbeing.willingness / 10) },
-    { labelKey: 'result.stat.recovery', value: state.wellbeing.recoveryPrs, unitKey: 'result.stat.unitOf10',
-      tone: toneFromHigherIsBetter(state.wellbeing.recoveryPrs), ratio: clamp01(state.wellbeing.recoveryPrs / 10) }
+    {
+      labelKey: 'result.stat.sleep',
+      value: state.sleep.durationHours,
+      tone: toneFromSleep(state.sleep.durationHours),
+      icon: 'Z',
+      formatter: (v) => v ? formatHours(v, lang) : '—',
+      unit: ''
+    },
+    {
+      labelKey: 'result.stat.energy',
+      value: state.wellbeing.energy,
+      tone: toneFromLikert(state.wellbeing.energy),
+      icon: 'E',
+      formatter: (v) => v == null ? '—' : String(v),
+      unit: '/5'
+    },
+    {
+      labelKey: 'result.stat.muscles',
+      value: state.wellbeing.muscles,
+      tone: toneFromLikert(state.wellbeing.muscles),
+      icon: 'M',
+      formatter: (v) => v == null ? '—' : String(v),
+      unit: '/5'
+    },
+    {
+      labelKey: 'result.stat.forearms',
+      value: state.wellbeing.forearms,
+      tone: toneFromLikert(state.wellbeing.forearms),
+      icon: 'F',
+      formatter: (v) => v == null ? '—' : String(v),
+      unit: '/5'
+    },
+    {
+      labelKey: 'result.stat.calm',
+      value: state.wellbeing.calm,
+      tone: toneFromLikert(state.wellbeing.calm),
+      icon: 'C',
+      formatter: (v) => v == null ? '—' : String(v),
+      unit: '/5'
+    },
+    {
+      labelKey: 'result.stat.mood',
+      value: state.wellbeing.mood,
+      tone: toneFromLikert(state.wellbeing.mood),
+      icon: 'H',
+      formatter: (v) => v == null ? '—' : String(v),
+      unit: '/5'
+    },
+    {
+      labelKey: 'result.stat.willingness',
+      value: state.wellbeing.willingness,
+      tone: toneFromHigherIsBetter(state.wellbeing.willingness),
+      icon: 'D',
+      formatter: (v) => String(v),
+      unit: '/10'
+    },
+    {
+      labelKey: 'result.stat.recovery',
+      value: state.wellbeing.recoveryPrs,
+      tone: toneFromHigherIsBetter(state.wellbeing.recoveryPrs),
+      icon: 'R',
+      formatter: (v) => String(v),
+      unit: '/10'
+    }
   ];
 
-  grid.innerHTML = items.map((item, idx) => {
-    const valueText = item.formatter ? item.formatter(item.value) : (item.value === null ? '—' : String(item.value));
-    const unitText = item.value === null ? '' : t(lang, item.unitKey);
-    const donutCenter = item.donutText !== undefined ? item.donutText
-      : (item.value === null ? '—' : `${Math.round(item.ratio * 100)}%`);
-    const gradId = `donut-gradient-${item.tone}`;
+  list.innerHTML = items.map((item) => {
+    const valueText = item.formatter(item.value);
     return `
-      <div class="stat-card tone-${item.tone}">
-        <div class="stat-info">
-          <span class="stat-label">${escapeHtml(t(lang, item.labelKey))}</span>
-          <div class="stat-value-row">
-            <span class="stat-value">${escapeHtml(valueText)}</span>
-            <span class="stat-unit">${escapeHtml(unitText)}</span>
-          </div>
-        </div>
-        <div class="stat-donut">
-          <svg viewBox="0 0 64 64">
-            <circle class="donut-bg" cx="32" cy="32" r="${DONUT_RADIUS}"/>
-            <circle class="donut-fg" cx="32" cy="32" r="${DONUT_RADIUS}"
-                    style="--donut-circ: ${DONUT_CIRC}; stroke-dasharray: ${DONUT_CIRC}; stroke: url(#${gradId})"
-                    data-ratio="${item.ratio.toFixed(3)}"
-                    data-delay="${(idx * 80 + 200)}"
-                    transform="rotate(-90 32 32)"/>
-          </svg>
-          <span class="donut-center">${escapeHtml(donutCenter)}</span>
+      <div class="stat-row tone-${item.tone}">
+        <div class="stat-icon" aria-hidden="true"></div>
+        <div class="stat-label">${escapeHtml(t(lang, item.labelKey))}</div>
+        <div>
+          <span class="stat-value">${escapeHtml(valueText)}</span><span class="stat-unit">${escapeHtml(item.unit)}</span>
         </div>
       </div>
     `;
   }).join('');
-
-  requestAnimationFrame(() => {
-    grid.querySelectorAll('.donut-fg').forEach((el) => {
-      const ratio = parseFloat(el.dataset.ratio || '0');
-      const delay = parseInt(el.dataset.delay || '0', 10);
-      const offset = DONUT_CIRC * (1 - ratio);
-      el.style.strokeDashoffset = String(DONUT_CIRC);
-      setTimeout(() => {
-        el.style.strokeDashoffset = String(offset);
-      }, delay);
-    });
-  });
 }
 
 function renderIndicators(flags) {
@@ -215,13 +209,6 @@ function toneFromSleep(h) {
   if (h < 7) return 'red';
   if (h < 8) return 'yellow';
   return 'green';
-}
-function ratioLikert(v) {
-  if (v === null || v === undefined) return 0;
-  return v / 5;
-}
-function clamp01(v) {
-  return Math.max(0, Math.min(1, v));
 }
 function escapeHtml(s) {
   if (s === null || s === undefined) return '';
