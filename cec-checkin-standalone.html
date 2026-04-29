@@ -1,0 +1,5379 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0e1a" />
+  <meta name="description" content="CEC Check-in matinal - Camp Innsbruck 2026" data-i18n="meta.description" data-i18n-attr="content" />
+  <title data-i18n="meta.title">CEC Check-in Matinal · Innsbruck 2026</title>
+  <style>
+/* ============================================
+   CEC Check-in - base.css
+   Variables, reset, typography, layout primitives
+   ============================================ */
+
+:root {
+  /* CEC brand */
+  --cec-red: #F80504;
+  --cec-red-dark: #C00000;
+
+  /* Backgrounds */
+  --bg-deep: #0a0e1a;
+  --bg-mid: #141927;
+  --bg-card: rgba(20, 25, 39, 0.7);
+  --bg-card-solid: #141927;
+  --bg-elev: rgba(30, 37, 56, 0.85);
+
+  /* Text */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-inverse: #0a0e1a;
+
+  /* Semantic */
+  --green: #10b981;
+  --green-dark: #047857;
+  --yellow: #f59e0b;
+  --yellow-dark: #b45309;
+  --red: #ef4444;
+  --red-dark: #b91c1c;
+  --blue: #3b82f6;
+  --purple: #8b5cf6;
+  --orange: #f97316;
+  --pink: #ec4899;
+  --turquoise: #14b8a6;
+
+  /* Borders */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-glow: rgba(255, 255, 255, 0.12);
+  --border-card: rgba(255, 255, 255, 0.08);
+
+  /* Shadows */
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --shadow-card-hover: 0 12px 40px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  /* Sizing */
+  --container-max: 600px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  /* Header height */
+  --header-height: 68px;
+  --progress-height: 4px;
+
+  /* Typography */
+  --font-stack: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: var(--font-stack);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--bg-deep);
+  background-image:
+    linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-mid) 100%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.01em;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5 {
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+h1 { font-size: 1.125rem; letter-spacing: -0.025em; }
+h2 { font-size: 1.25rem; letter-spacing: -0.03em; }
+h3 { font-size: 1.0625rem; letter-spacing: -0.02em; }
+
+p { margin: 0; }
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ============================================
+   Ambient background gradients (animated mesh)
+   ============================================ */
+.bg-gradients {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -3;
+  overflow: hidden;
+}
+
+.bg-gradient {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(110px);
+  opacity: 0.22;
+  will-change: transform;
+}
+
+.bg-gradient-red {
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, var(--cec-red) 0%, transparent 70%);
+  top: -140px;
+  left: -160px;
+  animation: blob-drift-1 22s ease-in-out infinite;
+}
+
+.bg-gradient-blue {
+  width: 560px;
+  height: 560px;
+  background: radial-gradient(circle, var(--blue) 0%, transparent 70%);
+  bottom: -200px;
+  right: -200px;
+  animation: blob-drift-2 28s ease-in-out infinite;
+}
+
+.bg-gradient-purple {
+  width: 440px;
+  height: 440px;
+  background: radial-gradient(circle, var(--purple) 0%, transparent 70%);
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.16;
+  animation: blob-drift-3 25s ease-in-out infinite;
+}
+
+.bg-gradient-green {
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, var(--green) 0%, transparent 70%);
+  top: 70%;
+  left: 12%;
+  opacity: 0.12;
+  animation: blob-drift-1 30s ease-in-out infinite reverse;
+}
+
+.bg-gradient-pink {
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, var(--pink) 0%, transparent 70%);
+  top: 18%;
+  right: 10%;
+  opacity: 0.1;
+  animation: blob-drift-2 26s ease-in-out infinite reverse;
+}
+
+/* Subtle film grain for premium feel */
+.bg-noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -2;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 240px;
+}
+
+/* Vignette */
+.bg-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(5, 8, 18, 0.55) 100%);
+}
+
+/* ============================================
+   Container & layout
+   ============================================ */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 16px;
+  padding-bottom: max(48px, env(safe-area-inset-bottom));
+  position: relative;
+  z-index: 1;
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.screen[hidden] {
+  display: none;
+}
+
+/* ============================================
+   Header
+   ============================================ */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(10, 14, 26, 0.78);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 12px 16px;
+  height: var(--header-height);
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.header-logo {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--cec-red) 0%, var(--cec-red-dark) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 4px 16px rgba(248, 5, 4, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.header-logo-text {
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: -0.02em;
+  color: white;
+}
+
+.header-titles {
+  min-width: 0;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  transition: background 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
+}
+
+.icon-button:hover, .icon-button:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--border-glow);
+}
+
+.icon-button:active {
+  transform: scale(0.96);
+}
+
+.icon-button .flag {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.icon-button .lang-code {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   Progress bar
+   ============================================ */
+.progress-bar {
+  position: relative;
+  height: var(--progress-height);
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--cec-red) 0%, var(--orange) 35%, var(--yellow) 65%, var(--green) 100%);
+  background-size: 200% 100%;
+  background-position: 0% 50%;
+  border-radius: 0 999px 999px 0;
+  transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
+}
+
+
+/* ============================================
+   CEC Check-in - components.css
+   Cards, buttons, forms, Likert, sliders, modal
+   ============================================ */
+
+/* ============================================
+   Card (premium glassmorphism)
+   ============================================ */
+.card {
+  position: relative;
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.04) 0%, transparent 50%),
+    var(--bg-card);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.4),
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.25) inset;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+  animation: card-fade-in 0.5s cubic-bezier(0.34, 1.4, 0.4, 1) backwards;
+}
+
+.card:nth-of-type(1) { animation-delay: 0.05s; }
+.card:nth-of-type(2) { animation-delay: 0.12s; }
+.card:nth-of-type(3) { animation-delay: 0.19s; }
+.card:nth-of-type(4) { animation-delay: 0.26s; }
+.card:nth-of-type(5) { animation-delay: 0.33s; }
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.02) 40%, transparent 100%);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+@keyframes card-fade-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+}
+
+.card-athlete .field-label {
+  margin-bottom: 8px;
+}
+
+/* ============================================
+   Section card header
+   ============================================ */
+.section-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.section-number {
+  position: relative;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+  color: white;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -2px 4px rgba(0, 0, 0, 0.18);
+}
+
+.section-number::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.section-number-blue {
+  background: linear-gradient(135deg, var(--blue) 0%, #1e40af 100%);
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.section-number-green {
+  background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.section-number-orange {
+  background: linear-gradient(135deg, var(--orange) 0%, #c2410c 100%);
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.section-number-purple {
+  background: linear-gradient(135deg, var(--purple) 0%, #6d28d9 100%);
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.section-titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+}
+
+.section-hint {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* ============================================
+   Fields
+   ============================================ */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--text-primary);
+}
+
+.field-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+
+/* Inputs */
+.text-input,
+.number-input,
+.time-input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: rgba(10, 14, 26, 0.6);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.text-input::placeholder,
+.textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+.text-input:focus,
+.number-input:focus,
+.time-input:focus,
+.textarea:focus {
+  border-color: var(--blue);
+  background: rgba(10, 14, 26, 0.8);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 76px;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.number-input {
+  width: 96px;
+  font-variant-numeric: tabular-nums;
+}
+
+.time-input {
+  font-variant-numeric: tabular-nums;
+}
+
+/* iOS time input cosmetic fix */
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
+}
+
+/* ============================================
+   Sleep duration display
+   ============================================ */
+.sleep-duration {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.06) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  border-radius: var(--radius-md);
+  margin-top: 4px;
+}
+
+.sleep-duration-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sleep-duration-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.sleep-duration.warning {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(249, 115, 22, 0.08) 100%);
+  border-color: rgba(239, 68, 68, 0.28);
+}
+
+.sleep-duration.ok {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(20, 184, 166, 0.08) 100%);
+  border-color: rgba(16, 185, 129, 0.28);
+}
+
+/* ============================================
+   Likert
+   ============================================ */
+.likert {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.likert-anchors {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  padding: 0 2px;
+}
+
+.likert-anchor {
+  max-width: 45%;
+}
+
+.likert-anchor.anchor-high {
+  text-align: right;
+}
+
+.likert-buttons {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.likert-btn {
+  position: relative;
+  height: 54px;
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%),
+    rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-card);
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  transition: transform 0.15s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.3s ease, border-color 0.2s ease;
+  overflow: hidden;
+}
+
+.likert-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.likert-btn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-primary);
+  border-color: var(--border-glow);
+  transform: translateY(-1px);
+}
+
+.likert-btn:hover::before { opacity: 1; }
+
+.likert-btn:active {
+  transform: scale(0.94);
+}
+
+/* Active gradients */
+.likert-btn.active {
+  color: white;
+  border-color: transparent;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -2px 4px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.likert-btn[data-value="1"].active {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.6), 0 6px 18px rgba(239, 68, 68, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.likert-btn[data-value="2"].active {
+  background: linear-gradient(135deg, #f97316 0%, #c2410c 100%);
+  box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.6), 0 6px 18px rgba(249, 115, 22, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.likert-btn[data-value="3"].active {
+  background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.6), 0 6px 18px rgba(245, 158, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.likert-btn[data-value="4"].active {
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+  box-shadow: 0 0 0 1px rgba(20, 184, 166, 0.6), 0 6px 18px rgba(20, 184, 166, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.likert-btn[data-value="5"].active {
+  background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.6), 0 6px 18px rgba(16, 185, 129, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================
+   Sliders
+   ============================================ */
+.slider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.slider-value {
+  min-width: 44px;
+  text-align: right;
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  transition: color 0.2s ease, transform 0.15s ease;
+  background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.slider-anchors {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+  margin-top: -2px;
+}
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.45) 0%, rgba(245, 158, 11, 0.45) 50%, rgba(239, 68, 68, 0.45) 100%);
+  outline: none;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.slider-willingness, .slider-recovery {
+  background: linear-gradient(90deg, var(--red) 0%, var(--orange) 30%, var(--yellow) 55%, var(--turquoise) 75%, var(--green) 100%);
+}
+
+.slider-pain {
+  background: linear-gradient(90deg, var(--green) 0%, var(--turquoise) 25%, var(--yellow) 55%, var(--orange) 75%, var(--red) 100%);
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+  border: 2px solid rgba(10, 14, 26, 0.9);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.slider::-moz-range-thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+  border: 2px solid rgba(10, 14, 26, 0.9);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+}
+
+.slider:active::-webkit-slider-thumb {
+  transform: scale(1.12);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* ============================================
+   Switch (toggle)
+   ============================================ */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 28px;
+  flex: 0 0 48px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-slider {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--border-card);
+  border-radius: 999px;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.switch-slider::before {
+  content: '';
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.switch input:checked + .switch-slider {
+  background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+  border-color: transparent;
+}
+
+.switch input:checked + .switch-slider::before {
+  transform: translate(20px, -50%);
+}
+
+.alert-box .switch input:checked + .switch-slider {
+  background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.toggle-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* ============================================
+   Alert box (PIP dorsal)
+   ============================================ */
+.alert-box {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(248, 5, 4, 0.04) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  border-radius: var(--radius-md);
+  padding: 14px;
+}
+
+.alert-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.alert-explain {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+/* ============================================
+   Badge
+   ============================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.badge-priority {
+  background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 0.15s ease, box-shadow 0.25s ease, background 0.25s ease, border-color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 18px;
+  font-size: 16px;
+  margin-top: 4px;
+}
+
+.btn-primary {
+  position: relative;
+  background: linear-gradient(135deg, #ff2a29 0%, var(--cec-red) 50%, var(--cec-red-dark) 100%);
+  color: white;
+  box-shadow:
+    0 12px 32px rgba(248, 5, 4, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.32) 50%, transparent 100%);
+  transition: left 0.7s ease;
+}
+
+.btn-primary:hover::before { left: 130%; }
+
+.btn-primary:hover {
+  box-shadow:
+    0 14px 36px rgba(248, 5, 4, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.18);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  border-color: var(--border-card);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-glow);
+}
+
+.btn-tertiary {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+}
+
+.btn-tertiary:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.btn-whatsapp {
+  position: relative;
+  width: 100%;
+  padding: 18px;
+  font-size: 16px;
+  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+  color: white;
+  overflow: hidden;
+  box-shadow:
+    0 8px 24px rgba(37, 211, 102, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.btn-whatsapp::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
+  transition: left 0.6s ease;
+}
+
+.btn-whatsapp:hover::before {
+  left: 130%;
+}
+
+.result-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* ============================================
+   Form footer & disclaimer
+   ============================================ */
+.form-footer {
+  text-align: center;
+  padding: 8px 4px 0;
+}
+
+.form-disclaimer {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+}
+
+/* ============================================
+   Modal
+   ============================================ */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal[hidden] {
+  display: none;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 8, 18, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.modal-footer .btn {
+  flex: 1;
+}
+
+.lang-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.lang-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-card);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.lang-option input {
+  accent-color: var(--cec-red);
+}
+
+.lang-option:has(input:checked) {
+  background: rgba(248, 5, 4, 0.1);
+  border-color: rgba(248, 5, 4, 0.4);
+}
+
+/* ============================================
+   Toast
+   ============================================ */
+.toast {
+  position: fixed;
+  bottom: max(24px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  z-index: 200;
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  background: rgba(20, 25, 39, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glow);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  max-width: calc(100vw - 32px);
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.toast.toast-error {
+  background: rgba(76, 13, 13, 0.95);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.toast.toast-success {
+  background: rgba(6, 78, 59, 0.95);
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+.toast[hidden] {
+  display: none;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ============================================
+   Validation visuals
+   ============================================ */
+.likert.invalid .likert-buttons {
+  outline: 1px solid rgba(239, 68, 68, 0.5);
+  outline-offset: 4px;
+  border-radius: var(--radius-md);
+  animation: shake 0.4s ease;
+}
+
+.text-input.invalid {
+  border-color: rgba(239, 68, 68, 0.6);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18);
+  animation: shake 0.4s ease;
+}
+
+
+/* ============================================
+   CEC Check-in - animations.css
+   All @keyframes and animation utilities
+   ============================================ */
+
+/* ============================================
+   Floating ambient particles (premium density)
+   ============================================ */
+.particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(0.5px);
+  opacity: 0.55;
+  will-change: transform, opacity;
+}
+
+.particle-1  { top: 8%;  left: 12%; width: 6px;  height: 6px;  background: var(--cec-red);    box-shadow: 0 0 18px var(--cec-red);   animation: float-1 14s ease-in-out infinite; }
+.particle-2  { top: 18%; right: 16%; width: 5px; height: 5px;  background: var(--blue);       box-shadow: 0 0 16px var(--blue);      animation: float-2 18s ease-in-out infinite; }
+.particle-3  { top: 32%; left: 6%;  width: 8px;  height: 8px;  background: var(--purple);     box-shadow: 0 0 22px var(--purple);    animation: float-3 16s ease-in-out infinite; }
+.particle-4  { top: 50%; right: 10%; width: 5px; height: 5px;  background: var(--green);      box-shadow: 0 0 14px var(--green);     animation: float-1 20s ease-in-out infinite reverse; }
+.particle-5  { top: 68%; left: 14%; width: 6px;  height: 6px;  background: var(--orange);     box-shadow: 0 0 16px var(--orange);    animation: float-2 22s ease-in-out infinite reverse; }
+.particle-6  { top: 82%; right: 22%; width: 7px; height: 7px;  background: var(--pink);       box-shadow: 0 0 18px var(--pink);      animation: float-3 26s ease-in-out infinite; }
+.particle-7  { top: 28%; left: 48%; width: 4px;  height: 4px;  background: var(--turquoise);  box-shadow: 0 0 14px var(--turquoise); animation: float-1 24s ease-in-out infinite reverse; }
+.particle-8  { top: 42%; left: 88%; width: 6px;  height: 6px;  background: var(--yellow);     box-shadow: 0 0 16px var(--yellow);    animation: float-2 19s ease-in-out infinite; }
+.particle-9  { top: 12%; left: 70%; width: 5px;  height: 5px;  background: var(--turquoise);  box-shadow: 0 0 14px var(--turquoise); animation: float-3 21s ease-in-out infinite reverse; }
+.particle-10 { top: 60%; left: 38%; width: 4px;  height: 4px;  background: var(--purple);     box-shadow: 0 0 12px var(--purple);    animation: float-1 17s ease-in-out infinite; }
+.particle-11 { top: 92%; left: 60%; width: 6px;  height: 6px;  background: var(--cec-red);    box-shadow: 0 0 16px var(--cec-red);   animation: float-2 23s ease-in-out infinite reverse; }
+.particle-12 { top: 5%;  left: 38%; width: 4px;  height: 4px;  background: var(--blue);       box-shadow: 0 0 12px var(--blue);      animation: float-3 25s ease-in-out infinite; }
+.particle-13 { top: 38%; left: 28%; width: 7px;  height: 7px;  background: var(--pink);       box-shadow: 0 0 18px var(--pink);      animation: float-1 27s ease-in-out infinite reverse; }
+.particle-14 { top: 72%; left: 70%; width: 5px;  height: 5px;  background: var(--green);      box-shadow: 0 0 14px var(--green);     animation: float-2 20s ease-in-out infinite; }
+.particle-15 { top: 22%; left: 88%; width: 4px;  height: 4px;  background: var(--orange);     box-shadow: 0 0 12px var(--orange);    animation: float-3 18s ease-in-out infinite reverse; }
+.particle-16 { top: 78%; left: 48%; width: 6px;  height: 6px;  background: var(--yellow);     box-shadow: 0 0 16px var(--yellow);    animation: float-1 22s ease-in-out infinite; }
+.particle-17 { top: 55%; left: 60%; width: 4px;  height: 4px;  background: var(--turquoise);  box-shadow: 0 0 12px var(--turquoise); animation: float-2 24s ease-in-out infinite reverse; }
+.particle-18 { top: 88%; left: 8%;  width: 5px;  height: 5px;  background: var(--blue);       box-shadow: 0 0 14px var(--blue);      animation: float-3 28s ease-in-out infinite; }
+
+@keyframes float-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+  25% { transform: translate(40px, -50px) scale(1.2); opacity: 0.8; }
+  50% { transform: translate(-30px, -90px) scale(0.9); opacity: 0.4; }
+  75% { transform: translate(-60px, -40px) scale(1.1); opacity: 0.7; }
+}
+
+@keyframes float-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+  33% { transform: translate(-50px, 30px) scale(1.3); opacity: 0.7; }
+  66% { transform: translate(60px, -50px) scale(0.85); opacity: 0.5; }
+}
+
+@keyframes float-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+  50% { transform: translate(80px, 60px) scale(1.4); opacity: 0.8; }
+}
+
+/* ============================================
+   Card entry / fade animations
+   ============================================ */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+@keyframes pulse-glow-green {
+  0%, 100% { filter: drop-shadow(0 0 18px rgba(16, 185, 129, 0.6)); }
+  50% { filter: drop-shadow(0 0 28px rgba(16, 185, 129, 0.9)); }
+}
+
+@keyframes pulse-glow-yellow {
+  0%, 100% { filter: drop-shadow(0 0 18px rgba(245, 158, 11, 0.6)); }
+  50% { filter: drop-shadow(0 0 28px rgba(245, 158, 11, 0.9)); }
+}
+
+@keyframes pulse-glow-red {
+  0%, 100% { filter: drop-shadow(0 0 18px rgba(239, 68, 68, 0.6)); }
+  50% { filter: drop-shadow(0 0 28px rgba(239, 68, 68, 0.9)); }
+}
+
+@keyframes ring-fill {
+  from { stroke-dashoffset: var(--ring-circ); }
+  to { stroke-dashoffset: var(--ring-target); }
+}
+
+@keyframes ring-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ring-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes halo-breathe {
+  0%, 100% { opacity: 0.45; transform: translateX(-50%) scale(1); }
+  50% { opacity: 0.7; transform: translateX(-50%) scale(1.06); }
+}
+
+@keyframes blob-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, -30px) scale(1.08); }
+  66% { transform: translate(-30px, 50px) scale(0.95); }
+}
+
+@keyframes blob-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-50px, -40px) scale(1.1); }
+}
+
+@keyframes blob-drift-3 {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(calc(-50% + 60px), calc(-50% - 40px)) scale(1.08); }
+}
+
+@keyframes dot-pulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(239, 68, 68, 0.6); transform: scale(1); }
+  50% { box-shadow: 0 0 20px rgba(239, 68, 68, 1); transform: scale(1.18); }
+}
+
+@keyframes orbit-1 {
+  0%   { transform: rotate(0deg)   translate(0, 140px) rotate(0deg); }
+  100% { transform: rotate(360deg) translate(0, 140px) rotate(-360deg); }
+}
+
+@keyframes orbit-2 {
+  0%   { transform: rotate(60deg)  translate(0, 140px) rotate(-60deg); }
+  100% { transform: rotate(420deg) translate(0, 140px) rotate(-420deg); }
+}
+
+@keyframes orbit-3 {
+  0%   { transform: rotate(180deg) translate(0, 140px) rotate(-180deg); }
+  100% { transform: rotate(540deg) translate(0, 140px) rotate(-540deg); }
+}
+
+@keyframes count-up {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ============================================
+   Climber animations - shared
+   ============================================ */
+.climber-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ============================================
+   GREEN climber - victory animation
+   ============================================ */
+.climber-green .victory-arm {
+  transform-origin: 32px 70px;
+  animation: arm-pump 1.4s ease-in-out infinite;
+}
+
+.climber-green .halo {
+  transform-origin: center;
+  animation: halo-pulse 2s ease-in-out infinite;
+}
+
+.climber-green .smile {
+  animation: smile-bounce 1.6s ease-in-out infinite;
+}
+
+.confetti-piece {
+  animation: confetti-fall 2.6s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes arm-pump {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(-6deg) translateY(-3px); }
+}
+
+@keyframes halo-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.1); }
+}
+
+@keyframes smile-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+@keyframes confetti-fall {
+  0% { transform: translateY(-30px) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(180px) rotate(540deg); opacity: 0; }
+}
+
+/* ============================================
+   YELLOW climber - dazed/recovering
+   ============================================ */
+.climber-yellow .climber-body {
+  animation: climber-recover 3s ease-in-out infinite;
+  transform-origin: 100px 130px;
+}
+
+.climber-yellow .star {
+  animation: star-orbit 3s linear infinite;
+  transform-origin: 100px 60px;
+}
+
+.climber-yellow .star-1 { animation-delay: 0s; }
+.climber-yellow .star-2 { animation-delay: -1s; }
+.climber-yellow .star-3 { animation-delay: -2s; }
+
+@keyframes climber-recover {
+  0%, 70%, 100% { transform: rotate(0deg) translateY(0); }
+  85% { transform: rotate(-3deg) translateY(-4px); }
+}
+
+@keyframes star-orbit {
+  0% { transform: rotate(0deg) translateX(28px) rotate(0deg); opacity: 0.9; }
+  50% { opacity: 1; }
+  100% { transform: rotate(360deg) translateX(28px) rotate(-360deg); opacity: 0.9; }
+}
+
+/* ============================================
+   RED climber - leaving the wall
+   ============================================ */
+.climber-red .climber-leaving {
+  animation: climber-leave 4.5s ease-in-out infinite;
+}
+
+.climber-red .alert-marks {
+  animation: alert-blink 1.2s ease-in-out infinite;
+}
+
+@keyframes climber-leave {
+  0% { transform: translateX(0); opacity: 1; }
+  60% { transform: translateX(60px); opacity: 0.6; }
+  80% { transform: translateX(80px); opacity: 0.15; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes alert-blink {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* ============================================
+   Stat card cascade
+   ============================================ */
+.stat-card {
+  animation: fadeInUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+.stat-card:nth-child(1) { animation-delay: 80ms; }
+.stat-card:nth-child(2) { animation-delay: 160ms; }
+.stat-card:nth-child(3) { animation-delay: 240ms; }
+.stat-card:nth-child(4) { animation-delay: 320ms; }
+.stat-card:nth-child(5) { animation-delay: 400ms; }
+.stat-card:nth-child(6) { animation-delay: 480ms; }
+.stat-card:nth-child(7) { animation-delay: 560ms; }
+.stat-card:nth-child(8) { animation-delay: 640ms; }
+
+/* Hero card entry */
+.screen-result.entering .hero-card {
+  animation: fadeInScale 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.screen-result.entering .hero-letter {
+  animation: hero-letter-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s backwards;
+}
+
+.screen-result.entering .hero-track-label {
+  animation: fadeInUp 0.5s ease 0.5s backwards;
+}
+
+.screen-result.entering .hero-text {
+  animation: fadeInUp 0.55s ease 0.45s backwards;
+}
+
+@keyframes hero-letter-in {
+  0% { opacity: 0; transform: scale(0.5) rotate(-8deg); filter: blur(8px); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); filter: blur(0); }
+}
+
+/* Slider value pulse on change */
+.slider-value.pulse {
+  animation: slider-pulse 0.35s ease;
+}
+
+@keyframes slider-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.18); }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .particle, .bg-gradient { animation: none !important; }
+}
+
+
+/* ============================================
+   CEC Check-in - result-screen.css
+   Premium hero with multi-arc neon ring, donut stats
+   ============================================ */
+
+/* ============================================
+   Hero card
+   ============================================ */
+.hero-card {
+  position: relative;
+  padding: 40px 24px 36px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  background:
+    radial-gradient(ellipse at top, rgba(255, 255, 255, 0.05) 0%, transparent 60%),
+    var(--bg-card);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid var(--border-card);
+  box-shadow:
+    0 32px 80px rgba(0, 0, 0, 0.6),
+    0 1px 0 rgba(255, 255, 255, 0.08) inset;
+  transition: box-shadow 0.5s ease, border-color 0.5s ease;
+}
+
+.hero-card::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, transparent 100%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.hero-card.track-green {
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow:
+    0 32px 90px rgba(16, 185, 129, 0.32),
+    0 0 0 1px rgba(16, 185, 129, 0.25),
+    0 1px 0 rgba(255, 255, 255, 0.1) inset;
+}
+
+.hero-card.track-yellow {
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow:
+    0 32px 90px rgba(245, 158, 11, 0.3),
+    0 0 0 1px rgba(245, 158, 11, 0.25),
+    0 1px 0 rgba(255, 255, 255, 0.1) inset;
+}
+
+.hero-card.track-red {
+  border-color: rgba(239, 68, 68, 0.55),;
+  box-shadow:
+    0 32px 90px rgba(239, 68, 68, 0.34),
+    0 0 0 1px rgba(239, 68, 68, 0.28),
+    0 1px 0 rgba(255, 255, 255, 0.1) inset;
+}
+
+.hero-halo {
+  position: absolute;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 560px;
+  height: 560px;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.65;
+  pointer-events: none;
+  transition: background 0.5s ease;
+  animation: halo-breathe 6s ease-in-out infinite;
+}
+
+.hero-card.track-green .hero-halo {
+  background: conic-gradient(
+    from 0deg,
+    #10b981, #06b6d4, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #10b981
+  );
+  filter: blur(120px);
+  opacity: 0.55;
+}
+
+.hero-card.track-yellow .hero-halo { background: radial-gradient(circle, var(--yellow) 0%, var(--orange) 50%, transparent 75%); }
+.hero-card.track-red .hero-halo { background: radial-gradient(circle, var(--red) 0%, var(--cec-red-dark) 50%, transparent 75%); }
+
+/* ============================================
+   Track ring system
+   ============================================ */
+.hero-track {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  z-index: 1;
+}
+
+.track-ring {
+  position: relative;
+  width: 360px;
+  height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 40px rgba(16, 185, 129, 0.3));
+}
+
+.hero-card.track-yellow .track-ring { filter: drop-shadow(0 0 40px rgba(245, 158, 11, 0.3)); }
+.hero-card.track-red .track-ring { filter: drop-shadow(0 0 40px rgba(239, 68, 68, 0.3)); }
+
+.track-ring svg.ring-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Background dotted guide */
+.ring-bg {
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-dasharray: 1 4;
+}
+
+.ring-inner-spinner {
+  stroke: rgba(255, 255, 255, 0.06);
+  stroke-dasharray: 6 12;
+  transform-origin: 180px 180px;
+  animation: ring-spin 30s linear infinite reverse;
+}
+
+/* The 12 arcs container — rotates slowly */
+.ring-arcs {
+  transform-origin: 180px 180px;
+  animation: ring-spin 24s linear infinite;
+}
+
+.ring-arc {
+  fill: none;
+  stroke-width: 22;
+  stroke-linecap: round;
+  transition: opacity 0.4s ease;
+}
+
+/* ============================================
+   Inner core: glassy pod with READINESS score
+   Real photo background per track
+   ============================================ */
+.track-core {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background-color: #06090f;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 0 0 10px rgba(8, 11, 22, 0.85),
+    0 0 0 11px rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  z-index: 1;
+  isolation: isolate;
+}
+
+.hero-card.track-green .track-core {
+  background-image: url("https://www.theglobeandmail.com/resizer/v2/TWBAHPRXWBHJJCEBO575W2OFWE.jpg?auth=bdb094e810f4a2934fd96a1a3a3171eead59bcb34ad003d51c35217b54bace08&width=600&height=400&quality=85&smart=true");
+}
+
+/* Yellow track has no photo: abstract warm gradient evokes "neutral, evaluate" */
+.hero-card.track-yellow .track-core {
+  background-image:
+    radial-gradient(circle at 30% 20%, rgba(245, 158, 11, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 70% 80%, rgba(249, 115, 22, 0.3) 0%, transparent 55%),
+    linear-gradient(160deg, #1a1209 0%, #0a0e1a 100%);
+}
+
+/* Red track keeps the finger-taping photo (medical / injury context) */
+.hero-card.track-red .track-core {
+  background-image: url("https://cdn.mos.cms.futurecdn.net/CMgKVrgme4bVEPvvE2j3yD-1920-80.jpg");
+}
+
+/* Photo darkening / track-tone tint overlay */
+.track-core::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.45) 70%, rgba(0, 0, 0, 0.85) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.55) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Top-glow rim that tints the photo with the track color */
+.track-core-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: color;
+  opacity: 0.45;
+  background: radial-gradient(circle at 50% 30%, var(--green) 0%, transparent 70%);
+  transition: background 0.5s ease;
+}
+
+.hero-card.track-yellow .track-core-bg { background: radial-gradient(circle at 50% 30%, var(--yellow) 0%, transparent 70%); }
+.hero-card.track-red .track-core-bg { background: radial-gradient(circle at 50% 30%, var(--red) 0%, transparent 70%); }
+
+.readiness {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  z-index: 3;
+  position: relative;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.85);
+}
+
+.readiness-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.readiness-value {
+  font-size: 96px;
+  line-height: 0.85;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.5));
+  animation: readiness-in 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+.hero-card.track-green .readiness-value {
+  background: linear-gradient(180deg, #d1fae5 0%, #34d399 50%, #10b981 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 18px rgba(16, 185, 129, 0.55));
+}
+.hero-card.track-yellow .readiness-value {
+  background: linear-gradient(180deg, #fef3c7 0%, #fbbf24 50%, #d97706 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 18px rgba(245, 158, 11, 0.55));
+}
+.hero-card.track-red .readiness-value {
+  background: linear-gradient(180deg, #fecaca 0%, #ef4444 50%, #b91c1c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 18px rgba(239, 68, 68, 0.6));
+}
+
+.readiness-unit {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+}
+
+.track-meta {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 3;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+}
+
+.track-meta-sep {
+  opacity: 0.5;
+}
+
+@keyframes readiness-in {
+  0% { opacity: 0; transform: scale(0.6) translateY(8px); filter: blur(8px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+}
+
+/* Floating mini-orbits around the ring */
+.ring-orbit {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ring-orbit-1 { top: 50%; left: 50%; background: #10b981; box-shadow: 0 0 18px #10b981; animation: orbit-1 9s linear infinite; }
+.ring-orbit-2 { top: 50%; left: 50%; background: #3b82f6; box-shadow: 0 0 18px #3b82f6; animation: orbit-2 11s linear infinite; }
+.ring-orbit-3 { top: 50%; left: 50%; background: #8b5cf6; box-shadow: 0 0 18px #8b5cf6; animation: orbit-3 13s linear infinite reverse; }
+.ring-orbit-4 { top: 50%; left: 50%; background: #f59e0b; box-shadow: 0 0 18px #f59e0b; animation: orbit-1 15s linear infinite reverse; }
+.ring-orbit-5 { top: 50%; left: 50%; background: #ec4899; box-shadow: 0 0 18px #ec4899; animation: orbit-2 17s linear infinite; }
+
+/* ============================================
+   Hero letter & label
+   ============================================ */
+.hero-letter {
+  font-size: 110px;
+  font-weight: 900;
+  line-height: 0.85;
+  letter-spacing: -0.07em;
+  margin-top: 8px;
+  background: linear-gradient(180deg, #ffffff 0%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.5));
+}
+
+.hero-card.track-green .hero-letter {
+  background: linear-gradient(180deg, #d1fae5 0%, #34d399 40%, #10b981 70%, #047857 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 32px rgba(16, 185, 129, 0.7)) drop-shadow(0 8px 24px rgba(0, 0, 0, 0.5));
+}
+
+.hero-card.track-yellow .hero-letter {
+  background: linear-gradient(180deg, #fef3c7 0%, #fbbf24 50%, #b45309 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 32px rgba(245, 158, 11, 0.65)) drop-shadow(0 8px 24px rgba(0, 0, 0, 0.5));
+}
+
+.hero-card.track-red .hero-letter {
+  background: linear-gradient(180deg, #fecaca 0%, #ef4444 50%, #7f1d1d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 32px rgba(239, 68, 68, 0.7)) drop-shadow(0 8px 24px rgba(0, 0, 0, 0.5));
+}
+
+.hero-track-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin: 0;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  backdrop-filter: blur(10px);
+}
+
+.hero-card.track-green .hero-track-label { color: #6ee7b7; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1); box-shadow: 0 0 20px rgba(16, 185, 129, 0.25); }
+.hero-card.track-yellow .hero-track-label { color: #fcd34d; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.1); box-shadow: 0 0 20px rgba(245, 158, 11, 0.25); }
+.hero-card.track-red .hero-track-label { color: #fca5a5; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.1); box-shadow: 0 0 20px rgba(239, 68, 68, 0.25); }
+
+/* ============================================
+   Hero text
+   ============================================ */
+.hero-text {
+  text-align: center;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+.hero-message {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+}
+
+.hero-kindness {
+  margin: 0;
+  font-size: 13.5px;
+  font-style: italic;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  padding: 14px 18px 14px 32px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  position: relative;
+}
+
+.hero-kindness::before {
+  content: '"';
+  position: absolute;
+  left: 10px;
+  top: -2px;
+  font-size: 38px;
+  font-style: normal;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.12);
+  line-height: 1;
+}
+
+/* ============================================
+   Stats grid - donut style (BIGGER & BRIGHTER)
+   ============================================ */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.stat-card {
+  position: relative;
+  padding: 18px;
+  border-radius: var(--radius-md);
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.04) 0%, transparent 50%),
+    var(--bg-card);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid var(--border-card);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 14px;
+  overflow: hidden;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 60%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.stat-card.tone-green { box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.15), 0 8px 24px rgba(16, 185, 129, 0.1); }
+.stat-card.tone-yellow { box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.15), 0 8px 24px rgba(245, 158, 11, 0.08); }
+.stat-card.tone-red { box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.18), 0 8px 24px rgba(239, 68, 68, 0.1); }
+.stat-card.tone-blue { box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.12), 0 8px 24px rgba(59, 130, 246, 0.08); }
+
+.stat-card:hover {
+  transform: translateY(-3px);
+}
+
+.stat-info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+
+.stat-value {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.stat-unit {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: -0.01em;
+}
+
+/* Donut chart */
+.stat-donut {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  flex: 0 0 64px;
+}
+
+.stat-donut svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.donut-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.06);
+  stroke-width: 7;
+}
+
+.donut-fg {
+  fill: none;
+  stroke-width: 7;
+  stroke-linecap: round;
+  --donut-circ: 138.23;
+  stroke-dasharray: var(--donut-circ);
+  stroke-dashoffset: var(--donut-circ);
+  transition: stroke-dashoffset 1.1s cubic-bezier(0.34, 1.4, 0.4, 1);
+}
+
+.stat-card.tone-green .donut-fg { stroke: url(#donut-gradient-green); filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.8)); }
+.stat-card.tone-yellow .donut-fg { stroke: url(#donut-gradient-yellow); filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.8)); }
+.stat-card.tone-red .donut-fg { stroke: url(#donut-gradient-red); filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.8)); }
+.stat-card.tone-blue .donut-fg { stroke: url(#donut-gradient-blue); filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.7)); }
+
+.donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   Indicators
+   ============================================ */
+.indicators-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.card-title-count {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+}
+
+.indicators-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.indicator {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--text-primary);
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.4s ease backwards;
+}
+
+.indicator:nth-child(1) { animation-delay: 0.1s; }
+.indicator:nth-child(2) { animation-delay: 0.18s; }
+.indicator:nth-child(3) { animation-delay: 0.26s; }
+.indicator:nth-child(4) { animation-delay: 0.34s; }
+.indicator:nth-child(5) { animation-delay: 0.42s; }
+.indicator:nth-child(6) { animation-delay: 0.5s; }
+.indicator:nth-child(n+7) { animation-delay: 0.58s; }
+
+.indicator-empty {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-weight: 500;
+}
+
+.indicator::before {
+  content: '';
+  flex: 0 0 10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-top: 5px;
+  background: var(--text-tertiary);
+}
+
+.indicator.dot-red::before {
+  background: radial-gradient(circle, #fff 0%, var(--red) 60%);
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.85);
+  animation: dot-pulse 2s ease-in-out infinite;
+}
+
+.indicator.dot-yellow::before {
+  background: radial-gradient(circle, #fff 0%, var(--yellow) 60%);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.85);
+  animation: dot-pulse 2.4s ease-in-out infinite;
+}
+
+.indicator.dot-green::before {
+  background: radial-gradient(circle, #fff 0%, var(--green) 60%);
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.85);
+}
+
+.indicator.dot-red {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.03) 100%);
+  border-color: rgba(239, 68, 68, 0.22);
+}
+
+.indicator.dot-yellow {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(245, 158, 11, 0.03) 100%);
+  border-color: rgba(245, 158, 11, 0.22);
+}
+
+/* Tablet+ tweak: even bigger ring */
+@media (min-width: 480px) {
+  .track-ring { width: 400px; height: 400px; }
+  .track-core { width: 260px; height: 260px; }
+  .readiness-value { font-size: 110px; }
+  .hero-letter { font-size: 124px; }
+}
+
+
+/* ============================================
+   CEC Check-in - landing.css
+   Cinematic full-bleed landing screen + transitions
+   ============================================ */
+
+.screen-landing {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  z-index: 60;
+  overflow: hidden;
+  background: #050811;
+  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), filter 0.7s ease;
+}
+
+.screen-landing[hidden] {
+  display: none;
+}
+
+/* Background photo */
+.landing-photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.landing-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  filter: saturate(0.95) contrast(1.05) brightness(0.85);
+  animation: landing-zoom 20s ease-in-out infinite alternate;
+  transform-origin: center 40%;
+  will-change: transform;
+}
+
+@keyframes landing-zoom {
+  from { transform: scale(1.04); }
+  to { transform: scale(1.16); }
+}
+
+/* Dark cinematic gradient overlay */
+.landing-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(248, 5, 4, 0.08) 0%, transparent 45%),
+    linear-gradient(180deg, rgba(5, 8, 17, 0.65) 0%, rgba(5, 8, 17, 0.35) 35%, rgba(5, 8, 17, 0.85) 70%, rgba(5, 8, 17, 1) 100%);
+  pointer-events: none;
+}
+
+/* Subtle film grain */
+.landing-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 240px;
+  pointer-events: none;
+}
+
+/* Content */
+.landing-content {
+  position: relative;
+  z-index: 5;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 22px max(28px, env(safe-area-inset-bottom));
+  max-width: 560px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Top row: brand mark + lang toggle */
+.landing-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: auto;
+  animation: landing-fade-in 0.8s ease 0.1s backwards;
+}
+
+.landing-mark {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.landing-lang {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
+  flex: 0 0 auto;
+}
+
+.landing-lang:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.landing-lang:active {
+  transform: scale(0.96);
+}
+
+.landing-lang .flag {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.landing-lang .lang-code {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: white;
+}
+
+.landing-mark-logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--cec-red) 0%, var(--cec-red-dark) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.02em;
+  box-shadow: 0 6px 18px rgba(248, 5, 4, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  flex: 0 0 38px;
+}
+
+.landing-mark-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.landing-mark-sep {
+  opacity: 0.5;
+}
+
+/* Hero text block */
+.landing-hero {
+  margin: 32px 0 28px;
+  animation: landing-rise-in 0.9s cubic-bezier(0.34, 1.4, 0.4, 1) 0.25s backwards;
+}
+
+.landing-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--cec-red);
+  margin: 0 0 16px;
+  filter: drop-shadow(0 0 12px rgba(248, 5, 4, 0.4));
+}
+
+.landing-title {
+  font-size: clamp(40px, 11vw, 64px);
+  line-height: 0.95;
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  color: white;
+  margin: 0 0 14px;
+  text-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+.landing-sub {
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.78);
+  margin: 0;
+  max-width: 38ch;
+  letter-spacing: -0.005em;
+}
+
+/* Form block */
+.landing-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: landing-rise-in 0.9s cubic-bezier(0.34, 1.4, 0.4, 1) 0.45s backwards;
+}
+
+.landing-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 8px;
+}
+
+.landing-name {
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-input {
+  width: 100%;
+  padding: 16px 18px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: white;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.landing-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.landing-input:focus {
+  border-color: rgba(248, 5, 4, 0.6);
+  background: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 0 0 4px rgba(248, 5, 4, 0.15);
+}
+
+.landing-input.invalid {
+  border-color: rgba(239, 68, 68, 0.7);
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+  animation: shake 0.4s ease;
+}
+
+/* Discipline grid */
+.discipline-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.discipline-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px 14px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: transform 0.18s ease, background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  text-align: left;
+}
+
+.discipline-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, transparent 50%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.discipline-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.discipline-card.active {
+  background: linear-gradient(135deg, rgba(248, 5, 4, 0.18) 0%, rgba(248, 5, 4, 0.06) 100%);
+  border-color: rgba(248, 5, 4, 0.55);
+  color: white;
+  box-shadow:
+    0 8px 24px rgba(248, 5, 4, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.discipline-card.active .discipline-icon {
+  color: var(--cec-red);
+  filter: drop-shadow(0 0 10px rgba(248, 5, 4, 0.6));
+}
+
+.discipline-icon {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 4px;
+  transition: color 0.2s ease, filter 0.25s ease, background 0.2s ease;
+}
+
+.discipline-card.active .discipline-icon {
+  background: rgba(248, 5, 4, 0.18);
+}
+
+.discipline-name {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.discipline-hint {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.discipline-card.active .discipline-hint {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* CTA button */
+.btn-cinematic {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 18px 24px;
+  font-size: 15.5px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: white;
+  background:
+    linear-gradient(135deg, #ff2a29 0%, var(--cec-red) 50%, var(--cec-red-dark) 100%);
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow:
+    0 12px 32px rgba(248, 5, 4, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.18);
+  transition: transform 0.15s ease, box-shadow 0.25s ease;
+  margin-top: 6px;
+}
+
+.btn-cinematic::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.42) 50%, transparent 100%);
+  transition: left 0.7s ease;
+}
+
+.btn-cinematic:hover::before { left: 130%; }
+.btn-cinematic:hover {
+  box-shadow:
+    0 14px 38px rgba(248, 5, 4, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.36);
+}
+
+.btn-cinematic:active {
+  transform: scale(0.985);
+}
+
+.btn-arrow {
+  transition: transform 0.25s ease;
+}
+
+.btn-cinematic:hover .btn-arrow {
+  transform: translateX(4px);
+}
+
+/* Disclaimer */
+.landing-disclaimer {
+  margin: 18px 0 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  letter-spacing: -0.005em;
+  animation: landing-fade-in 0.8s ease 0.7s backwards;
+}
+
+/* ============================================
+   Transition: landing → form (hero scrub)
+   ============================================ */
+.screen-landing.exiting {
+  opacity: 0;
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+.screen-landing.exiting .landing-photo img {
+  transform: scale(1.4);
+  transition: transform 0.85s cubic-bezier(0.7, 0, 0.3, 1);
+}
+
+.screen-landing.exiting .landing-content {
+  transform: translateY(-30px);
+  opacity: 0;
+  transition: transform 0.6s ease, opacity 0.5s ease;
+}
+
+.screen-form.entering-from-landing {
+  animation: form-rise-in 0.9s cubic-bezier(0.34, 1.4, 0.4, 1);
+}
+
+@keyframes landing-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes landing-rise-in {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes form-rise-in {
+  from { opacity: 0; transform: translateY(40px) scale(0.96); filter: blur(6px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+/* When landing is visible, hide the main header */
+body:has(.screen-landing:not([hidden])) .header {
+  display: none;
+}
+
+body:has(.screen-landing:not([hidden])) .container {
+  padding: 0;
+  max-width: none;
+}
+
+/* Tablet+ tweaks */
+@media (min-width: 600px) {
+  .landing-content {
+    padding: 36px 32px 36px;
+  }
+  .discipline-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .discipline-card {
+    align-items: flex-start;
+  }
+  .landing-title {
+    font-size: clamp(56px, 6vw, 72px);
+  }
+}
+
+  </style>
+</head>
+<body>
+  <!-- Ambient background mesh + gradients -->
+  <div class="bg-gradients" aria-hidden="true">
+    <div class="bg-gradient bg-gradient-red"></div>
+    <div class="bg-gradient bg-gradient-blue"></div>
+    <div class="bg-gradient bg-gradient-purple"></div>
+    <div class="bg-gradient bg-gradient-green"></div>
+    <div class="bg-gradient bg-gradient-pink"></div>
+  </div>
+  <div class="bg-noise" aria-hidden="true"></div>
+  <div class="bg-vignette" aria-hidden="true"></div>
+
+  <!-- Floating ambient particles -->
+  <div class="particles" aria-hidden="true">
+    <span class="particle particle-1"></span>
+    <span class="particle particle-2"></span>
+    <span class="particle particle-3"></span>
+    <span class="particle particle-4"></span>
+    <span class="particle particle-5"></span>
+    <span class="particle particle-6"></span>
+    <span class="particle particle-7"></span>
+    <span class="particle particle-8"></span>
+    <span class="particle particle-9"></span>
+    <span class="particle particle-10"></span>
+    <span class="particle particle-11"></span>
+    <span class="particle particle-12"></span>
+    <span class="particle particle-13"></span>
+    <span class="particle particle-14"></span>
+    <span class="particle particle-15"></span>
+    <span class="particle particle-16"></span>
+    <span class="particle particle-17"></span>
+    <span class="particle particle-18"></span>
+  </div>
+
+  <!-- Sticky header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-brand">
+        <div class="header-logo" aria-hidden="true">
+          <span class="header-logo-text">CEC</span>
+        </div>
+        <div class="header-titles">
+          <h1 class="header-title" data-i18n="header.title">Check-in Matinal</h1>
+          <p class="header-subtitle" id="header-date">—</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-button" id="lang-toggle" type="button" aria-label="Toggle language">
+          <span class="flag" aria-hidden="true">🇨🇦</span>
+          <span class="lang-code" id="lang-code">FR</span>
+        </button>
+        <button class="icon-button" id="settings-open" type="button" aria-label="Settings" data-i18n="header.settings" data-i18n-attr="aria-label">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="progress-bar" aria-hidden="true">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- ============================================ -->
+    <!-- LANDING SCREEN (cinematic hero) -->
+    <!-- ============================================ -->
+    <section class="screen screen-landing" id="screen-landing">
+      <div class="landing-photo" aria-hidden="true">
+        <img src="https://www.theglobeandmail.com/resizer/v2/5SVJPNEF4JJQFPPPJ77ZPMJBWQ.JPG?auth=ab0d8d1360a130f1bd601db84920f9ca3362c73c3b364623f12babea09132c65&width=1200&height=900&quality=85&smart=true"
+             alt="" loading="eager" decoding="async" referrerpolicy="no-referrer" />
+      </div>
+      <div class="landing-overlay" aria-hidden="true"></div>
+      <div class="landing-grain" aria-hidden="true"></div>
+
+      <div class="landing-content">
+        <div class="landing-top">
+          <div class="landing-mark">
+            <div class="landing-mark-logo">CEC</div>
+            <div class="landing-mark-meta">
+              <span data-i18n="landing.tag">CLIMBING ESCALADE CANADA</span>
+              <span class="landing-mark-sep">·</span>
+              <span data-i18n="landing.camp">INNSBRUCK · JULY 2026</span>
+            </div>
+          </div>
+          <button class="landing-lang" id="landing-lang-toggle" type="button" aria-label="Toggle language">
+            <span class="flag" aria-hidden="true">🇨🇦</span>
+            <span class="lang-code" id="landing-lang-code">FR</span>
+          </button>
+        </div>
+
+        <div class="landing-hero">
+          <p class="landing-eyebrow" data-i18n="landing.eyebrow">YWCH 2026 PREP CAMP</p>
+          <h1 class="landing-title" data-i18n="landing.title">Morning Check-in</h1>
+          <p class="landing-sub" data-i18n="landing.sub">60 secondes pour décider la journée. Honnête. Précis. Stratégique.</p>
+        </div>
+
+        <form class="landing-form" id="landing-form" autocomplete="off">
+          <div class="landing-name">
+            <label class="landing-label" for="landing-athlete-name" data-i18n="landing.athleteLabel">Athlète</label>
+            <input class="landing-input" id="landing-athlete-name" type="text"
+                   autocomplete="given-name" required
+                   data-i18n="landing.athletePlaceholder" data-i18n-attr="placeholder"
+                   placeholder="Ton prénom" />
+          </div>
+
+          <div class="landing-discipline">
+            <p class="landing-label" data-i18n="landing.disciplineLabel">Discipline du jour</p>
+            <div class="discipline-grid" role="radiogroup" aria-label="Discipline">
+              <button type="button" class="discipline-card" data-discipline="lead" role="radio" aria-checked="false">
+                <span class="discipline-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v18M6 7l4-2M6 11l4-2M6 15l4-2M6 19l4-2"/></svg>
+                </span>
+                <span class="discipline-name" data-i18n="landing.lead">Lead</span>
+                <span class="discipline-hint" data-i18n="landing.leadHint">Difficulté</span>
+              </button>
+              <button type="button" class="discipline-card" data-discipline="boulder" role="radio" aria-checked="false">
+                <span class="discipline-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-6 9 6-9 6z"/><path d="M3 9v8l9 6 9-6V9"/><path d="M12 15v8"/></svg>
+                </span>
+                <span class="discipline-name" data-i18n="landing.boulder">Bloc</span>
+                <span class="discipline-hint" data-i18n="landing.boulderHint">Boulder</span>
+              </button>
+              <button type="button" class="discipline-card" data-discipline="speed" role="radio" aria-checked="false">
+                <span class="discipline-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M9 2h6"/></svg>
+                </span>
+                <span class="discipline-name" data-i18n="landing.speed">Vitesse</span>
+                <span class="discipline-hint" data-i18n="landing.speedHint">Speed</span>
+              </button>
+              <button type="button" class="discipline-card" data-discipline="combined" role="radio" aria-checked="false">
+                <span class="discipline-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><circle cx="15" cy="15" r="6"/></svg>
+                </span>
+                <span class="discipline-name" data-i18n="landing.combined">Combiné</span>
+                <span class="discipline-hint" data-i18n="landing.combinedHint">Combined</span>
+              </button>
+            </div>
+          </div>
+
+          <button class="btn btn-cinematic" id="landing-start" type="submit">
+            <span data-i18n="landing.start">Commencer le check-in</span>
+            <svg class="btn-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6"/>
+            </svg>
+          </button>
+        </form>
+
+        <p class="landing-disclaimer" data-i18n="landing.disclaimer">Tes réponses ne quittent ton téléphone que si tu choisis de les envoyer au coach.</p>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- FORM SCREEN -->
+    <!-- ============================================ -->
+    <section class="screen screen-form" id="screen-form" hidden>
+
+      <!-- Athlete name (hidden, set from landing) -->
+      <input type="hidden" id="athlete-name" name="athlete-name" />
+
+      <!-- ===== Section A : Sommeil ===== -->
+      <article class="card section-card" data-section="sleep">
+        <header class="section-header">
+          <span class="section-number section-number-blue">A</span>
+          <div class="section-titles">
+            <h2 class="section-title" data-i18n="sections.sleep.title">Sommeil</h2>
+            <p class="section-hint" data-i18n="sections.sleep.hint">Renseigne tes horaires de la nuit dernière.</p>
+          </div>
+        </header>
+
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label" for="sleep-bedtime" data-i18n="sleep.bedtime">Heure de coucher</label>
+            <input class="time-input" id="sleep-bedtime" type="time" value="23:00" />
+          </div>
+          <div class="field">
+            <label class="field-label" for="sleep-wake" data-i18n="sleep.wake">Heure de réveil</label>
+            <input class="time-input" id="sleep-wake" type="time" value="07:00" />
+          </div>
+        </div>
+
+        <div class="sleep-duration" id="sleep-duration">
+          <span class="sleep-duration-label" data-i18n="sleep.duration">Durée</span>
+          <span class="sleep-duration-value" id="sleep-duration-value">—</span>
+        </div>
+
+        <div class="field">
+          <label class="field-label" data-i18n="sleep.quality">Qualité du sommeil</label>
+          <div class="likert" data-likert="sleep-quality" data-required="true"
+               data-anchor-low-key="sleep.qualityLow" data-anchor-high-key="sleep.qualityHigh">
+            <div class="likert-anchors">
+              <span class="likert-anchor anchor-low" data-i18n="sleep.qualityLow">Très mal</span>
+              <span class="likert-anchor anchor-high" data-i18n="sleep.qualityHigh">Excellent</span>
+            </div>
+            <div class="likert-buttons" role="radiogroup" aria-label="Sleep quality"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="sleep-wakings" data-i18n="sleep.wakings">Réveils nocturnes</label>
+          <input class="number-input" id="sleep-wakings" type="number" min="0" max="20" step="1" value="0" />
+        </div>
+      </article>
+
+      <!-- ===== Section B : Bien-être ===== -->
+      <article class="card section-card" data-section="wellbeing">
+        <header class="section-header">
+          <span class="section-number section-number-green">B</span>
+          <div class="section-titles">
+            <h2 class="section-title" data-i18n="sections.wellbeing.title">Bien-être</h2>
+            <p class="section-hint" data-i18n="sections.wellbeing.hint">Échelle uniforme. 1 = très mauvais. 5 = au top. Plus haut = mieux.</p>
+          </div>
+        </header>
+
+        <div class="field">
+          <label class="field-label" data-i18n="wellbeing.energy">Niveau d'énergie</label>
+          <div class="likert" data-likert="energy" data-required="true">
+            <div class="likert-anchors">
+              <span class="likert-anchor anchor-low" data-i18n="wellbeing.energyLow">Vidé</span>
+              <span class="likert-anchor anchor-high" data-i18n="wellbeing.energyHigh">Plein d'énergie</span>
+            </div>
+            <div class="likert-buttons" role="radiogroup" aria-label="Energy"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" data-i18n="wellbeing.muscles">État des muscles</label>
+          <div class="likert" data-likert="muscles" data-required="true">
+            <div class="likert-anchors">
+              <span class="likert-anchor anchor-low" data-i18n="wellbeing.musclesLow">Très courbatés</span>
+              <span class="likert-anchor anchor-high" data-i18n="wellbeing.musclesHigh">Frais et dispos</span>
+            </div>
+            <div class="likert-buttons" role="radiogroup" aria-label="Muscles"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">
+            <span data-i18n="wellbeing.forearms">Avant-bras / mains / doigts</span>
+            <span class="badge badge-priority" data-i18n="wellbeing.priority">PRIORITÉ</span>
+          </label>
+          <div class="likert" data-likert="forearms" data-required="true">
+            <div class="likert-anchors">
+              <span class="likert-anchor anchor-low" data-i18n="wellbeing.forearmsLow">Cuits</span>
+              <span class="likert-anchor anchor-high" data-i18n="wellbeing.forearmsHigh">Pleine forme</span>
+            </div>
+            <div class="likert-buttons" role="radiogroup" aria-label="Forearms"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" data-i18n="wellbeing.calm">Calme et sérénité</label>
+          <div class="likert" data-likert="calm" data-required="true">
+            <div class="likert-anchors">
+              <span class="likert-anchor anchor-low" data-i18n="wellbeing.calmLow">Très stressé</span>
+              <span class="likert-anchor anchor-high" data-i18n="wellbeing.calmHigh">Très serein</span>
+            </div>
+            <div class="likert-buttons" role="radiogroup" aria-label="Calm"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" data-i18n="wellbeing.mood">Humeur</label>
+          <div class="likert" data-likert="mood" data-required="true">
+            <div class="likert-anchors">
+              <span class="likert-anchor anchor-low" data-i18n="wellbeing.moodLow">Très basse</span>
+              <span class="likert-anchor anchor-high" data-i18n="wellbeing.moodHigh">Excellente</span>
+            </div>
+            <div class="likert-buttons" role="radiogroup" aria-label="Mood"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="slider-header">
+            <label class="field-label" for="willingness" data-i18n="wellbeing.willingness">Disposition à grimper aujourd'hui</label>
+            <span class="slider-value" id="willingness-value">7</span>
+          </div>
+          <input class="slider slider-willingness" id="willingness" type="range" min="0" max="10" step="1" value="7" />
+          <div class="slider-anchors">
+            <span data-i18n="scale.zero">0</span>
+            <span data-i18n="scale.ten">10</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="slider-header">
+            <label class="field-label" for="recovery-prs" data-i18n="wellbeing.recoveryPrs">Récupération PRS</label>
+            <span class="slider-value" id="recovery-prs-value">7</span>
+          </div>
+          <input class="slider slider-recovery" id="recovery-prs" type="range" min="0" max="10" step="1" value="7" />
+          <div class="slider-anchors">
+            <span data-i18n="scale.zero">0</span>
+            <span data-i18n="scale.ten">10</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== Section C : Douleur NRS ===== -->
+      <article class="card section-card" data-section="pain">
+        <header class="section-header">
+          <span class="section-number section-number-orange">C</span>
+          <div class="section-titles">
+            <h2 class="section-title" data-i18n="sections.pain.title">Douleur (NRS 0-10)</h2>
+            <p class="section-hint" data-i18n="sections.pain.hint">0 = aucune douleur. 10 = douleur maximale.</p>
+          </div>
+        </header>
+
+        <div class="field">
+          <div class="slider-header">
+            <label class="field-label" for="pain-fingers" data-i18n="pain.fingers">Doigts et articulations</label>
+            <span class="slider-value" id="pain-fingers-value">0</span>
+          </div>
+          <input class="slider slider-pain" id="pain-fingers" type="range" min="0" max="10" step="1" value="0" />
+        </div>
+
+        <div class="alert-box">
+          <div class="alert-toggle">
+            <label class="switch">
+              <input type="checkbox" id="pip-dorsal" />
+              <span class="switch-slider"></span>
+            </label>
+            <div class="alert-content">
+              <p class="alert-title" data-i18n="pain.pipDorsalTitle">Douleur DORSALE sur articulation PIP ?</p>
+              <p class="alert-explain" data-i18n="pain.pipDorsalExplain">Douleur sur le DESSUS de l'articulation entre la 1re et la 2e phalange (pas la pulpe). Signal d'arrêt impératif.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="slider-header">
+            <label class="field-label" for="pain-forearm" data-i18n="pain.forearm">Avant-bras (zone fléchisseurs)</label>
+            <span class="slider-value" id="pain-forearm-value">0</span>
+          </div>
+          <input class="slider slider-pain" id="pain-forearm" type="range" min="0" max="10" step="1" value="0" />
+        </div>
+
+        <div class="field">
+          <div class="slider-header">
+            <label class="field-label" for="pain-shoulders" data-i18n="pain.shoulders">Épaules / lats</label>
+            <span class="slider-value" id="pain-shoulders-value">0</span>
+          </div>
+          <input class="slider slider-pain" id="pain-shoulders" type="range" min="0" max="10" step="1" value="0" />
+        </div>
+
+        <div class="field">
+          <div class="slider-header">
+            <label class="field-label" for="pain-elbow" data-i18n="pain.elbow">Coude médial</label>
+            <span class="slider-value" id="pain-elbow-value">0</span>
+          </div>
+          <input class="slider slider-pain" id="pain-elbow" type="range" min="0" max="10" step="1" value="0" />
+        </div>
+
+        <div class="field">
+          <div class="slider-header">
+            <label class="field-label" for="pain-back" data-i18n="pain.back">Bas du dos</label>
+            <span class="slider-value" id="pain-back-value">0</span>
+          </div>
+          <input class="slider slider-pain" id="pain-back" type="range" min="0" max="10" step="1" value="0" />
+        </div>
+
+        <div class="field">
+          <div class="slider-header">
+            <label class="field-label" for="pain-skin" data-i18n="pain.skin">Peau (paumes / doigts)</label>
+            <span class="slider-value" id="pain-skin-value">0</span>
+          </div>
+          <input class="slider slider-pain" id="pain-skin" type="range" min="0" max="10" step="1" value="0" />
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="pain-other" data-i18n="pain.other">Autre douleur (optionnel)</label>
+          <input class="text-input" id="pain-other" type="text" data-i18n="pain.otherPlaceholder" data-i18n-attr="placeholder" placeholder="Décris brièvement…" />
+        </div>
+      </article>
+
+      <!-- ===== Section D : Hydratation ===== -->
+      <article class="card section-card" data-section="hydration">
+        <header class="section-header">
+          <span class="section-number section-number-purple">D</span>
+          <div class="section-titles">
+            <h2 class="section-title" data-i18n="sections.hydration.title">Hydratation et nutrition</h2>
+            <p class="section-hint" data-i18n="sections.hydration.hint">Indicateurs simples mais cruciaux pour la performance.</p>
+          </div>
+        </header>
+
+        <div class="field">
+          <label class="field-label" data-i18n="hydration.urine">Couleur de la première urine</label>
+          <div class="likert" data-likert="urine" data-required="true">
+            <div class="likert-anchors">
+              <span class="likert-anchor anchor-low" data-i18n="hydration.urineLow">Clair</span>
+              <span class="likert-anchor anchor-high" data-i18n="hydration.urineHigh">Très foncé</span>
+            </div>
+            <div class="likert-buttons" role="radiogroup" aria-label="Urine"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="toggle-row">
+            <label class="switch">
+              <input type="checkbox" id="skipped-meal" />
+              <span class="switch-slider"></span>
+            </label>
+            <span class="toggle-label" data-i18n="hydration.skippedMeal">As-tu sauté un repas hier ?</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="free-note" data-i18n="hydration.note">Note libre (optionnel)</label>
+          <textarea class="text-input textarea" id="free-note" rows="3" data-i18n="hydration.notePlaceholder" data-i18n-attr="placeholder" placeholder="Quelque chose à ajouter pour le coach ?"></textarea>
+        </div>
+      </article>
+
+      <button class="btn btn-primary btn-submit" id="submit-btn" type="button" data-i18n="form.submit">
+        Calculer mon Track du jour
+      </button>
+
+      <div class="form-footer">
+        <p class="form-disclaimer" data-i18n="form.disclaimer">Tes réponses ne sont envoyées qu'à ton coach via WhatsApp, et seulement si tu décides de les partager.</p>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- RESULT SCREEN -->
+    <!-- ============================================ -->
+    <section class="screen screen-result" id="screen-result" hidden>
+
+      <div class="hero-card" id="hero-card">
+        <div class="hero-halo" aria-hidden="true"></div>
+
+        <div class="hero-track">
+          <div class="track-ring" aria-hidden="true">
+            <span class="ring-orbit ring-orbit-1"></span>
+            <span class="ring-orbit ring-orbit-2"></span>
+            <span class="ring-orbit ring-orbit-3"></span>
+            <span class="ring-orbit ring-orbit-4"></span>
+            <span class="ring-orbit ring-orbit-5"></span>
+
+            <svg class="ring-svg" width="360" height="360" viewBox="0 0 360 360">
+              <defs>
+                <linearGradient id="donut-gradient-green" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#34d399"/>
+                  <stop offset="100%" stop-color="#047857"/>
+                </linearGradient>
+                <linearGradient id="donut-gradient-yellow" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fbbf24"/>
+                  <stop offset="100%" stop-color="#b45309"/>
+                </linearGradient>
+                <linearGradient id="donut-gradient-red" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#f87171"/>
+                  <stop offset="100%" stop-color="#b91c1c"/>
+                </linearGradient>
+                <linearGradient id="donut-gradient-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#60a5fa"/>
+                  <stop offset="100%" stop-color="#1d4ed8"/>
+                </linearGradient>
+              </defs>
+
+              <!-- Background guide ring -->
+              <circle class="ring-bg" cx="180" cy="180" r="158" fill="none" stroke-width="3"></circle>
+
+              <!-- Inner thin spinner ring -->
+              <circle class="ring-inner-spinner" cx="180" cy="180" r="132" fill="none" stroke-width="1.5"></circle>
+
+              <!-- Outer tick decoration -->
+              <g id="ring-ticks"></g>
+
+              <!-- 12 colored arc segments injected by JS -->
+              <g id="ring-arcs" class="ring-arcs"></g>
+            </svg>
+
+            <div class="track-core">
+              <div class="track-core-bg" aria-hidden="true"></div>
+              <div class="readiness">
+                <span class="readiness-label" data-i18n="result.readiness">READINESS</span>
+                <span class="readiness-value" id="readiness-value">—</span>
+                <span class="readiness-unit">/100</span>
+              </div>
+              <div class="track-meta">
+                <span id="track-meta-name">—</span>
+                <span class="track-meta-sep">·</span>
+                <span id="track-meta-date">—</span>
+                <span class="track-meta-sep" id="track-meta-discipline-sep" hidden>·</span>
+                <span id="track-meta-discipline" hidden></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-letter" id="hero-letter">A</div>
+          <p class="hero-track-label" id="hero-track-label" data-i18n="result.trackA">TRACK A</p>
+        </div>
+
+        <div class="hero-text">
+          <h2 class="hero-message" id="hero-message">—</h2>
+          <p class="hero-kindness" id="hero-kindness">—</p>
+        </div>
+      </div>
+
+      <!-- Stats grid 2x4 -->
+      <div class="stats-grid" id="stats-grid"></div>
+
+      <!-- Indicators list -->
+      <div class="card indicators-card">
+        <h3 class="card-title">
+          <span data-i18n="result.indicators">Indicateurs</span>
+          <span class="card-title-count" id="indicators-count">0</span>
+        </h3>
+        <ul class="indicators-list" id="indicators-list">
+          <li class="indicator dot-green" data-i18n="result.noFlags">Aucun signal d'alerte. Belle nuit, beau profil.</li>
+        </ul>
+      </div>
+
+      <!-- Actions -->
+      <button class="btn btn-whatsapp" id="whatsapp-btn" type="button">
+        <svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true">
+          <path d="M16 .5C7.44.5.5 7.44.5 16c0 2.83.74 5.49 2.04 7.79L.5 31.5l7.92-2c2.21 1.21 4.74 1.91 7.45 1.92h.13c8.56 0 15.5-6.94 15.5-15.5S24.56.5 16 .5zm0 28.31h-.11a13.05 13.05 0 0 1-6.65-1.82l-.48-.28-4.7 1.19 1.25-4.59-.31-.48a12.84 12.84 0 0 1-1.97-6.84C3.03 8.66 8.86 2.84 16 2.84c3.49 0 6.77 1.36 9.24 3.83a12.99 12.99 0 0 1 3.83 9.25c0 7.16-5.83 12.98-13.07 12.99zm7.13-9.74c-.39-.2-2.31-1.14-2.67-1.27-.36-.13-.62-.2-.88.2-.26.39-1.01 1.27-1.24 1.53-.23.26-.46.29-.85.1-.39-.2-1.65-.61-3.14-1.94a11.83 11.83 0 0 1-2.18-2.71c-.23-.39-.02-.6.17-.79.18-.18.39-.46.59-.69.2-.23.26-.39.39-.65.13-.26.07-.49-.03-.69-.1-.2-.88-2.12-1.21-2.9-.32-.77-.64-.66-.88-.67-.23-.01-.49-.01-.75-.01s-.69.1-1.05.49c-.36.39-1.37 1.34-1.37 3.27s1.41 3.79 1.6 4.05c.2.26 2.77 4.23 6.71 5.93 2.34 1.01 3.26 1.1 4.43.92.71-.11 2.31-.94 2.64-1.86.32-.91.32-1.7.23-1.86-.1-.16-.36-.26-.75-.46z"/>
+        </svg>
+        <span data-i18n="result.sendWhatsapp">Envoyer au coach via WhatsApp</span>
+      </button>
+
+      <div class="result-actions">
+        <button class="btn btn-secondary" id="edit-btn" type="button" data-i18n="result.edit">Modifier</button>
+        <button class="btn btn-tertiary" id="restart-btn" type="button" data-i18n="result.restart">Recommencer</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================ -->
+  <!-- SETTINGS MODAL -->
+  <!-- ============================================ -->
+  <div class="modal" id="settings-modal" hidden role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="modal-backdrop" id="settings-backdrop"></div>
+    <div class="modal-content card">
+      <header class="modal-header">
+        <h2 class="modal-title" id="settings-title" data-i18n="settings.title">Paramètres</h2>
+        <button class="icon-button" id="settings-close" type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </header>
+
+      <div class="modal-body">
+        <div class="field">
+          <label class="field-label" for="coach-phone" data-i18n="settings.coachPhone">Numéro WhatsApp du coach</label>
+          <input class="text-input" id="coach-phone" type="tel" inputmode="tel" placeholder="14186095751" />
+          <p class="field-hint" data-i18n="settings.coachPhoneHint">Format international sans + ni espace. Exemple Canada : 14186095751.</p>
+        </div>
+
+        <div class="field">
+          <p class="field-label" data-i18n="settings.langLabel">Langue</p>
+          <div class="lang-options">
+            <label class="lang-option">
+              <input type="radio" name="lang-pref" value="fr" />
+              <span data-i18n="settings.langFr">Français</span>
+            </label>
+            <label class="lang-option">
+              <input type="radio" name="lang-pref" value="en" />
+              <span data-i18n="settings.langEn">English</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <footer class="modal-footer">
+        <button class="btn btn-primary" id="settings-save" type="button" data-i18n="settings.save">Enregistrer</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- TOAST -->
+  <!-- ============================================ -->
+  <div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
+
+  <script>
+(function(){
+'use strict';
+/**
+ * CEC Check-in - translations.js
+ * FR / EN string tables. Resolved by dotted key (e.g. "sleep.bedtime").
+ */
+const translations = {
+  fr: {
+    meta: {
+      title: 'CEC Check-in Matinal · Innsbruck 2026',
+      description: 'Check-in matinal autoévalué pour les athlètes CEC en camp Innsbruck 2026.'
+    },
+    header: {
+      title: 'Check-in Matinal',
+      settings: 'Paramètres'
+    },
+    landing: {
+      tag: 'CLIMBING ESCALADE CANADA',
+      camp: 'INNSBRUCK · JUILLET 2026',
+      eyebrow: 'CAMP YWCH 2026',
+      title: 'Check-in Matinal',
+      sub: '60 secondes pour décider la journée. Honnête. Précis. Stratégique.',
+      athleteLabel: 'Athlète',
+      athletePlaceholder: 'Ton prénom',
+      disciplineLabel: 'Discipline du jour',
+      lead: 'Lead',
+      leadHint: 'Difficulté',
+      boulder: 'Bloc',
+      boulderHint: 'Boulder',
+      speed: 'Vitesse',
+      speedHint: 'Speed',
+      combined: 'Combiné',
+      combinedHint: 'Combined',
+      start: 'Commencer le check-in',
+      disclaimer: 'Tes réponses ne quittent ton téléphone que si tu choisis de les envoyer au coach.',
+      missingName: 'Indique ton prénom pour démarrer.',
+      missingDiscipline: 'Choisis une discipline.'
+    },
+    athlete: {
+      label: 'Athlète',
+      placeholder: 'Ton prénom'
+    },
+    sections: {
+      sleep: {
+        title: 'Sommeil',
+        hint: 'Renseigne tes horaires de la nuit dernière.'
+      },
+      wellbeing: {
+        title: 'Bien-être',
+        hint: 'Échelle uniforme. 1 = très mauvais. 5 = au top. Plus haut = mieux.'
+      },
+      pain: {
+        title: 'Douleur (NRS 0-10)',
+        hint: '0 = aucune douleur. 10 = douleur maximale.'
+      },
+      hydration: {
+        title: 'Hydratation et nutrition',
+        hint: 'Indicateurs simples mais cruciaux pour la performance.'
+      }
+    },
+    sleep: {
+      bedtime: 'Heure de coucher',
+      wake: 'Heure de réveil',
+      duration: 'Durée',
+      quality: 'Qualité du sommeil',
+      qualityLow: 'Très mal',
+      qualityHigh: 'Excellent',
+      wakings: 'Réveils nocturnes',
+      hours: 'h'
+    },
+    wellbeing: {
+      energy: "Niveau d'énergie",
+      energyLow: 'Vidé',
+      energyHigh: "Plein d'énergie",
+      muscles: 'État des muscles',
+      musclesLow: 'Très courbatés',
+      musclesHigh: 'Frais et dispos',
+      forearms: 'Avant-bras / mains / doigts',
+      forearmsLow: 'Cuits',
+      forearmsHigh: 'Pleine forme',
+      priority: 'PRIORITÉ',
+      calm: 'Calme et sérénité',
+      calmLow: 'Très stressé',
+      calmHigh: 'Très serein',
+      mood: 'Humeur',
+      moodLow: 'Très basse',
+      moodHigh: 'Excellente',
+      willingness: "Disposition à grimper aujourd'hui",
+      recoveryPrs: 'Récupération PRS'
+    },
+    pain: {
+      fingers: 'Doigts et articulations',
+      pipDorsalTitle: 'Douleur DORSALE sur articulation PIP ?',
+      pipDorsalExplain: "Douleur sur le DESSUS de l'articulation entre la 1re et la 2e phalange (pas la pulpe). Signal d'arrêt impératif.",
+      forearm: 'Avant-bras (zone fléchisseurs)',
+      shoulders: 'Épaules / lats',
+      elbow: 'Coude médial',
+      back: 'Bas du dos',
+      skin: 'Peau (paumes / doigts)',
+      other: 'Autre douleur (optionnel)',
+      otherPlaceholder: 'Décris brièvement…'
+    },
+    hydration: {
+      urine: 'Couleur de la première urine',
+      urineLow: 'Clair',
+      urineHigh: 'Très foncé',
+      skippedMeal: 'As-tu sauté un repas hier ?',
+      note: 'Note libre (optionnel)',
+      notePlaceholder: 'Quelque chose à ajouter pour le coach ?'
+    },
+    scale: {
+      zero: '0',
+      ten: '10'
+    },
+    form: {
+      submit: 'Calculer mon Track du jour',
+      disclaimer: "Tes réponses ne sont envoyées qu'à ton coach via WhatsApp, et seulement si tu décides de les partager."
+    },
+    validation: {
+      missingName: 'Indique ton prénom avant de continuer.',
+      missingLikert: 'Réponds à toutes les questions obligatoires de la section Bien-être, Sommeil et Hydratation.'
+    },
+    result: {
+      trackA: 'TRACK A',
+      trackB: 'TRACK B',
+      readiness: 'READINESS',
+      indicators: 'Indicateurs',
+      noFlags: "Aucun signal d'alerte. Belle nuit, beau profil.",
+      sendWhatsapp: 'Envoyer au coach via WhatsApp',
+      edit: 'Modifier',
+      restart: 'Recommencer',
+      messageGreen: "Tu es prêt(e) ! Charge complète, journée d'overreaching activée.",
+      kindnessGreen: "On y va à fond, mais on reste à l'écoute du corps. Si quelque chose change, parle au coach immédiatement.",
+      messageYellowSoft: "Tu n'es pas à 100%. On réévalue sur le terrain.",
+      kindnessYellowSoft: "Démarrage progressif, on ajuste après le warm-up. Sois honnête avec toi-même.",
+      messageYellowHard: 'Plusieurs signaux de fatigue. On allège la journée.',
+      kindnessYellowHard: "C'est OK de ralentir aujourd'hui. La récup fait partie de la prépa.",
+      messageRed: "Journée de récupération. Volume réduit, technique à l'aise.",
+      kindnessRed: "Écouter son corps, c'est aussi un acte de performance. On reviendra plus fort demain.",
+      messageMedical: "STOP. Évaluation médicale requise avant toute charge.",
+      kindnessMedical: "Préviens immédiatement le coach et l'équipe médicale. Ne grimpe pas aujourd'hui.",
+      flagPipDorsal: 'PIP dorsale signalée — arrêt impératif',
+      flagSleepShort: 'Sommeil court (< 7h)',
+      flagSleepBorderline: 'Sommeil limite (< 8h)',
+      flagLowEnergy: 'Énergie basse',
+      flagMidEnergy: 'Énergie moyenne',
+      flagLowMuscles: 'Muscles courbatés',
+      flagMidMuscles: 'Muscles moyens',
+      flagLowForearms: 'Avant-bras cuits',
+      flagMidForearms: 'Avant-bras moyens',
+      flagLowCalm: 'Stress élevé',
+      flagMidCalm: 'Sérénité moyenne',
+      flagLowMood: 'Humeur basse',
+      flagMidMood: 'Humeur moyenne',
+      flagLowWilling: 'Disposition très basse',
+      flagMidWilling: 'Disposition moyenne',
+      flagLowRecovery: 'Récupération PRS basse',
+      flagMidRecovery: 'Récupération PRS moyenne',
+      flagPainFingersHigh: 'Douleur doigts élevée',
+      flagPainFingersMid: 'Douleur doigts modérée',
+      flagPainForearmHigh: 'Douleur avant-bras forte',
+      flagPainForearmMid: 'Douleur avant-bras modérée',
+      flagPainElbowHigh: 'Douleur coude médial forte',
+      flagPainElbowMid: 'Douleur coude médial modérée',
+      flagPainShoulderMid: 'Douleur épaule modérée',
+      flagPainBackMid: 'Douleur bas du dos modérée',
+      flagUrineDark: 'Hydratation insuffisante',
+      flagSkippedMeal: 'Repas sauté hier',
+      stat: {
+        sleep: 'Sommeil',
+        energy: 'Énergie',
+        muscles: 'Muscles',
+        forearms: 'Avant-bras',
+        calm: 'Sérénité',
+        mood: 'Humeur',
+        willingness: 'Disposition',
+        recovery: 'Récup PRS',
+        unitHours: 'h',
+        unitOf5: '/5',
+        unitOf10: '/10'
+      }
+    },
+    settings: {
+      title: 'Paramètres',
+      coachPhone: 'Numéro WhatsApp du coach',
+      coachPhoneHint: 'Format international sans + ni espace. Exemple Canada : 14186095751.',
+      langLabel: 'Langue',
+      langFr: 'Français',
+      langEn: 'English',
+      save: 'Enregistrer',
+      saved: 'Paramètres enregistrés.'
+    },
+    whatsapp: {
+      title: '🇨🇦 CEC · Check-in matinal',
+      noPhone: "Configure d'abord le numéro du coach dans les Paramètres.",
+      labelAthlete: 'Athlète',
+      labelDate: 'Date',
+      labelDiscipline: 'Discipline',
+      labelTrack: 'Track du jour',
+      labelMessage: 'Message',
+      labelFlags: 'Indicateurs',
+      labelData: 'Données clés',
+      labelNote: 'Note',
+      labelNoFlags: 'Aucun signal',
+      sleep: 'Sommeil',
+      energy: 'Énergie',
+      muscles: 'Muscles',
+      forearms: 'Avant-bras',
+      calm: 'Sérénité',
+      mood: 'Humeur',
+      willingness: 'Disposition',
+      recovery: 'Récup PRS',
+      pip: 'PIP dorsale',
+      pipYes: 'OUI',
+      pipNo: 'non'
+    }
+  },
+  en: {
+    meta: {
+      title: 'CEC Morning Check-in · Innsbruck 2026',
+      description: 'Self-assessed morning check-in for CEC athletes at Innsbruck 2026 camp.'
+    },
+    header: {
+      title: 'Morning Check-in',
+      settings: 'Settings'
+    },
+    landing: {
+      tag: 'CLIMBING ESCALADE CANADA',
+      camp: 'INNSBRUCK · JULY 2026',
+      eyebrow: 'YWCH 2026 PREP CAMP',
+      title: 'Morning Check-in',
+      sub: '60 seconds to set the day. Honest. Precise. Strategic.',
+      athleteLabel: 'Athlete',
+      athletePlaceholder: 'Your first name',
+      disciplineLabel: "Today's discipline",
+      lead: 'Lead',
+      leadHint: 'Difficulty',
+      boulder: 'Boulder',
+      boulderHint: 'Bouldering',
+      speed: 'Speed',
+      speedHint: 'Speed',
+      combined: 'Combined',
+      combinedHint: 'Combined',
+      start: 'Start check-in',
+      disclaimer: 'Your answers stay on your phone until you choose to send them to coach.',
+      missingName: 'Enter your first name to start.',
+      missingDiscipline: 'Pick a discipline.'
+    },
+    athlete: {
+      label: 'Athlete',
+      placeholder: 'Your first name'
+    },
+    sections: {
+      sleep: {
+        title: 'Sleep',
+        hint: 'Enter your timings from last night.'
+      },
+      wellbeing: {
+        title: 'Well-being',
+        hint: 'Uniform scale. 1 = very poor. 5 = top form. Higher = better.'
+      },
+      pain: {
+        title: 'Pain (NRS 0-10)',
+        hint: '0 = no pain. 10 = maximum pain.'
+      },
+      hydration: {
+        title: 'Hydration & Nutrition',
+        hint: 'Simple but crucial performance markers.'
+      }
+    },
+    sleep: {
+      bedtime: 'Bedtime',
+      wake: 'Wake-up time',
+      duration: 'Duration',
+      quality: 'Sleep quality',
+      qualityLow: 'Very poor',
+      qualityHigh: 'Excellent',
+      wakings: 'Night wakings',
+      hours: 'h'
+    },
+    wellbeing: {
+      energy: 'Energy level',
+      energyLow: 'Drained',
+      energyHigh: 'Full of energy',
+      muscles: 'Muscle state',
+      musclesLow: 'Very sore',
+      musclesHigh: 'Fresh and ready',
+      forearms: 'Forearms / hands / fingers',
+      forearmsLow: 'Cooked',
+      forearmsHigh: 'Top shape',
+      priority: 'PRIORITY',
+      calm: 'Calm & serenity',
+      calmLow: 'Very stressed',
+      calmHigh: 'Very calm',
+      mood: 'Mood',
+      moodLow: 'Very low',
+      moodHigh: 'Excellent',
+      willingness: 'Willingness to climb today',
+      recoveryPrs: 'PRS recovery'
+    },
+    pain: {
+      fingers: 'Fingers and joints',
+      pipDorsalTitle: 'DORSAL pain on PIP joint?',
+      pipDorsalExplain: 'Pain on the TOP of the joint between the 1st and 2nd phalanx (not the pad). Mandatory stop signal.',
+      forearm: 'Forearm (flexor area)',
+      shoulders: 'Shoulders / lats',
+      elbow: 'Medial elbow',
+      back: 'Lower back',
+      skin: 'Skin (palms / fingers)',
+      other: 'Other pain (optional)',
+      otherPlaceholder: 'Describe briefly…'
+    },
+    hydration: {
+      urine: 'First urine color',
+      urineLow: 'Clear',
+      urineHigh: 'Very dark',
+      skippedMeal: 'Did you skip a meal yesterday?',
+      note: 'Free note (optional)',
+      notePlaceholder: 'Anything to add for coach?'
+    },
+    scale: {
+      zero: '0',
+      ten: '10'
+    },
+    form: {
+      submit: "Calculate today's Track",
+      disclaimer: 'Your answers are only sent to your coach via WhatsApp, and only if you choose to share them.'
+    },
+    validation: {
+      missingName: 'Enter your first name before continuing.',
+      missingLikert: 'Answer all required questions in the Sleep, Well-being and Hydration sections.'
+    },
+    result: {
+      trackA: 'TRACK A',
+      trackB: 'TRACK B',
+      readiness: 'READINESS',
+      indicators: 'Indicators',
+      noFlags: 'No alert signals. Solid night, solid profile.',
+      sendWhatsapp: 'Send to coach via WhatsApp',
+      edit: 'Edit',
+      restart: 'Restart',
+      messageGreen: "You're ready! Full load, overreaching day activated.",
+      kindnessGreen: "Push hard, but stay tuned to your body. If anything changes, talk to coach immediately.",
+      messageYellowSoft: "You're not at 100%. We'll reassess on the wall.",
+      kindnessYellowSoft: 'Easy start, we adjust after warm-up. Be honest with yourself.',
+      messageYellowHard: "Multiple fatigue signals. Lighter day today.",
+      kindnessYellowHard: "It's OK to slow down today. Recovery is part of the prep.",
+      messageRed: 'Recovery day. Reduced volume, easy technique work.',
+      kindnessRed: "Listening to your body is also a performance act. We'll come back stronger tomorrow.",
+      messageMedical: 'STOP. Medical evaluation required before any load.',
+      kindnessMedical: 'Notify the coach and medical team immediately. Do not climb today.',
+      flagPipDorsal: 'Dorsal PIP reported — mandatory stop',
+      flagSleepShort: 'Short sleep (< 7h)',
+      flagSleepBorderline: 'Borderline sleep (< 8h)',
+      flagLowEnergy: 'Low energy',
+      flagMidEnergy: 'Mid energy',
+      flagLowMuscles: 'Sore muscles',
+      flagMidMuscles: 'Mid muscle state',
+      flagLowForearms: 'Cooked forearms',
+      flagMidForearms: 'Mid forearm state',
+      flagLowCalm: 'High stress',
+      flagMidCalm: 'Mid serenity',
+      flagLowMood: 'Low mood',
+      flagMidMood: 'Mid mood',
+      flagLowWilling: 'Very low willingness',
+      flagMidWilling: 'Mid willingness',
+      flagLowRecovery: 'Low PRS recovery',
+      flagMidRecovery: 'Mid PRS recovery',
+      flagPainFingersHigh: 'High finger pain',
+      flagPainFingersMid: 'Moderate finger pain',
+      flagPainForearmHigh: 'Strong forearm pain',
+      flagPainForearmMid: 'Moderate forearm pain',
+      flagPainElbowHigh: 'Strong medial elbow pain',
+      flagPainElbowMid: 'Moderate medial elbow pain',
+      flagPainShoulderMid: 'Moderate shoulder pain',
+      flagPainBackMid: 'Moderate lower back pain',
+      flagUrineDark: 'Insufficient hydration',
+      flagSkippedMeal: 'Skipped meal yesterday',
+      stat: {
+        sleep: 'Sleep',
+        energy: 'Energy',
+        muscles: 'Muscles',
+        forearms: 'Forearms',
+        calm: 'Calm',
+        mood: 'Mood',
+        willingness: 'Willingness',
+        recovery: 'PRS recovery',
+        unitHours: 'h',
+        unitOf5: '/5',
+        unitOf10: '/10'
+      }
+    },
+    settings: {
+      title: 'Settings',
+      coachPhone: "Coach's WhatsApp number",
+      coachPhoneHint: 'International format without + or spaces. Canada example: 14186095751.',
+      langLabel: 'Language',
+      langFr: 'Français',
+      langEn: 'English',
+      save: 'Save',
+      saved: 'Settings saved.'
+    },
+    whatsapp: {
+      title: '🇨🇦 CEC · Morning check-in',
+      noPhone: "First, set the coach's number in Settings.",
+      labelAthlete: 'Athlete',
+      labelDate: 'Date',
+      labelDiscipline: 'Discipline',
+      labelTrack: "Today's track",
+      labelMessage: 'Message',
+      labelFlags: 'Indicators',
+      labelData: 'Key data',
+      labelNote: 'Note',
+      labelNoFlags: 'No alerts',
+      sleep: 'Sleep',
+      energy: 'Energy',
+      muscles: 'Muscles',
+      forearms: 'Forearms',
+      calm: 'Calm',
+      mood: 'Mood',
+      willingness: 'Willingness',
+      recovery: 'PRS recovery',
+      pip: 'Dorsal PIP',
+      pipYes: 'YES',
+      pipNo: 'no'
+    }
+  }
+};
+
+/**
+ * Resolve a dotted key against a translation tree.
+ * Returns the key itself as a fallback if missing.
+ */
+function resolveKey(tree, key) {
+  if (!key) return '';
+  const parts = key.split('.');
+  let node = tree;
+  for (const part of parts) {
+    if (node && Object.prototype.hasOwnProperty.call(node, part)) {
+      node = node[part];
+    } else {
+      return key;
+    }
+  }
+  return typeof node === 'string' ? node : key;
+}
+
+/**
+ * Get a translated string for the given key using the active language.
+ */
+function t(lang, key) {
+  const tree = translations[lang] || translations.fr;
+  return resolveKey(tree, key);
+}
+
+/**
+ * Apply translations to all elements with [data-i18n] in the document.
+ * If [data-i18n-attr] is set, the value is written into that attribute
+ * instead of the element textContent.
+ */
+function applyTranslations(lang) {
+  const root = document;
+  const nodes = root.querySelectorAll('[data-i18n]');
+  nodes.forEach((node) => {
+    const key = node.getAttribute('data-i18n');
+    const attr = node.getAttribute('data-i18n-attr');
+    const value = t(lang, key);
+    if (attr) {
+      node.setAttribute(attr, value);
+    } else {
+      node.textContent = value;
+    }
+  });
+  document.documentElement.setAttribute('lang', lang);
+}
+
+
+/**
+ * CEC Check-in - state.js
+ * Holds the form state in memory and persists user preferences.
+ */
+
+const STORAGE_KEYS = {
+  lang: 'cec_lang',
+  coachPhone: 'cec_coach_phone',
+  athleteName: 'cec_athlete_name',
+  discipline: 'cec_discipline'
+};
+
+const DEFAULT_COACH_PHONE = '14186095751';
+
+const initial = {
+  lang: 'fr',
+  coachPhone: DEFAULT_COACH_PHONE,
+  athleteName: '',
+  discipline: null,
+
+  sleep: {
+    bedtime: '23:00',
+    wake: '07:00',
+    durationHours: 8,
+    quality: null,
+    wakings: 0
+  },
+  wellbeing: {
+    energy: null,
+    muscles: null,
+    forearms: null,
+    calm: null,
+    mood: null,
+    willingness: 7,
+    recoveryPrs: 7
+  },
+  pain: {
+    fingers: 0,
+    pipDorsal: false,
+    forearm: 0,
+    shoulders: 0,
+    elbow: 0,
+    back: 0,
+    skin: 0,
+    other: ''
+  },
+  hydration: {
+    urine: null,
+    skippedMeal: false,
+    note: ''
+  }
+};
+const state = structuredClone(initial);
+
+/**
+ * Reset the in-memory state but keep user preferences (lang, phone, name, discipline).
+ */
+function resetForm() {
+  const { lang, coachPhone, athleteName, discipline } = state;
+  Object.assign(state, structuredClone(initial));
+  state.lang = lang;
+  state.coachPhone = coachPhone;
+  state.athleteName = athleteName;
+  state.discipline = discipline;
+}
+function loadPreferences() {
+  try {
+    const lang = localStorage.getItem(STORAGE_KEYS.lang);
+    if (lang === 'fr' || lang === 'en') state.lang = lang;
+    const phone = localStorage.getItem(STORAGE_KEYS.coachPhone);
+    if (phone) state.coachPhone = phone;
+    const name = localStorage.getItem(STORAGE_KEYS.athleteName);
+    if (name) state.athleteName = name;
+    const discipline = localStorage.getItem(STORAGE_KEYS.discipline);
+    if (['lead', 'boulder', 'speed', 'combined'].includes(discipline)) {
+      state.discipline = discipline;
+    }
+  } catch (_) {
+    // localStorage unavailable; keep defaults
+  }
+}
+function saveDiscipline(d) {
+  state.discipline = d;
+  try {
+    if (d) localStorage.setItem(STORAGE_KEYS.discipline, d);
+    else localStorage.removeItem(STORAGE_KEYS.discipline);
+  } catch (_) {}
+}
+function saveLang(lang) {
+  state.lang = lang;
+  try { localStorage.setItem(STORAGE_KEYS.lang, lang); } catch (_) {}
+}
+function saveCoachPhone(phone) {
+  state.coachPhone = phone;
+  try { localStorage.setItem(STORAGE_KEYS.coachPhone, phone); } catch (_) {}
+}
+function saveAthleteName(name) {
+  state.athleteName = name;
+  try {
+    if (name) localStorage.setItem(STORAGE_KEYS.athleteName, name);
+    else localStorage.removeItem(STORAGE_KEYS.athleteName);
+  } catch (_) {}
+}
+const STORAGE = STORAGE_KEYS;
+
+
+/**
+ * CEC Check-in - animations.js
+ * Editorial-style SVG silhouettes for the result screen.
+ * NO cartoons. Anatomically correct, monochrome with accent color,
+ * dramatic lighting like a sports magazine cover.
+ */
+function climberScene(color) {
+  if (color === 'yellow') return yellowScene();
+  if (color === 'red') return redScene();
+  return greenScene();
+}
+function mountScene(container, color) {
+  if (!container) return;
+  container.innerHTML = climberScene(color);
+}
+
+/**
+ * Shared <defs>: gradients, filters used in every scene.
+ */
+function commonDefs(prefix, accent, accentDark) {
+  return `
+    <defs>
+      <radialGradient id="${prefix}-spot" cx="50%" cy="0%" r="100%">
+        <stop offset="0%" stop-color="rgba(255, 255, 255, 0.18)"/>
+        <stop offset="35%" stop-color="rgba(255, 255, 255, 0.06)"/>
+        <stop offset="70%" stop-color="rgba(255, 255, 255, 0)"/>
+      </radialGradient>
+      <linearGradient id="${prefix}-wall" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#1a2236"/>
+        <stop offset="100%" stop-color="#0a0e1a"/>
+      </linearGradient>
+      <linearGradient id="${prefix}-figure" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#0f172a"/>
+        <stop offset="100%" stop-color="#020617"/>
+      </linearGradient>
+      <linearGradient id="${prefix}-rim" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="${accent}"/>
+        <stop offset="100%" stop-color="${accentDark}"/>
+      </linearGradient>
+      <radialGradient id="${prefix}-glow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="${accent}" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="${accent}" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="${prefix}-soft" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="1.4"/>
+      </filter>
+    </defs>
+  `;
+}
+
+/**
+ * Climbing-gym wall background: panels, holds with depth.
+ */
+function wallBackdrop(prefix) {
+  return `
+    <!-- Wall panels (faceted geometry, IFSC-style) -->
+    <g class="wall">
+      <rect x="0" y="0" width="220" height="220" fill="url(#${prefix}-wall)"/>
+      <!-- Diagonal faceted panel -->
+      <polygon points="0,40 220,0 220,80 0,140" fill="rgba(30, 41, 59, 0.6)"/>
+      <polygon points="0,140 220,80 220,140 0,180" fill="rgba(15, 23, 42, 0.7)"/>
+      <!-- Subtle panel separators -->
+      <line x1="0" y1="40" x2="220" y2="0" stroke="rgba(255,255,255,0.04)" stroke-width="0.6"/>
+      <line x1="0" y1="140" x2="220" y2="80" stroke="rgba(255,255,255,0.05)" stroke-width="0.6"/>
+      <!-- Spotlight from top -->
+      <ellipse cx="110" cy="0" rx="140" ry="80" fill="url(#${prefix}-spot)"/>
+    </g>
+
+    <!-- Distant holds with subtle glow -->
+    <g class="distant-holds">
+      <ellipse cx="36" cy="80" rx="3.5" ry="6" fill="rgba(96, 165, 250, 0.55)" filter="url(#${prefix}-soft)"/>
+      <ellipse cx="184" cy="50" rx="3" ry="5" fill="rgba(244, 114, 182, 0.5)" filter="url(#${prefix}-soft)"/>
+      <ellipse cx="170" cy="125" rx="4" ry="6" fill="rgba(245, 158, 11, 0.5)" filter="url(#${prefix}-soft)"/>
+      <ellipse cx="50" cy="150" rx="3" ry="5" fill="rgba(139, 92, 246, 0.45)" filter="url(#${prefix}-soft)"/>
+    </g>
+
+    <!-- Floor / mat suggestion -->
+    <rect x="0" y="195" width="220" height="25" fill="rgba(15, 23, 42, 0.85)"/>
+    <line x1="0" y1="195" x2="220" y2="195" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/>
+  `;
+}
+
+/**
+ * Chalk dust particles floating in the spotlight.
+ */
+function chalkParticles(count, prefix, accent) {
+  const out = [];
+  const seed = prefix.charCodeAt(0); // simple deterministic seed
+  for (let i = 0; i < count; i++) {
+    const x = ((seed * 7 + i * 23) % 200) + 10;
+    const y = ((seed * 11 + i * 17) % 150) + 20;
+    const r = 0.6 + ((i * 3) % 5) * 0.2;
+    const o = 0.15 + ((i * 7) % 4) * 0.08;
+    const drift = 4 + ((i * 5) % 8);
+    const dur = 6 + ((i * 13) % 8);
+    out.push(`
+      <circle cx="${x}" cy="${y}" r="${r.toFixed(2)}" fill="${i % 4 === 0 ? accent : '#cbd5e1'}" opacity="${o.toFixed(2)}">
+        <animate attributeName="cy" values="${y};${y - drift};${y}" dur="${dur}s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="${o};${(o * 1.6).toFixed(2)}; ${o}" dur="${dur}s" repeatCount="indefinite"/>
+      </circle>
+    `);
+  }
+  return out.join('');
+}
+
+/* ============================================
+   GREEN — top-out victory silhouette
+   ============================================ */
+function greenScene() {
+  const accent = '#10b981';
+  const accentDark = '#047857';
+  const p = 'g';
+  return `
+    <svg class="climber-svg climber-green" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      ${commonDefs(p, accent, accentDark)}
+      ${wallBackdrop(p)}
+
+      <!-- Hero glow behind the figure -->
+      <circle cx="110" cy="110" r="80" fill="url(#${p}-glow)"/>
+
+      <!-- Top-out hold (large jug with edge highlight) -->
+      <g class="hold-jug">
+        <path d="M 60 90 Q 110 70 160 90 Q 162 100 158 105 L 62 105 Q 58 100 60 90 Z"
+              fill="${accent}" opacity="0.85"/>
+        <path d="M 64 85 Q 110 70 156 85" stroke="rgba(255,255,255,0.45)" stroke-width="1.2" fill="none"/>
+        <path d="M 60 90 Q 110 75 160 90" stroke="${accentDark}" stroke-width="0.8" fill="none" opacity="0.5"/>
+      </g>
+
+      <!-- Climber silhouette: topping out, both hands on the jug,
+           pulling up, head approaching the top. Editorial style. -->
+      <g class="climber-figure" transform="translate(0, 0)">
+        <!-- Right arm (extended, hand on jug) -->
+        <path d="M 138 100 Q 134 112 130 122 Q 128 130 124 138" stroke="url(#${p}-figure)" stroke-width="9" stroke-linecap="round" fill="none"/>
+        <!-- Left arm pulling -->
+        <path d="M 82 100 Q 86 112 92 124 Q 96 132 100 140" stroke="url(#${p}-figure)" stroke-width="9" stroke-linecap="round" fill="none"/>
+
+        <!-- Torso (powerful triangle) -->
+        <path d="M 96 138 L 124 138 L 132 168 L 88 168 Z" fill="url(#${p}-figure)"/>
+        <!-- Torso accent line (jersey hem) -->
+        <line x1="92" y1="158" x2="128" y2="158" stroke="${accent}" stroke-width="1.5" opacity="0.85"/>
+        <!-- CEC mark -->
+        <text x="110" y="156" text-anchor="middle" font-family="system-ui, sans-serif" font-size="6.5" font-weight="800" fill="${accent}" opacity="0.9" letter-spacing="0.5">CEC</text>
+
+        <!-- Head (small, profile-leaning) -->
+        <ellipse cx="110" cy="125" rx="9" ry="11" fill="url(#${p}-figure)"/>
+        <!-- Hair top -->
+        <path d="M 102 117 Q 110 113 118 117 L 117 121 Q 110 119 103 121 Z" fill="#1f2937"/>
+        <!-- Rim light on head from spotlight -->
+        <path d="M 108 116 Q 113 116 117 119" stroke="rgba(255,255,255,0.3)" stroke-width="1" fill="none"/>
+
+        <!-- Hips / belt -->
+        <rect x="92" y="166" width="36" height="6" rx="1" fill="#1f2937"/>
+        <line x1="92" y1="169" x2="128" y2="169" stroke="${accent}" stroke-width="0.8" opacity="0.7"/>
+
+        <!-- Legs (athletic stance, one knee bent) -->
+        <path d="M 99 172 Q 95 184 90 196" stroke="url(#${p}-figure)" stroke-width="10" stroke-linecap="round" fill="none"/>
+        <path d="M 121 172 Q 128 184 134 196" stroke="url(#${p}-figure)" stroke-width="10" stroke-linecap="round" fill="none"/>
+
+        <!-- Climbing shoes -->
+        <ellipse cx="89" cy="196" rx="6" ry="2.5" fill="${accent}"/>
+        <ellipse cx="135" cy="196" rx="6" ry="2.5" fill="${accent}"/>
+
+        <!-- Hands on jug (visible) -->
+        <ellipse cx="80" cy="100" rx="4.5" ry="3" fill="url(#${p}-figure)"/>
+        <ellipse cx="140" cy="100" rx="4.5" ry="3" fill="url(#${p}-figure)"/>
+
+        <!-- Rim light on shoulder + back (left side, simulating spotlight) -->
+        <path d="M 85 138 Q 88 152 90 168" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" fill="none"/>
+        <path d="M 100 122 Q 96 130 90 138" stroke="rgba(255,255,255,0.18)" stroke-width="1" fill="none"/>
+      </g>
+
+      <!-- Subtle confetti / celebration sparks -->
+      <g class="celebration">
+        ${[0, 1, 2, 3, 4, 5].map((i) => {
+          const x = 30 + i * 32;
+          const delay = (i * 0.25).toFixed(2);
+          return `<circle cx="${x}" cy="-8" r="1.6" fill="${['#10b981','#fbbf24','#3b82f6','#ec4899','#8b5cf6','#f97316'][i]}">
+            <animate attributeName="cy" values="-8;220" dur="3.5s" begin="${delay}s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;1;1;0" dur="3.5s" begin="${delay}s" repeatCount="indefinite"/>
+          </circle>`;
+        }).join('')}
+      </g>
+
+      <!-- Chalk dust -->
+      <g class="chalk">${chalkParticles(20, p, accent)}</g>
+    </svg>
+  `;
+}
+
+/* ============================================
+   YELLOW — mid-route, evaluating, focused
+   ============================================ */
+function yellowScene() {
+  const accent = '#f59e0b';
+  const accentDark = '#b45309';
+  const p = 'y';
+  return `
+    <svg class="climber-svg climber-yellow" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      ${commonDefs(p, accent, accentDark)}
+      ${wallBackdrop(p)}
+
+      <circle cx="110" cy="105" r="75" fill="url(#${p}-glow)"/>
+
+      <!-- Two holds: one in hand, one being assessed -->
+      <g class="hold-current">
+        <ellipse cx="80" cy="92" rx="9" ry="6" fill="${accent}" opacity="0.85"/>
+        <ellipse cx="78" cy="89" rx="4" ry="2" fill="rgba(255,255,255,0.45)"/>
+      </g>
+      <g class="hold-target">
+        <ellipse cx="148" cy="68" rx="7" ry="5" fill="${accentDark}" opacity="0.7"/>
+        <ellipse cx="146" cy="66" rx="3" ry="1.5" fill="rgba(255,255,255,0.3)"/>
+      </g>
+
+      <!-- Climber silhouette: paused mid-route, looking up at the next hold -->
+      <g class="climber-figure">
+        <!-- Right arm reaching toward next hold -->
+        <path d="M 122 122 Q 134 100 148 78" stroke="url(#${p}-figure)" stroke-width="9" stroke-linecap="round" fill="none"/>
+        <ellipse cx="148" cy="76" rx="4" ry="3" fill="url(#${p}-figure)"/>
+
+        <!-- Left arm holding current hold -->
+        <path d="M 96 122 Q 88 108 80 96" stroke="url(#${p}-figure)" stroke-width="9" stroke-linecap="round" fill="none"/>
+        <ellipse cx="80" cy="96" rx="4" ry="3" fill="url(#${p}-figure)"/>
+
+        <!-- Torso: side profile, slightly twisted -->
+        <path d="M 95 122 L 125 122 L 128 158 L 92 158 Z" fill="url(#${p}-figure)"/>
+        <line x1="92" y1="148" x2="128" y2="148" stroke="${accent}" stroke-width="1.5" opacity="0.8"/>
+        <text x="110" y="146" text-anchor="middle" font-family="system-ui, sans-serif" font-size="6.5" font-weight="800" fill="${accent}" opacity="0.85" letter-spacing="0.5">CEC</text>
+
+        <!-- Head looking up-right (profile) -->
+        <ellipse cx="115" cy="110" rx="8.5" ry="11" fill="url(#${p}-figure)"/>
+        <path d="M 108 102 Q 115 98 122 102 L 121 106 Q 115 104 109 106 Z" fill="#1f2937"/>
+        <!-- Profile detail: nose hint -->
+        <path d="M 124 110 Q 126 112 124 114" stroke="rgba(255,255,255,0.18)" stroke-width="0.8" fill="none"/>
+
+        <!-- Hips -->
+        <rect x="92" y="156" width="36" height="6" rx="1" fill="#1f2937"/>
+
+        <!-- Legs: one bent on a foot hold, one extended -->
+        <path d="M 100 162 Q 92 170 86 180 Q 84 188 88 196" stroke="url(#${p}-figure)" stroke-width="10" stroke-linecap="round" fill="none"/>
+        <path d="M 122 162 Q 132 174 138 188" stroke="url(#${p}-figure)" stroke-width="10" stroke-linecap="round" fill="none"/>
+        <ellipse cx="88" cy="196" rx="6" ry="2.5" fill="${accent}"/>
+        <ellipse cx="138" cy="190" rx="6" ry="2.5" fill="${accent}"/>
+
+        <!-- Foothold under right foot -->
+        <ellipse cx="138" cy="190" rx="8" ry="3" fill="${accentDark}" opacity="0.5"/>
+
+        <!-- Rim light -->
+        <path d="M 96 122 Q 92 138 92 156" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" fill="none"/>
+        <path d="M 110 100 Q 108 106 108 110" stroke="rgba(255,255,255,0.18)" stroke-width="1" fill="none"/>
+      </g>
+
+      <g class="chalk">${chalkParticles(16, p, accent)}</g>
+    </svg>
+  `;
+}
+
+/* ============================================
+   RED — descending / stepping back
+   ============================================ */
+function redScene() {
+  const accent = '#ef4444';
+  const accentDark = '#7f1d1d';
+  const p = 'r';
+  return `
+    <svg class="climber-svg climber-red" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      ${commonDefs(p, accent, accentDark)}
+      ${wallBackdrop(p)}
+
+      <circle cx="110" cy="120" r="78" fill="url(#${p}-glow)" opacity="0.6"/>
+
+      <!-- Hold left untouched, with caution glow -->
+      <g class="hold-untouched">
+        <ellipse cx="148" cy="80" rx="8" ry="6" fill="${accentDark}" opacity="0.5"/>
+        <circle cx="148" cy="80" r="14" fill="none" stroke="${accent}" stroke-width="1.2" opacity="0.55">
+          <animate attributeName="r" values="14;20;14" dur="2.4s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.55;0.1;0.55" dur="2.4s" repeatCount="indefinite"/>
+        </circle>
+        <text x="148" y="84" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="900" fill="${accent}">!</text>
+      </g>
+
+      <!-- Climber stepping back (3/4 view, head turned) -->
+      <g class="climber-figure">
+        <!-- Hands resting at sides (not climbing) -->
+        <path d="M 96 138 Q 88 154 86 170" stroke="url(#${p}-figure)" stroke-width="9" stroke-linecap="round" fill="none"/>
+        <path d="M 124 138 Q 132 154 134 170" stroke="url(#${p}-figure)" stroke-width="9" stroke-linecap="round" fill="none"/>
+
+        <!-- Torso (slightly slumped) -->
+        <path d="M 96 130 L 124 130 L 130 168 L 90 168 Z" fill="url(#${p}-figure)"/>
+        <line x1="92" y1="158" x2="128" y2="158" stroke="${accent}" stroke-width="1.5" opacity="0.7"/>
+        <text x="110" y="156" text-anchor="middle" font-family="system-ui, sans-serif" font-size="6.5" font-weight="800" fill="${accent}" opacity="0.7" letter-spacing="0.5">CEC</text>
+
+        <!-- Head (looking down/away) -->
+        <ellipse cx="110" cy="116" rx="9" ry="11" fill="url(#${p}-figure)"/>
+        <path d="M 102 108 Q 110 104 118 108 L 117 112 Q 110 110 103 112 Z" fill="#1f2937"/>
+
+        <!-- Hips -->
+        <rect x="90" y="166" width="40" height="6" rx="1" fill="#1f2937"/>
+
+        <!-- Legs walking back (one mid-step) -->
+        <path d="M 99 172 Q 90 182 84 196" stroke="url(#${p}-figure)" stroke-width="10" stroke-linecap="round" fill="none"/>
+        <path d="M 121 172 Q 130 180 138 192" stroke="url(#${p}-figure)" stroke-width="10" stroke-linecap="round" fill="none"/>
+        <ellipse cx="84" cy="196" rx="7" ry="2.5" fill="${accent}"/>
+        <ellipse cx="138" cy="192" rx="7" ry="2.5" fill="${accent}"/>
+
+        <!-- Cool rim light only on right side -->
+        <path d="M 124 130 Q 128 148 130 168" stroke="rgba(255,255,255,0.18)" stroke-width="1.2" fill="none"/>
+      </g>
+
+      <g class="chalk">${chalkParticles(12, p, accent)}</g>
+    </svg>
+  `;
+}
+
+
+/**
+ * CEC Check-in - form-logic.js
+ * Build Likert buttons, hook sliders/inputs into state, validate, progress.
+ */
+
+
+const REQUIRED_LIKERTS = ['sleep-quality', 'energy', 'muscles', 'forearms', 'calm', 'mood', 'urine'];
+
+/**
+ * Map likert dataset key -> path inside state.
+ */
+const LIKERT_TO_STATE = {
+  'sleep-quality': ['sleep', 'quality'],
+  'energy': ['wellbeing', 'energy'],
+  'muscles': ['wellbeing', 'muscles'],
+  'forearms': ['wellbeing', 'forearms'],
+  'calm': ['wellbeing', 'calm'],
+  'mood': ['wellbeing', 'mood'],
+  'urine': ['hydration', 'urine']
+};
+
+const PAIN_FIELDS = [
+  ['pain-fingers', 'fingers'],
+  ['pain-forearm', 'forearm'],
+  ['pain-shoulders', 'shoulders'],
+  ['pain-elbow', 'elbow'],
+  ['pain-back', 'back'],
+  ['pain-skin', 'skin']
+];
+
+let onChangeCallback = () => {};
+function onAnyChange(cb) { onChangeCallback = cb; }
+
+function setNested(obj, path, value) {
+  let node = obj;
+  for (let i = 0; i < path.length - 1; i++) {
+    node = node[path[i]];
+  }
+  node[path[path.length - 1]] = value;
+}
+
+/**
+ * Build the 5 Likert buttons inside each .likert-buttons container.
+ */
+function buildLikertScales() {
+  const groups = document.querySelectorAll('.likert');
+  groups.forEach((group) => {
+    const key = group.dataset.likert;
+    const container = group.querySelector('.likert-buttons');
+    if (!container || container.childElementCount > 0) return;
+    for (let v = 1; v <= 5; v++) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'likert-btn';
+      btn.dataset.value = String(v);
+      btn.setAttribute('role', 'radio');
+      btn.setAttribute('aria-checked', 'false');
+      btn.setAttribute('aria-label', `${key} ${v}`);
+      btn.textContent = String(v);
+      btn.addEventListener('click', () => {
+        selectLikert(key, v);
+      });
+      container.appendChild(btn);
+    }
+  });
+}
+
+function selectLikert(key, value) {
+  const path = LIKERT_TO_STATE[key];
+  if (!path) return;
+  setNested(state, path, value);
+  const group = document.querySelector(`.likert[data-likert="${key}"]`);
+  if (group) {
+    group.classList.remove('invalid');
+    group.querySelectorAll('.likert-btn').forEach((b) => {
+      const isActive = Number(b.dataset.value) === value;
+      b.classList.toggle('active', isActive);
+      b.setAttribute('aria-checked', isActive ? 'true' : 'false');
+    });
+  }
+  onChangeCallback();
+}
+
+/**
+ * Wire all sliders, time inputs, toggles, name and notes.
+ */
+function wireFormControls() {
+  const $ = (id) => document.getElementById(id);
+
+  // Athlete name
+  const name = $('athlete-name');
+  if (state.athleteName) name.value = state.athleteName;
+  name.addEventListener('input', () => {
+    state.athleteName = name.value.trim();
+    name.classList.remove('invalid');
+    onChangeCallback();
+  });
+  name.addEventListener('blur', () => {
+    saveAthleteName(name.value.trim());
+  });
+
+  // Sleep times
+  const bedtime = $('sleep-bedtime');
+  const wake = $('sleep-wake');
+  const durationEl = $('sleep-duration');
+  const durationValueEl = $('sleep-duration-value');
+
+  function recomputeDuration() {
+    const hours = computeSleepHours(bedtime.value, wake.value);
+    state.sleep.bedtime = bedtime.value;
+    state.sleep.wake = wake.value;
+    state.sleep.durationHours = hours;
+
+    const formatted = formatHours(hours, state.lang);
+    durationValueEl.textContent = formatted;
+    durationEl.classList.remove('warning', 'ok');
+    if (hours > 0) {
+      if (hours < 7) durationEl.classList.add('warning');
+      else if (hours >= 8) durationEl.classList.add('ok');
+    }
+    onChangeCallback();
+  }
+  bedtime.addEventListener('input', recomputeDuration);
+  wake.addEventListener('input', recomputeDuration);
+  recomputeDuration();
+
+  // Wakings
+  const wakings = $('sleep-wakings');
+  wakings.addEventListener('input', () => {
+    const v = parseInt(wakings.value, 10);
+    state.sleep.wakings = isNaN(v) ? 0 : Math.max(0, Math.min(20, v));
+    onChangeCallback();
+  });
+
+  // Wellbeing sliders
+  bindSlider('willingness', ['wellbeing', 'willingness']);
+  bindSlider('recovery-prs', ['wellbeing', 'recoveryPrs']);
+
+  // Pain sliders
+  PAIN_FIELDS.forEach(([id, key]) => {
+    bindSlider(id, ['pain', key]);
+  });
+
+  // PIP dorsal toggle
+  const pip = $('pip-dorsal');
+  pip.addEventListener('change', () => {
+    state.pain.pipDorsal = pip.checked;
+    onChangeCallback();
+  });
+
+  // Pain other text
+  const painOther = $('pain-other');
+  painOther.addEventListener('input', () => {
+    state.pain.other = painOther.value;
+  });
+
+  // Skipped meal toggle
+  const skipped = $('skipped-meal');
+  skipped.addEventListener('change', () => {
+    state.hydration.skippedMeal = skipped.checked;
+    onChangeCallback();
+  });
+
+  // Free note
+  const note = $('free-note');
+  note.addEventListener('input', () => {
+    state.hydration.note = note.value;
+  });
+}
+
+function bindSlider(id, path) {
+  const el = document.getElementById(id);
+  const valueEl = document.getElementById(`${id}-value`);
+  if (!el || !valueEl) return;
+  let lastValue = null;
+  const update = () => {
+    const v = parseInt(el.value, 10) || 0;
+    setNested(state, path, v);
+    if (valueEl.textContent !== String(v)) {
+      valueEl.textContent = String(v);
+      if (lastValue !== null) {
+        valueEl.classList.remove('pulse');
+        void valueEl.offsetWidth;
+        valueEl.classList.add('pulse');
+      }
+      lastValue = v;
+    }
+    onChangeCallback();
+  };
+  el.addEventListener('input', update);
+  update();
+}
+
+/**
+ * Refresh all DOM controls from state values (used when restoring/editing).
+ */
+function syncFormFromState() {
+  const $ = (id) => document.getElementById(id);
+
+  $('athlete-name').value = state.athleteName || '';
+  $('sleep-bedtime').value = state.sleep.bedtime;
+  $('sleep-wake').value = state.sleep.wake;
+  $('sleep-wakings').value = String(state.sleep.wakings);
+  $('willingness').value = String(state.wellbeing.willingness);
+  $('willingness-value').textContent = String(state.wellbeing.willingness);
+  $('recovery-prs').value = String(state.wellbeing.recoveryPrs);
+  $('recovery-prs-value').textContent = String(state.wellbeing.recoveryPrs);
+
+  PAIN_FIELDS.forEach(([id, key]) => {
+    const el = $(id);
+    el.value = String(state.pain[key]);
+    document.getElementById(`${id}-value`).textContent = String(state.pain[key]);
+  });
+
+  $('pip-dorsal').checked = state.pain.pipDorsal;
+  $('pain-other').value = state.pain.other || '';
+  $('skipped-meal').checked = state.hydration.skippedMeal;
+  $('free-note').value = state.hydration.note || '';
+
+  // Likert visual sync
+  Object.entries(LIKERT_TO_STATE).forEach(([key, path]) => {
+    const value = path.reduce((node, p) => (node ? node[p] : null), state);
+    const group = document.querySelector(`.likert[data-likert="${key}"]`);
+    if (!group) return;
+    group.querySelectorAll('.likert-btn').forEach((b) => {
+      const isActive = value !== null && Number(b.dataset.value) === value;
+      b.classList.toggle('active', isActive);
+      b.setAttribute('aria-checked', isActive ? 'true' : 'false');
+    });
+  });
+
+  // Recompute sleep duration display
+  const hours = computeSleepHours(state.sleep.bedtime, state.sleep.wake);
+  state.sleep.durationHours = hours;
+  $('sleep-duration-value').textContent = formatHours(hours, state.lang);
+}
+
+/**
+ * Validate the form. Returns { ok: true } or { ok: false, message }.
+ * Side-effect: marks invalid controls.
+ */
+function validateForm() {
+  document.querySelectorAll('.likert.invalid, .text-input.invalid').forEach((el) => el.classList.remove('invalid'));
+
+  let firstInvalid = null;
+
+  const nameEl = document.getElementById('athlete-name');
+  if (!state.athleteName) {
+    nameEl.classList.add('invalid');
+    firstInvalid = nameEl;
+    return { ok: false, message: t(state.lang, 'validation.missingName'), focus: nameEl };
+  }
+
+  for (const key of REQUIRED_LIKERTS) {
+    const path = LIKERT_TO_STATE[key];
+    const value = path.reduce((node, p) => (node ? node[p] : null), state);
+    if (value === null || value === undefined) {
+      const group = document.querySelector(`.likert[data-likert="${key}"]`);
+      if (group) {
+        group.classList.add('invalid');
+        if (!firstInvalid) firstInvalid = group;
+      }
+    }
+  }
+
+  if (firstInvalid) {
+    return { ok: false, message: t(state.lang, 'validation.missingLikert'), focus: firstInvalid };
+  }
+
+  return { ok: true };
+}
+
+/**
+ * Compute progress 0-1 over all required answers.
+ */
+function computeProgress() {
+  let filled = 0;
+  let total = REQUIRED_LIKERTS.length + 1; // + name
+  if (state.athleteName) filled++;
+  REQUIRED_LIKERTS.forEach((key) => {
+    const path = LIKERT_TO_STATE[key];
+    const value = path.reduce((node, p) => (node ? node[p] : null), state);
+    if (value !== null && value !== undefined) filled++;
+  });
+  return filled / total;
+}
+
+/**
+ * Refresh the sticky progress bar fill.
+ */
+function updateProgressBar() {
+  const fill = document.getElementById('progress-fill');
+  if (!fill) return;
+  const pct = Math.round(computeProgress() * 100);
+  fill.style.width = `${pct}%`;
+}
+
+/**
+ * Compute sleep duration in hours, supporting overnight wrap.
+ */
+function computeSleepHours(bedtime, wake) {
+  if (!bedtime || !wake) return 0;
+  const [bh, bm] = bedtime.split(':').map(Number);
+  const [wh, wm] = wake.split(':').map(Number);
+  if ([bh, bm, wh, wm].some(Number.isNaN)) return 0;
+  let bedMinutes = bh * 60 + bm;
+  let wakeMinutes = wh * 60 + wm;
+  if (wakeMinutes <= bedMinutes) wakeMinutes += 24 * 60;
+  const minutes = wakeMinutes - bedMinutes;
+  return Math.round((minutes / 60) * 10) / 10;
+}
+function formatHours(hours, lang) {
+  if (!hours) return '—';
+  const h = Math.floor(hours);
+  const m = Math.round((hours - h) * 60);
+  const unit = lang === 'en' ? 'h' : 'h';
+  if (m === 0) return `${h}${unit}`;
+  return `${h}${unit}${String(m).padStart(2, '0')}`;
+}
+
+
+/**
+ * CEC Check-in - evaluation.js
+ * Pure logic: state -> { track, color, flags, message keys }
+ * Track A = vert (charge complète)
+ * Track B = jaune (allégé) ou rouge (récup) ou medical (stop)
+ */
+
+/**
+ * Evaluate the current state and return a structured result.
+ */
+function evaluate() {
+  const flags = { red: [], yellow: [] };
+  let medicalOverride = false;
+
+  // PIP dorsal — hard stop
+  if (state.pain.pipDorsal) {
+    medicalOverride = true;
+    flags.red.push({ key: 'flagPipDorsal' });
+  }
+
+  // Sleep duration
+  const sleep = state.sleep.durationHours;
+  if (sleep > 0 && sleep < 7) flags.red.push({ key: 'flagSleepShort' });
+  else if (sleep > 0 && sleep < 8) flags.yellow.push({ key: 'flagSleepBorderline' });
+
+  // Likerts (1-5; lower = worse)
+  const likertChecks = [
+    ['energy', 'flagLowEnergy', 'flagMidEnergy'],
+    ['muscles', 'flagLowMuscles', 'flagMidMuscles'],
+    ['forearms', 'flagLowForearms', 'flagMidForearms'],
+    ['calm', 'flagLowCalm', 'flagMidCalm'],
+    ['mood', 'flagLowMood', 'flagMidMood']
+  ];
+  likertChecks.forEach(([field, lowKey, midKey]) => {
+    const v = state.wellbeing[field];
+    if (v === null || v === undefined) return;
+    if (v <= 2) flags.red.push({ key: lowKey });
+    else if (v === 3) flags.yellow.push({ key: midKey });
+  });
+
+  // Sliders 0-10 (higher = better)
+  if (state.wellbeing.willingness <= 4) flags.red.push({ key: 'flagLowWilling' });
+  else if (state.wellbeing.willingness <= 6) flags.yellow.push({ key: 'flagMidWilling' });
+
+  if (state.wellbeing.recoveryPrs <= 4) flags.red.push({ key: 'flagLowRecovery' });
+  else if (state.wellbeing.recoveryPrs <= 6) flags.yellow.push({ key: 'flagMidRecovery' });
+
+  // Pain NRS (higher = worse)
+  if (state.pain.fingers >= 4) flags.red.push({ key: 'flagPainFingersHigh' });
+  else if (state.pain.fingers >= 2) flags.yellow.push({ key: 'flagPainFingersMid' });
+
+  if (state.pain.forearm >= 7) flags.red.push({ key: 'flagPainForearmHigh' });
+  else if (state.pain.forearm >= 5) flags.yellow.push({ key: 'flagPainForearmMid' });
+
+  if (state.pain.elbow >= 6) flags.red.push({ key: 'flagPainElbowHigh' });
+  else if (state.pain.elbow >= 4) flags.yellow.push({ key: 'flagPainElbowMid' });
+
+  if (state.pain.shoulders >= 6) flags.yellow.push({ key: 'flagPainShoulderMid' });
+  if (state.pain.back >= 5) flags.yellow.push({ key: 'flagPainBackMid' });
+
+  // Hydration / nutrition
+  if (state.hydration.urine !== null && state.hydration.urine >= 4) {
+    flags.yellow.push({ key: 'flagUrineDark' });
+  }
+  if (state.hydration.skippedMeal) {
+    flags.yellow.push({ key: 'flagSkippedMeal' });
+  }
+
+  // Decision
+  let track = 'A';
+  let color = 'green';
+  let messageKey = 'result.messageGreen';
+  let kindnessKey = 'result.kindnessGreen';
+
+  if (medicalOverride) {
+    track = 'B';
+    color = 'red';
+    messageKey = 'result.messageMedical';
+    kindnessKey = 'result.kindnessMedical';
+  } else if (flags.red.length >= 1) {
+    track = 'B';
+    color = 'red';
+    messageKey = 'result.messageRed';
+    kindnessKey = 'result.kindnessRed';
+  } else if (flags.yellow.length >= 3) {
+    track = 'B';
+    color = 'red';
+    messageKey = 'result.messageYellowHard';
+    kindnessKey = 'result.kindnessYellowHard';
+  } else if (flags.yellow.length >= 1) {
+    track = 'B';
+    color = 'yellow';
+    messageKey = 'result.messageYellowSoft';
+    kindnessKey = 'result.kindnessYellowSoft';
+  }
+
+  // Ring fill ratio: 1 for green, 0.6 for yellow, 0.3 for red
+  let ringRatio = 1;
+  if (color === 'yellow') ringRatio = 0.6;
+  else if (color === 'red') ringRatio = 0.3;
+
+  // Granular readiness score 0-100 (independent of track decision)
+  const score = computeReadinessScore(medicalOverride);
+
+  return {
+    track,
+    color,
+    medicalOverride,
+    flags,
+    messageKey,
+    kindnessKey,
+    ringRatio,
+    score
+  };
+}
+
+/**
+ * Compute a 0-100 readiness score from the current state.
+ * Weighted sum of positive signals minus pain penalties.
+ * PIP dorsal = automatic 0.
+ */
+function computeReadinessScore(medicalOverride) {
+  if (medicalOverride) return 0;
+
+  let score = 0;
+  let max = 0;
+
+  // Sleep duration (8h target, max 25 pts)
+  if (state.sleep.durationHours > 0) {
+    score += Math.min(25, (state.sleep.durationHours / 8) * 25);
+  }
+  max += 25;
+
+  // Likert wellbeing fields (5 fields × 7 pts = 35 pts)
+  const likertFields = ['energy', 'muscles', 'forearms', 'calm', 'mood'];
+  likertFields.forEach((f) => {
+    const v = state.wellbeing[f];
+    if (v !== null && v !== undefined) {
+      score += ((v - 1) / 4) * 7;
+    }
+    max += 7;
+  });
+
+  // Willingness + recovery sliders (2 × 10 = 20 pts)
+  score += (state.wellbeing.willingness / 10) * 10;
+  score += (state.wellbeing.recoveryPrs / 10) * 10;
+  max += 20;
+
+  // Pain penalty: each pain ≥ threshold subtracts points
+  // Pain fingers/forearm/elbow weighted heaviest
+  let painPenalty = 0;
+  painPenalty += state.pain.fingers * 1.5;     // 0-15
+  painPenalty += state.pain.forearm * 1.2;     // 0-12
+  painPenalty += state.pain.elbow * 1.0;       // 0-10
+  painPenalty += state.pain.shoulders * 0.6;
+  painPenalty += state.pain.back * 0.6;
+  painPenalty += state.pain.skin * 0.3;
+  // Cap penalty at 30 points total
+  painPenalty = Math.min(30, painPenalty);
+  score -= painPenalty;
+
+  // Hydration penalty
+  if (state.hydration.urine !== null && state.hydration.urine >= 4) score -= 5;
+  if (state.hydration.skippedMeal) score -= 4;
+
+  // Normalize to 0-100
+  const pct = Math.round(Math.max(0, Math.min(100, (score / max) * 100)));
+  return pct;
+}
+
+
+/**
+ * CEC Check-in - whatsapp.js
+ * Build a formatted check-in message and open wa.me with it pre-filled.
+ */
+
+
+
+const TRACK_EMOJI = {
+  green: '🟢',
+  yellow: '🟡',
+  red: '🔴'
+};
+
+/**
+ * Build the WhatsApp message text from the current state and evaluation.
+ */
+function buildMessage(evalResult) {
+  const lang = state.lang;
+  const tt = (k) => t(lang, k);
+  const dateStr = formatTodayDate(lang);
+  const emoji = TRACK_EMOJI[evalResult.color] || '⚪';
+  const trackLabel = evalResult.track === 'A' ? tt('result.trackA') : tt('result.trackB');
+  const message = tt(evalResult.messageKey);
+  const flagsAll = [
+    ...evalResult.flags.red.map((f) => `🔴 ${tt(`result.${f.key}`)}`),
+    ...evalResult.flags.yellow.map((f) => `🟡 ${tt(`result.${f.key}`)}`)
+  ];
+  const flagsBlock = flagsAll.length
+    ? flagsAll.join('\n')
+    : `✅ ${tt('whatsapp.labelNoFlags')}`;
+
+  const data = [
+    `• ${tt('whatsapp.sleep')} : ${formatHours(state.sleep.durationHours, lang)}`,
+    `• ${tt('whatsapp.energy')} : ${nullDash(state.wellbeing.energy)}/5`,
+    `• ${tt('whatsapp.muscles')} : ${nullDash(state.wellbeing.muscles)}/5`,
+    `• ${tt('whatsapp.forearms')} : ${nullDash(state.wellbeing.forearms)}/5`,
+    `• ${tt('whatsapp.calm')} : ${nullDash(state.wellbeing.calm)}/5`,
+    `• ${tt('whatsapp.mood')} : ${nullDash(state.wellbeing.mood)}/5`,
+    `• ${tt('whatsapp.willingness')} : ${state.wellbeing.willingness}/10`,
+    `• ${tt('whatsapp.recovery')} : ${state.wellbeing.recoveryPrs}/10`,
+    `• ${tt('whatsapp.pip')} : ${state.pain.pipDorsal ? tt('whatsapp.pipYes') : tt('whatsapp.pipNo')}`
+  ].join('\n');
+
+  const disciplineLine = state.discipline
+    ? `\n*${tt('whatsapp.labelDiscipline') || 'Discipline'}* : ${tt(`landing.${state.discipline}`)}`
+    : '';
+
+  const lines = [
+    `*${tt('whatsapp.title')}*`,
+    '',
+    `*${tt('whatsapp.labelAthlete')}* : ${state.athleteName || '—'}`,
+    `*${tt('whatsapp.labelDate')}* : ${dateStr}${disciplineLine}`,
+    `*${tt('whatsapp.labelTrack')}* : ${emoji} ${trackLabel}`,
+    '',
+    `*${tt('whatsapp.labelMessage')}* : ${message}`,
+    '',
+    `*${tt('whatsapp.labelFlags')}* :`,
+    flagsBlock,
+    '',
+    `*${tt('whatsapp.labelData')}* :`,
+    data
+  ];
+
+  if (state.hydration.note && state.hydration.note.trim()) {
+    lines.push('', `*${tt('whatsapp.labelNote')}* : ${state.hydration.note.trim()}`);
+  }
+
+  if (state.pain.other && state.pain.other.trim()) {
+    lines.push(`• ${state.pain.other.trim()}`);
+  }
+
+  return lines.join('\n');
+}
+
+/**
+ * Open the WhatsApp web/app deep-link with the pre-filled message.
+ * Returns true on success, false if the coach phone number is missing.
+ */
+function sendToCoach(evalResult) {
+  const phone = (state.coachPhone || '').replace(/\D+/g, '');
+  if (!phone) return false;
+  const text = buildMessage(evalResult);
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank', 'noopener');
+  return true;
+}
+
+function nullDash(v) {
+  return v === null || v === undefined ? '—' : String(v);
+}
+
+function formatTodayDate(lang) {
+  const locale = lang === 'en' ? 'en-CA' : 'fr-CA';
+  return new Date().toLocaleDateString(locale, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+}
+
+
+/**
+ * CEC Check-in - result-screen.js
+ * Render the dashboard: hero card, 12-arc neon ring,
+ * donut stats grid, indicators, athlete initial.
+ */
+
+
+
+const DONUT_RADIUS = 22;
+const DONUT_CIRC = 2 * Math.PI * DONUT_RADIUS;
+
+const RING_CX = 180;
+const RING_CY = 180;
+const ARC_RADIUS = 158;
+const ARC_COUNT = 12;
+const ARC_GAP_DEG = 3;
+const ARC_SEG_DEG = 360 / ARC_COUNT - ARC_GAP_DEG;
+
+let ringTicksRendered = false;
+
+const PALETTES = {
+  green: ['#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#f43f5e', '#f59e0b'],
+  yellow: ['#fde68a', '#fcd34d', '#fbbf24', '#f59e0b', '#fb923c', '#f97316', '#ea580c', '#d97706', '#b45309', '#92400e', '#78350f', '#facc15'],
+  red: ['#fecaca', '#fca5a5', '#f87171', '#ef4444', '#dc2626', '#b91c1c', '#991b1b', '#7f1d1d', '#dc2626', '#ef4444', '#f87171', '#fca5a5']
+};
+function renderResult(evalResult) {
+  const lang = state.lang;
+  const screen = document.getElementById('screen-result');
+  const hero = document.getElementById('hero-card');
+
+  hero.classList.remove('track-green', 'track-yellow', 'track-red');
+  hero.classList.add(`track-${evalResult.color}`);
+
+  document.getElementById('hero-letter').textContent = evalResult.track;
+  const labelKey = evalResult.track === 'A' ? 'result.trackA' : 'result.trackB';
+  document.getElementById('hero-track-label').textContent = t(lang, labelKey);
+
+  document.getElementById('hero-message').textContent = t(lang, evalResult.messageKey);
+  document.getElementById('hero-kindness').textContent = t(lang, evalResult.kindnessKey);
+
+  ensureRingTicks();
+  renderRingArcs(evalResult.color, evalResult.ringRatio);
+  renderReadiness(evalResult.score);
+  renderTrackMeta();
+
+  renderStats();
+  renderIndicators(evalResult.flags);
+
+  screen.classList.add('entering');
+  setTimeout(() => screen.classList.remove('entering'), 1200);
+}
+
+/**
+ * Animate the readiness score from 0 to target over ~900ms.
+ */
+function renderReadiness(target) {
+  const el = document.getElementById('readiness-value');
+  if (!el) return;
+  const final = Math.max(0, Math.min(100, Math.round(target ?? 0)));
+  const duration = 900;
+  const start = performance.now();
+  function tick(now) {
+    const t = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = String(Math.round(eased * final));
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  el.textContent = '0';
+  requestAnimationFrame(tick);
+}
+
+/**
+ * Show "NAME · DATE · DISCIPLINE" inside the inner core.
+ */
+function renderTrackMeta() {
+  const nameEl = document.getElementById('track-meta-name');
+  const dateEl = document.getElementById('track-meta-date');
+  const discEl = document.getElementById('track-meta-discipline');
+  const discSep = document.getElementById('track-meta-discipline-sep');
+  if (!nameEl || !dateEl) return;
+  const name = (state.athleteName || '').trim().toUpperCase();
+  const locale = state.lang === 'en' ? 'en-CA' : 'fr-CA';
+  const date = new Date().toLocaleDateString(locale, {
+    day: 'numeric',
+    month: 'short'
+  }).toUpperCase().replace(/\.$/, '');
+  nameEl.textContent = name || '—';
+  dateEl.textContent = date;
+  if (state.discipline && discEl && discSep) {
+    discEl.textContent = t(state.lang, `landing.${state.discipline}`).toUpperCase();
+    discEl.hidden = false;
+    discSep.hidden = false;
+  } else if (discEl && discSep) {
+    discEl.hidden = true;
+    discSep.hidden = true;
+  }
+}
+
+/**
+ * Light decorative tick marks every 6° (60 ticks total) on the inner side.
+ */
+function ensureRingTicks() {
+  if (ringTicksRendered) return;
+  const host = document.getElementById('ring-ticks');
+  if (!host) return;
+  const cx = RING_CX, cy = RING_CY, rOut = 142;
+  const ticks = [];
+  for (let i = 0; i < 60; i++) {
+    const angle = (i / 60) * Math.PI * 2 - Math.PI / 2;
+    const major = i % 5 === 0;
+    const r1 = rOut;
+    const r2 = rOut - (major ? 8 : 4);
+    const x1 = cx + Math.cos(angle) * r1;
+    const y1 = cy + Math.sin(angle) * r1;
+    const x2 = cx + Math.cos(angle) * r2;
+    const y2 = cy + Math.sin(angle) * r2;
+    ticks.push(`<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="rgba(255,255,255,${major ? 0.32 : 0.14})" stroke-width="${major ? 1.4 : 1}"/>`);
+  }
+  host.innerHTML = ticks.join('');
+  ringTicksRendered = true;
+}
+
+/**
+ * Render 12 neon colored arcs at radius ARC_RADIUS, each rotated to its slot.
+ * The first N (= round(ratio * 12)) arcs are full opacity; the rest are faded.
+ * Animated entry: each arc fades in with a small delay.
+ */
+function renderRingArcs(color, ratio = 1) {
+  const host = document.getElementById('ring-arcs');
+  if (!host) return;
+  const palette = PALETTES[color] || PALETTES.green;
+  const cx = RING_CX, cy = RING_CY, r = ARC_RADIUS;
+  const circ = 2 * Math.PI * r;
+  const segLen = (ARC_SEG_DEG / 360) * circ;
+  const gapLen = circ - segLen;
+  const activeCount = Math.max(1, Math.round(ratio * ARC_COUNT));
+  const arcs = [];
+  for (let i = 0; i < ARC_COUNT; i++) {
+    const startDeg = i * (360 / ARC_COUNT) - 90;
+    const fill = palette[i % palette.length];
+    const isActive = i < activeCount;
+    const baseOpacity = isActive ? 1 : 0.16;
+    arcs.push(`
+      <circle cx="${cx}" cy="${cy}" r="${r}"
+              fill="none"
+              stroke="${fill}"
+              stroke-width="22"
+              stroke-linecap="round"
+              stroke-dasharray="${segLen.toFixed(2)} ${gapLen.toFixed(2)}"
+              transform="rotate(${startDeg.toFixed(2)} ${cx} ${cy})"
+              filter="drop-shadow(0 0 8px ${fill})"
+              opacity="0">
+        <animate attributeName="opacity"
+                 values="0;${baseOpacity}"
+                 dur="0.7s"
+                 begin="${(i * 0.06).toFixed(2)}s"
+                 fill="freeze"/>
+      </circle>
+    `);
+  }
+  host.innerHTML = arcs.join('');
+}
+
+function renderStats() {
+  const lang = state.lang;
+  const grid = document.getElementById('stats-grid');
+  const items = [
+    { labelKey: 'result.stat.sleep', value: state.sleep.durationHours, unitKey: 'result.stat.unitHours',
+      tone: toneFromSleep(state.sleep.durationHours), ratio: clamp01(state.sleep.durationHours / 9),
+      donutText: state.sleep.durationHours ? `${state.sleep.durationHours.toFixed(1)}` : '—',
+      formatter: (v) => formatHours(v, lang) },
+    { labelKey: 'result.stat.energy', value: state.wellbeing.energy, unitKey: 'result.stat.unitOf5',
+      tone: toneFromLikert(state.wellbeing.energy), ratio: ratioLikert(state.wellbeing.energy) },
+    { labelKey: 'result.stat.muscles', value: state.wellbeing.muscles, unitKey: 'result.stat.unitOf5',
+      tone: toneFromLikert(state.wellbeing.muscles), ratio: ratioLikert(state.wellbeing.muscles) },
+    { labelKey: 'result.stat.forearms', value: state.wellbeing.forearms, unitKey: 'result.stat.unitOf5',
+      tone: toneFromLikert(state.wellbeing.forearms), ratio: ratioLikert(state.wellbeing.forearms) },
+    { labelKey: 'result.stat.calm', value: state.wellbeing.calm, unitKey: 'result.stat.unitOf5',
+      tone: toneFromLikert(state.wellbeing.calm), ratio: ratioLikert(state.wellbeing.calm) },
+    { labelKey: 'result.stat.mood', value: state.wellbeing.mood, unitKey: 'result.stat.unitOf5',
+      tone: toneFromLikert(state.wellbeing.mood), ratio: ratioLikert(state.wellbeing.mood) },
+    { labelKey: 'result.stat.willingness', value: state.wellbeing.willingness, unitKey: 'result.stat.unitOf10',
+      tone: toneFromHigherIsBetter(state.wellbeing.willingness), ratio: clamp01(state.wellbeing.willingness / 10) },
+    { labelKey: 'result.stat.recovery', value: state.wellbeing.recoveryPrs, unitKey: 'result.stat.unitOf10',
+      tone: toneFromHigherIsBetter(state.wellbeing.recoveryPrs), ratio: clamp01(state.wellbeing.recoveryPrs / 10) }
+  ];
+
+  grid.innerHTML = items.map((item, idx) => {
+    const valueText = item.formatter ? item.formatter(item.value) : (item.value === null ? '—' : String(item.value));
+    const unitText = item.value === null ? '' : t(lang, item.unitKey);
+    const donutCenter = item.donutText !== undefined ? item.donutText
+      : (item.value === null ? '—' : `${Math.round(item.ratio * 100)}%`);
+    const gradId = `donut-gradient-${item.tone}`;
+    return `
+      <div class="stat-card tone-${item.tone}">
+        <div class="stat-info">
+          <span class="stat-label">${escapeHtml(t(lang, item.labelKey))}</span>
+          <div class="stat-value-row">
+            <span class="stat-value">${escapeHtml(valueText)}</span>
+            <span class="stat-unit">${escapeHtml(unitText)}</span>
+          </div>
+        </div>
+        <div class="stat-donut">
+          <svg viewBox="0 0 64 64">
+            <circle class="donut-bg" cx="32" cy="32" r="${DONUT_RADIUS}"/>
+            <circle class="donut-fg" cx="32" cy="32" r="${DONUT_RADIUS}"
+                    style="--donut-circ: ${DONUT_CIRC}; stroke-dasharray: ${DONUT_CIRC}; stroke: url(#${gradId})"
+                    data-ratio="${item.ratio.toFixed(3)}"
+                    data-delay="${(idx * 80 + 200)}"
+                    transform="rotate(-90 32 32)"/>
+          </svg>
+          <span class="donut-center">${escapeHtml(donutCenter)}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  requestAnimationFrame(() => {
+    grid.querySelectorAll('.donut-fg').forEach((el) => {
+      const ratio = parseFloat(el.dataset.ratio || '0');
+      const delay = parseInt(el.dataset.delay || '0', 10);
+      const offset = DONUT_CIRC * (1 - ratio);
+      el.style.strokeDashoffset = String(DONUT_CIRC);
+      setTimeout(() => {
+        el.style.strokeDashoffset = String(offset);
+      }, delay);
+    });
+  });
+}
+
+function renderIndicators(flags) {
+  const lang = state.lang;
+  const list = document.getElementById('indicators-list');
+  const countBadge = document.getElementById('indicators-count');
+  const all = [
+    ...flags.red.map((f) => ({ ...f, tone: 'red' })),
+    ...flags.yellow.map((f) => ({ ...f, tone: 'yellow' }))
+  ];
+  if (countBadge) countBadge.textContent = String(all.length);
+  if (all.length === 0) {
+    list.innerHTML = `<li class="indicator dot-green"><span>${escapeHtml(t(lang, 'result.noFlags'))}</span></li>`;
+    return;
+  }
+  list.innerHTML = all.map((flag) => {
+    const text = t(lang, `result.${flag.key}`);
+    return `<li class="indicator dot-${flag.tone}"><span>${escapeHtml(text)}</span></li>`;
+  }).join('');
+}
+
+function toneFromLikert(v) {
+  if (v === null || v === undefined) return 'blue';
+  if (v <= 2) return 'red';
+  if (v === 3) return 'yellow';
+  return 'green';
+}
+function toneFromHigherIsBetter(v) {
+  if (v <= 4) return 'red';
+  if (v <= 6) return 'yellow';
+  return 'green';
+}
+function toneFromSleep(h) {
+  if (!h) return 'blue';
+  if (h < 7) return 'red';
+  if (h < 8) return 'yellow';
+  return 'green';
+}
+function ratioLikert(v) {
+  if (v === null || v === undefined) return 0;
+  return v / 5;
+}
+function clamp01(v) {
+  return Math.max(0, Math.min(1, v));
+}
+function escapeHtml(s) {
+  if (s === null || s === undefined) return '';
+  return String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+
+/**
+ * CEC Check-in - main.js
+ * Boot, landing → form → result flow, global events.
+ */
+
+
+
+
+
+
+let lastEvaluation = null;
+
+function boot() {
+  loadPreferences();
+
+  buildLikertScales();
+  wireFormControls();
+  onAnyChange(() => updateProgressBar());
+
+  applyTranslations(state.lang);
+  syncFormFromState();
+  refreshHeaderDate();
+  refreshLangButton();
+  updateProgressBar();
+
+  wireGlobalEvents();
+  wireLandingScreen();
+  showLanding();
+}
+
+function wireGlobalEvents() {
+  document.getElementById('lang-toggle').addEventListener('click', toggleLanguage);
+  document.getElementById('settings-open').addEventListener('click', openSettings);
+  document.getElementById('settings-close').addEventListener('click', closeSettings);
+  document.getElementById('settings-backdrop').addEventListener('click', closeSettings);
+  document.getElementById('settings-save').addEventListener('click', saveSettings);
+  document.getElementById('submit-btn').addEventListener('click', onSubmit);
+  document.getElementById('whatsapp-btn').addEventListener('click', onSendWhatsapp);
+  document.getElementById('edit-btn').addEventListener('click', goToFormScreen);
+  document.getElementById('restart-btn').addEventListener('click', restart);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSettings();
+  });
+}
+
+/* ============================================
+   Landing screen
+   ============================================ */
+function wireLandingScreen() {
+  const form = document.getElementById('landing-form');
+  const nameInput = document.getElementById('landing-athlete-name');
+  if (state.athleteName) nameInput.value = state.athleteName;
+
+  // Pre-select previously chosen discipline
+  if (state.discipline) {
+    setActiveDiscipline(state.discipline);
+  }
+
+  document.querySelectorAll('.discipline-card').forEach((card) => {
+    card.addEventListener('click', () => {
+      const d = card.dataset.discipline;
+      setActiveDiscipline(d);
+      saveDiscipline(d);
+    });
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    onLandingStart();
+  });
+
+  // Landing-only language toggle
+  const landingLang = document.getElementById('landing-lang-toggle');
+  if (landingLang) landingLang.addEventListener('click', toggleLanguage);
+}
+
+function setActiveDiscipline(d) {
+  document.querySelectorAll('.discipline-card').forEach((card) => {
+    const isActive = card.dataset.discipline === d;
+    card.classList.toggle('active', isActive);
+    card.setAttribute('aria-checked', isActive ? 'true' : 'false');
+  });
+}
+
+function onLandingStart() {
+  const nameInput = document.getElementById('landing-athlete-name');
+  const name = nameInput.value.trim();
+  if (!name) {
+    nameInput.classList.remove('invalid');
+    void nameInput.offsetWidth;
+    nameInput.classList.add('invalid');
+    nameInput.focus();
+    showToast(t(state.lang, 'landing.missingName'), 'error');
+    return;
+  }
+  if (!state.discipline) {
+    showToast(t(state.lang, 'landing.missingDiscipline'), 'error');
+    return;
+  }
+  saveAthleteName(name);
+  // Also seed the (hidden) form input value for downstream code that reads it
+  const hiddenName = document.getElementById('athlete-name');
+  if (hiddenName) hiddenName.value = name;
+
+  transitionLandingToForm();
+}
+
+function showLanding() {
+  const landing = document.getElementById('screen-landing');
+  const form = document.getElementById('screen-form');
+  const result = document.getElementById('screen-result');
+  if (landing) landing.hidden = false;
+  if (form) form.hidden = true;
+  if (result) result.hidden = true;
+}
+
+function transitionLandingToForm() {
+  const landing = document.getElementById('screen-landing');
+  const form = document.getElementById('screen-form');
+  if (!landing || !form) return;
+  landing.classList.add('exiting');
+  // After the photo zoom and content fade, hide landing and reveal form
+  setTimeout(() => {
+    landing.hidden = true;
+    landing.classList.remove('exiting');
+    form.hidden = false;
+    form.classList.add('entering-from-landing');
+    setTimeout(() => form.classList.remove('entering-from-landing'), 1000);
+    syncFormFromState();
+    refreshHeaderDate();
+    updateProgressBar();
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, 700);
+}
+
+function backToLanding() {
+  const landing = document.getElementById('screen-landing');
+  const form = document.getElementById('screen-form');
+  const result = document.getElementById('screen-result');
+  if (landing) landing.hidden = false;
+  if (form) form.hidden = true;
+  if (result) result.hidden = true;
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+/* ============================================
+   Language
+   ============================================ */
+function toggleLanguage() {
+  const next = state.lang === 'fr' ? 'en' : 'fr';
+  saveLang(next);
+  applyTranslations(next);
+  refreshHeaderDate();
+  refreshLangButton();
+  if (lastEvaluation && !document.getElementById('screen-result').hidden) {
+    renderResult(lastEvaluation);
+  }
+  syncFormFromState();
+}
+
+function refreshLangButton() {
+  const code = state.lang.toUpperCase();
+  const headerEl = document.getElementById('lang-code');
+  if (headerEl) headerEl.textContent = code;
+  const landingEl = document.getElementById('landing-lang-code');
+  if (landingEl) landingEl.textContent = code;
+}
+
+function refreshHeaderDate() {
+  const locale = state.lang === 'en' ? 'en-CA' : 'fr-CA';
+  const formatted = new Date().toLocaleDateString(locale, {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long'
+  });
+  const el = document.getElementById('header-date');
+  if (el) el.textContent = formatted;
+}
+
+/* ============================================
+   Settings modal
+   ============================================ */
+function openSettings() {
+  const modal = document.getElementById('settings-modal');
+  document.getElementById('coach-phone').value = state.coachPhone || '';
+  document.querySelectorAll('input[name="lang-pref"]').forEach((r) => {
+    r.checked = r.value === state.lang;
+  });
+  modal.hidden = false;
+}
+
+function closeSettings() {
+  document.getElementById('settings-modal').hidden = true;
+}
+
+function saveSettings() {
+  const phoneInput = document.getElementById('coach-phone').value.replace(/\D+/g, '');
+  saveCoachPhone(phoneInput);
+  const langInput = document.querySelector('input[name="lang-pref"]:checked');
+  if (langInput && langInput.value !== state.lang) {
+    saveLang(langInput.value);
+    applyTranslations(state.lang);
+    refreshHeaderDate();
+    refreshLangButton();
+    syncFormFromState();
+  }
+  showToast(t(state.lang, 'settings.saved'), 'success');
+  closeSettings();
+}
+
+/* ============================================
+   Form submit / result
+   ============================================ */
+function onSubmit() {
+  const validation = validateForm();
+  if (!validation.ok) {
+    showToast(validation.message, 'error');
+    if (validation.focus) {
+      validation.focus.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return;
+  }
+  lastEvaluation = evaluate();
+  goToResultScreen();
+  renderResult(lastEvaluation);
+}
+
+function onSendWhatsapp() {
+  if (!lastEvaluation) return;
+  const ok = sendToCoach(lastEvaluation);
+  if (!ok) {
+    showToast(t(state.lang, 'whatsapp.noPhone'), 'error');
+    openSettings();
+  }
+}
+
+function goToFormScreen() {
+  document.getElementById('screen-result').hidden = true;
+  document.getElementById('screen-form').hidden = false;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goToResultScreen() {
+  document.getElementById('screen-form').hidden = true;
+  const screen = document.getElementById('screen-result');
+  screen.hidden = false;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restart() {
+  resetForm();
+  document.querySelectorAll('.likert .likert-btn.active').forEach((b) => {
+    b.classList.remove('active');
+    b.setAttribute('aria-checked', 'false');
+  });
+  syncFormFromState();
+  updateProgressBar();
+  backToLanding();
+}
+
+/* ============================================
+   Toast
+   ============================================ */
+let toastTimer = null;
+function showToast(message, kind = 'info') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = 'toast';
+  if (kind === 'error') toast.classList.add('toast-error');
+  else if (kind === 'success') toast.classList.add('toast-success');
+  toast.hidden = false;
+  void toast.offsetWidth;
+  toast.classList.add('visible');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.classList.remove('visible');
+    setTimeout(() => { toast.hidden = true; }, 250);
+  }, 3200);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
+}
+
+})();
+</script>
+</body>
+</html>
