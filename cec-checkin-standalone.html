@@ -2075,23 +2075,24 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
 
 .parallax-back img {
   width: 100%;
-  height: 110%;
+  height: 100%;
   object-fit: cover;
-  object-position: center 40%;
-  filter: saturate(0.9) brightness(0.78) contrast(1.05);
+  object-position: center 35%;
+  filter: saturate(1.05) brightness(0.95) contrast(1.05);
   display: block;
 }
 
+/* Light vignette so the title remains readable; no heavy bottom dark veil */
 .parallax-back::after {
   content: '';
   position: absolute;
   inset: 0;
   background:
     linear-gradient(180deg,
-      rgba(10, 14, 20, 0.4) 0%,
-      rgba(10, 14, 20, 0) 30%,
-      rgba(10, 14, 20, 0.55) 75%,
-      rgba(10, 14, 20, 0.95) 100%);
+      rgba(10, 14, 20, 0.32) 0%,
+      rgba(10, 14, 20, 0) 25%,
+      rgba(10, 14, 20, 0) 60%,
+      rgba(10, 14, 20, 0.55) 100%);
   pointer-events: none;
 }
 
@@ -2141,14 +2142,13 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
 }
 
-/* FRONT: podium silhouettes — small factor → scrolls almost normally
-   = appears closest to camera */
+/* FRONT: podium silhouettes — visible silhouette, not pitch-black */
 .parallax-front {
   position: absolute;
   left: 50%;
   bottom: 0;
-  width: min(720px, 110%);
-  height: 56%;
+  width: min(820px, 120%);
+  height: 50%;
   z-index: 3;
   pointer-events: none;
   transform: translate3d(-50%, calc(var(--pscroll, 0px) * 0.08), 0);
@@ -2162,9 +2162,10 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
   height: 100%;
   object-fit: cover;
   object-position: center bottom;
-  filter: brightness(0.13) contrast(1.45) saturate(0.45);
-  -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 18%, black 100%);
-  mask-image: linear-gradient(180deg, transparent 0%, black 18%, black 100%);
+  /* Silhouette but visible: dark + high contrast, identity blurred */
+  filter: brightness(0.55) contrast(1.25) saturate(0.55);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.85) 28%, black 65%);
+  mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.85) 28%, black 65%);
   display: block;
 }
 
