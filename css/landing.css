@@ -184,15 +184,35 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
 }
 
 .parallax-eyebrow {
-  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10.5px;
   font-weight: 800;
-  letter-spacing: 0.4em;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: var(--cec-red);
-  margin: 0 0 18px;
-  text-shadow:
-    0 2px 12px rgba(0, 0, 0, 0.85),
-    0 0 24px rgba(0, 0, 0, 0.6);
+  color: white;
+  margin: 0 0 22px;
+  padding: 7px 16px 6px;
+  border-radius: var(--radius-pill);
+  background: rgba(8, 11, 18, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Red dot before the eyebrow text — keeps the CEC red present */
+.parallax-eyebrow::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cec-red);
+  box-shadow: 0 0 10px rgba(216, 6, 33, 0.85);
+  flex: 0 0 7px;
 }
 
 .parallax-headline {
