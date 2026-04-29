@@ -184,42 +184,18 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
 }
 
 .parallax-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 800;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: white;
-  margin: 0 0 26px;
-  padding: 9px 20px 8px;
-  border-radius: var(--radius-pill);
-  background: rgba(8, 11, 18, 0.86);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-  box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-}
-
-/* Pulsing red dot — keeps CEC identity, draws the eye */
-.parallax-eyebrow::before {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--cec-red);
-  box-shadow: 0 0 12px rgba(216, 6, 33, 0.95);
-  flex: 0 0 8px;
-  animation: eyebrow-dot-pulse 2.4s ease-in-out infinite;
-}
-
-@keyframes eyebrow-dot-pulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(216, 6, 33, 0.7); }
-  50% { transform: scale(1.25); box-shadow: 0 0 18px rgba(216, 6, 33, 1); }
+  color: var(--cec-red);
+  margin: 0 0 22px;
+  /* Thin white outline on each letter for legibility on the busy wall */
+  -webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.72);
+  paint-order: stroke fill;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.55),
+    0 0 12px rgba(0, 0, 0, 0.35);
 }
 
 .parallax-headline {
