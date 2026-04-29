@@ -185,12 +185,15 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
 }
 
 .parallax-eyebrow {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  top: 26%;
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  margin: 0 0 28px;
+  margin: 0;
   padding: 14px 28px;
   color: var(--cec-red);
   text-transform: uppercase;
