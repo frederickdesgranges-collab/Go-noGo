@@ -358,57 +358,25 @@ function restart() {
 }
 
 /* ============================================
-   Scroll-driven hero choreography
-   ============================================
-   Phase 1 (0    → 0.22): photo full, score hidden
-   Phase 2 (0.22 → 0.55): photo shrinks/fades, big score fades in
-   Phase 3 (0.45 → 1.0):  mini-header slides down (overlaps with big score)
-   Phase 4 (0.7  → 1.0):  big score fades out, mini stays sticky
-   The mini-header now appears WHILE the big score is still visible,
-   so the user always sees a score number on screen ("le score doit rester").
+   Scroll-driven mini-header reveal
+   No more photo choreography — the score is the immediate hero.
+   We just slide the sticky compact summary down once the user
+   scrolls past the hero card.
    ============================================ */
 function wireScrollChoreography() {
-  const photoCard = document.getElementById('hero-photo-card');
-  const scoreStage = document.getElementById('hero-score-stage');
-  const heroText = document.getElementById('hero-text-block');
+  const hero = document.getElementById('hero-card');
   const scrollCue = document.getElementById('scroll-cue');
   const miniHeader = document.getElementById('mini-header');
-  if (!photoCard || !scoreStage) return;
+  if (!hero) return;
 
   let ticking = false;
-
   function update() {
     ticking = false;
     const sy = window.scrollY;
-    const vh = window.innerHeight;
-    const range = vh * 1.2; // total scroll-distance for the full choreography
-    const p = clamp01(sy / range);
+    const heroHeight = hero.offsetHeight || window.innerHeight;
+    const p = clamp01(sy / (heroHeight * 0.55));
 
-    // Photo: scales down 1 → 0.55, opacity 1 → 0.05, drift up to -40px
-    const scale = 1 - 0.45 * p;
-    const photoOpacity = Math.max(0.05, 1 - 1.05 * p);
-    photoCard.style.transform = `translateY(${(-40 * p).toFixed(1)}px) scale(${scale.toFixed(3)})`;
-    photoCard.style.opacity = String(photoOpacity);
-
-    // Big score: fades IN from 0.22 to 0.55, then OUT from 0.7 to 0.95
-    const fadeIn = clamp01((p - 0.22) / 0.33);
-    const fadeOut = 1 - clamp01((p - 0.7) / 0.25);
-    const scoreOpacity = fadeIn * fadeOut;
-    scoreStage.classList.toggle('visible', scoreOpacity > 0.05);
-    scoreStage.style.opacity = String(scoreOpacity);
-    // Subtle upward drift past the photo midpoint
-    const scoreY = -50 * Math.max(0, p - 0.5);
-    scoreStage.style.transform = `translateY(${scoreY.toFixed(1)}px)`;
-
-    // Hero text (message + kindness) appears once big score is fading out
-    if (heroText) heroText.classList.toggle('visible', p > 0.55);
-
-    // Scroll cue
     if (scrollCue) scrollCue.classList.toggle('faded', p > 0.08);
-
-    // Mini header: appears DURING phase 2 (around p = 0.45) so the
-    // small score is on top of the screen by the time the big one
-    // starts fading away. The mini stays sticky from there on.
     if (miniHeader) miniHeader.classList.toggle('visible', p > 0.45);
   }
 

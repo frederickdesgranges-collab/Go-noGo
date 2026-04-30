@@ -8,7 +8,8 @@ const STORAGE_KEYS = {
   coachPhone: 'cec_coach_phone',
   athleteName: 'cec_athlete_name',
   discipline: 'cec_discipline',
-  profile: 'cec_profile'
+  profile: 'cec_profile',
+  history: 'cec_history'
 };
 
 const DEFAULT_COACH_PHONE = '14186095751';
@@ -103,6 +104,36 @@ export function saveProfile(p) {
     if (p) localStorage.setItem(STORAGE_KEYS.profile, p);
     else localStorage.removeItem(STORAGE_KEYS.profile);
   } catch (_) {}
+}
+
+/**
+ * Score history stored as { 'YYYY-MM-DD': score, ... } in localStorage.
+ * Used by the progression chart on the result screen.
+ */
+export function loadHistory() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.history);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch (_) {
+    return {};
+  }
+}
+
+export function saveScore(dateKey, score) {
+  try {
+    const h = loadHistory();
+    h[dateKey] = score;
+    localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(h));
+  } catch (_) {}
+}
+
+export function todayDateKey(date = new Date()) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 export function saveLang(lang) {

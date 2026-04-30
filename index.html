@@ -489,29 +489,27 @@
         <span class="mini-track-pill" id="mini-track-pill">A</span>
       </header>
 
-      <!-- HERO PHOTO FOLD: photo fills viewport, shrinks on scroll -->
-      <div class="hero-fold" id="hero-card">
-        <div class="hero-photo-card" id="hero-photo-card" aria-hidden="true">
-          <div class="hero-photo-bg" id="hero-photo-bg"></div>
-          <div class="hero-photo-overlay"></div>
-          <div class="hero-photo-meta">
-            <span class="meta-name" id="meta-name">—</span>
+      <!-- HERO: clean editorial score panel (no photos) -->
+      <div class="hero-fold hero-clean" id="hero-card">
+        <div class="hero-meta-pill">
+          <span class="hero-meta-avatar" id="hero-meta-avatar">—</span>
+          <span class="hero-meta-text">
+            <span id="meta-name">—</span>
             <span class="meta-sep">·</span>
             <span id="track-meta-date">—</span>
             <span class="meta-sep" id="track-meta-discipline-sep" hidden>·</span>
             <span id="track-meta-discipline" hidden></span>
-          </div>
+          </span>
         </div>
 
-        <!-- Score stage: appears as photo shrinks -->
-        <div class="hero-score-stage" id="hero-score-stage">
+        <div class="hero-score-stage visible" id="hero-score-stage">
           <span class="hero-score-eyebrow" data-i18n="result.readiness">READINESS</span>
           <span class="hero-score-value" id="readiness-value">—</span>
           <span class="hero-score-suffix">/ 100</span>
           <span class="track-pill" id="hero-track-label" data-i18n="result.trackA">TRACK A</span>
         </div>
 
-        <div class="hero-text" id="hero-text-block">
+        <div class="hero-text visible" id="hero-text-block">
           <h2 class="hero-message" id="hero-message">—</h2>
           <p class="hero-kindness" id="hero-kindness">—</p>
         </div>
@@ -575,6 +573,16 @@
           <p class="tracker-sub" data-i18n="result.planTrackingSub">10 jours d'entraînement Innsbruck</p>
         </header>
         <div class="tracker-chart" id="tracker-chart"></div>
+      </article>
+
+      <!-- Form progression over the camp days (score history) -->
+      <article class="card progression-card" id="progression-card">
+        <header class="tracker-head">
+          <span class="plan-eyebrow"><span data-i18n="result.progressionTitle">Progression de la forme</span></span>
+          <p class="tracker-sub" data-i18n="result.progressionSub">Score Readiness jour par jour</p>
+        </header>
+        <div class="progression-chart" id="progression-chart"></div>
+        <div class="progression-summary" id="progression-summary"></div>
       </article>
 
       <!-- Stats list (compact rows) -->

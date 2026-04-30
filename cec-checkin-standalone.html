@@ -1564,114 +1564,103 @@ a { color: inherit; text-decoration: none; }
 .screen-result.track-red .mini-track-pill { background: var(--red); }
 
 /* ============================================
-   Hero fold: photo + score (scroll-driven)
+   Hero (clean editorial card · no photos)
+   The score is the immediate hero of this page.
    ============================================ */
 .hero-fold {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
-  padding: 16px 0 80px;
-  min-height: calc(100vh - var(--header-height));
-  min-height: calc(100dvh - var(--header-height));
+  gap: 28px;
+  padding: 56px 28px 100px;
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.85) 0%, transparent 65%),
+    var(--bg-paper);
+  border: 1px solid var(--border-card);
+  box-shadow: 0 16px 48px rgba(20, 33, 26, 0.08);
+  isolation: isolate;
+  min-height: calc(100vh - var(--header-height) - 80px);
+  min-height: calc(100dvh - var(--header-height) - 80px);
+  justify-content: center;
 }
 
-/* The photo card fills most of the viewport initially */
-.hero-photo-card {
+/* Per-track diffuse glow inside the hero (no photo, just tone) */
+.hero-fold::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(42, 111, 71, 0.13) 0%, transparent 65%);
+  filter: blur(50px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-fold.track-yellow::before {
+  background: radial-gradient(circle, rgba(180, 83, 9, 0.16) 0%, transparent 65%);
+}
+
+.hero-fold.track-red::before {
+  background: radial-gradient(circle, rgba(185, 28, 28, 0.18) 0%, transparent 65%);
+}
+
+/* Athlete + date + discipline pill at the top of the hero */
+.hero-meta-pill {
   position: relative;
-  width: 100%;
-  height: calc(100vh - var(--header-height) - 32px);
-  height: calc(100dvh - var(--header-height) - 32px);
-  border-radius: var(--radius-xl);
-  overflow: hidden;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 18px 6px 6px;
+  border-radius: var(--radius-pill);
   background: var(--bg-cream);
   border: 1px solid var(--border-card);
-  box-shadow: 0 16px 48px rgba(20, 33, 26, 0.18);
-  transform-origin: top center;
-  will-change: transform, height, opacity;
-  transition: transform 0.05s linear, height 0.05s linear;
-  isolation: isolate;
-}
-
-.hero-photo-bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  transition: background-image 0.3s ease;
-}
-
-/* Per-track photo positioning so the subject is centered */
-.hero-fold.track-green .hero-photo-bg {
-  background-image: url("https://www.theglobeandmail.com/resizer/v2/TWBAHPRXWBHJJCEBO575W2OFWE.jpg?auth=bdb094e810f4a2934fd96a1a3a3171eead59bcb34ad003d51c35217b54bace08&width=1200&height=1200&quality=85&smart=true");
-  background-position: 62% center;
-}
-
-.hero-fold.track-yellow .hero-photo-bg {
-  background-image:
-    radial-gradient(circle at 35% 30%, var(--yellow) 0%, rgba(180, 83, 9, 0.25) 35%, transparent 60%),
-    radial-gradient(circle at 65% 70%, var(--orange) 0%, rgba(194, 65, 12, 0.18) 35%, transparent 60%),
-    linear-gradient(160deg, #fef3c7 0%, #fde9c7 60%, #f6f4ef 100%);
-  filter: saturate(0.9) blur(10px);
-  transform: scale(1.1);
-}
-
-.hero-fold.track-red .hero-photo-bg {
-  background-image: url("https://cdn.mos.cms.futurecdn.net/CMgKVrgme4bVEPvvE2j3yD-1920-80.jpg");
-  background-position: 50% 35%;
-}
-
-.hero-photo-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 50%, rgba(20, 33, 26, 0.55) 100%);
-  pointer-events: none;
-}
-
-.hero-photo-meta {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 18px;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: white;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+  color: var(--text-secondary);
 }
 
-.meta-sep { opacity: 0.55; }
+.hero-meta-avatar {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cec-red) 0%, var(--cec-red-dark) 100%);
+  color: white;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: -0.02em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 
-/* Score stage: invisible at first, fades in as you scroll */
+.hero-meta-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meta-sep { opacity: 0.45; }
+
+/* Score block · the hero of the page */
 .hero-score-stage {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: calc(100vh - var(--header-height) - 32px);
-  height: calc(100dvh - var(--header-height) - 32px);
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 14px;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.hero-score-stage.visible {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
+  gap: 12px;
+  text-align: center;
 }
 
 .hero-score-eyebrow {
@@ -1744,8 +1733,10 @@ a { color: inherit; text-decoration: none; }
 }
 .hero-fold.track-red .track-pill::before { background: var(--red); }
 
-/* Hero text below the score stage */
+/* Hero text below the score stage (always visible — no scroll reveal needed) */
 .hero-text {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1753,14 +1744,6 @@ a { color: inherit; text-decoration: none; }
   text-align: center;
   padding: 0 20px;
   width: 100%;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.4, 0.4, 1);
-}
-
-.hero-text.visible {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 .hero-message {
@@ -2273,6 +2256,82 @@ a { color: inherit; text-decoration: none; }
 .tracker-legend-dot.dot-overreach { background: linear-gradient(180deg, #ff4747, var(--cec-red-dark)); }
 .tracker-legend-dot.dot-taper { background: linear-gradient(180deg, var(--turquoise), #0f766e); }
 .tracker-legend-dot.dot-off { background: repeating-linear-gradient(-45deg, #60a5fa 0, #60a5fa 3px, rgba(96,165,250,0.3) 3px, rgba(96,165,250,0.3) 6px); }
+
+/* ============================================
+   PROGRESSION CARD (form score over the camp days)
+   ============================================ */
+.progression-card {
+  padding: 24px 16px 18px;
+}
+
+.progression-chart {
+  margin-top: 4px;
+  padding: 4px 4px 0;
+}
+
+.progression-chart svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.progression-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 22px;
+  padding: 14px 12px 4px;
+  border-top: 1px solid var(--border-subtle);
+  margin-top: 12px;
+}
+
+.prog-empty {
+  display: block;
+  text-align: center;
+  width: 100%;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--text-secondary);
+  padding: 8px 0;
+}
+
+.prog-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.prog-stat-label {
+  display: inline-block;
+}
+
+.prog-stat-value {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-deep-green);
+  font-variant-numeric: tabular-nums;
+  text-transform: none;
+}
+
+.prog-delta {
+  font-family: var(--font-stack);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.prog-delta.up { color: var(--green-dark); background: var(--green-light); }
+.prog-delta.down { color: var(--red-dark); background: var(--red-light); }
+.prog-delta.flat { color: var(--text-tertiary); background: var(--bg-cream); }
 
 /* ============================================
    Stats list (compact rows)
@@ -3505,29 +3564,27 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
         <span class="mini-track-pill" id="mini-track-pill">A</span>
       </header>
 
-      <!-- HERO PHOTO FOLD: photo fills viewport, shrinks on scroll -->
-      <div class="hero-fold" id="hero-card">
-        <div class="hero-photo-card" id="hero-photo-card" aria-hidden="true">
-          <div class="hero-photo-bg" id="hero-photo-bg"></div>
-          <div class="hero-photo-overlay"></div>
-          <div class="hero-photo-meta">
-            <span class="meta-name" id="meta-name">—</span>
+      <!-- HERO: clean editorial score panel (no photos) -->
+      <div class="hero-fold hero-clean" id="hero-card">
+        <div class="hero-meta-pill">
+          <span class="hero-meta-avatar" id="hero-meta-avatar">—</span>
+          <span class="hero-meta-text">
+            <span id="meta-name">—</span>
             <span class="meta-sep">·</span>
             <span id="track-meta-date">—</span>
             <span class="meta-sep" id="track-meta-discipline-sep" hidden>·</span>
             <span id="track-meta-discipline" hidden></span>
-          </div>
+          </span>
         </div>
 
-        <!-- Score stage: appears as photo shrinks -->
-        <div class="hero-score-stage" id="hero-score-stage">
+        <div class="hero-score-stage visible" id="hero-score-stage">
           <span class="hero-score-eyebrow" data-i18n="result.readiness">READINESS</span>
           <span class="hero-score-value" id="readiness-value">—</span>
           <span class="hero-score-suffix">/ 100</span>
           <span class="track-pill" id="hero-track-label" data-i18n="result.trackA">TRACK A</span>
         </div>
 
-        <div class="hero-text" id="hero-text-block">
+        <div class="hero-text visible" id="hero-text-block">
           <h2 class="hero-message" id="hero-message">—</h2>
           <p class="hero-kindness" id="hero-kindness">—</p>
         </div>
@@ -3591,6 +3648,16 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
           <p class="tracker-sub" data-i18n="result.planTrackingSub">10 jours d'entraînement Innsbruck</p>
         </header>
         <div class="tracker-chart" id="tracker-chart"></div>
+      </article>
+
+      <!-- Form progression over the camp days (score history) -->
+      <article class="card progression-card" id="progression-card">
+        <header class="tracker-head">
+          <span class="plan-eyebrow"><span data-i18n="result.progressionTitle">Progression de la forme</span></span>
+          <p class="tracker-sub" data-i18n="result.progressionSub">Score Readiness jour par jour</p>
+        </header>
+        <div class="progression-chart" id="progression-chart"></div>
+        <div class="progression-summary" id="progression-summary"></div>
       </article>
 
       <!-- Stats list (compact rows) -->
@@ -3853,6 +3920,12 @@ const translations = {
       planTrackingSub: '10 jours d\'entraînement Innsbruck',
       planAm: 'Matin',
       planPm: 'Après-midi',
+      progressionTitle: 'Progression de la forme',
+      progressionSub: 'Score Readiness jour par jour',
+      progressionEmpty: 'Pas encore de données. Ton score apparaîtra dès le premier check-in du camp.',
+      progressionLast: 'Aujourd\'hui',
+      progressionAvg: 'Moyenne',
+      progressionRecorded: 'Saisis',
       indicators: 'Indicateurs',
       noFlags: "Aucun signal d'alerte. Belle nuit, beau profil.",
       scrollHint: 'Voir les détails',
@@ -4113,6 +4186,12 @@ const translations = {
       planTrackingSub: '10 training days in Innsbruck',
       planAm: 'AM',
       planPm: 'PM',
+      progressionTitle: 'Form progression',
+      progressionSub: 'Readiness score day by day',
+      progressionEmpty: 'No data yet. Your score will show up after your first check-in.',
+      progressionLast: 'Today',
+      progressionAvg: 'Average',
+      progressionRecorded: 'Recorded',
       indicators: 'Indicators',
       noFlags: 'No alert signals. Solid night, solid profile.',
       scrollHint: 'See details',
@@ -4265,7 +4344,8 @@ const STORAGE_KEYS = {
   coachPhone: 'cec_coach_phone',
   athleteName: 'cec_athlete_name',
   discipline: 'cec_discipline',
-  profile: 'cec_profile'
+  profile: 'cec_profile',
+  history: 'cec_history'
 };
 
 const DEFAULT_COACH_PHONE = '14186095751';
@@ -4356,6 +4436,34 @@ function saveProfile(p) {
     if (p) localStorage.setItem(STORAGE_KEYS.profile, p);
     else localStorage.removeItem(STORAGE_KEYS.profile);
   } catch (_) {}
+}
+
+/**
+ * Score history stored as { 'YYYY-MM-DD': score, ... } in localStorage.
+ * Used by the progression chart on the result screen.
+ */
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.history);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch (_) {
+    return {};
+  }
+}
+function saveScore(dateKey, score) {
+  try {
+    const h = loadHistory();
+    h[dateKey] = score;
+    localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(h));
+  } catch (_) {}
+}
+function todayDateKey(date = new Date()) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 function saveLang(lang) {
   state.lang = lang;
@@ -5433,9 +5541,15 @@ function renderResult(evalResult) {
   // Score (count up)
   renderReadiness(evalResult.score);
 
-  // Today's plan card + 10-day tracker
+  // Persist today's score for the progression chart
+  if (typeof evalResult.score === 'number') {
+    saveScore(todayDateKey(), evalResult.score);
+  }
+
+  // Today's plan card + 10-day tracker + form progression chart
   renderPlanCard(evalResult);
   renderTracker(evalResult);
+  renderProgression(evalResult);
 
   // Stats list
   renderStatsList();
@@ -5469,7 +5583,9 @@ function renderPhotoMeta() {
   const dateEl = document.getElementById('track-meta-date');
   const discEl = document.getElementById('track-meta-discipline');
   const discSep = document.getElementById('track-meta-discipline-sep');
+  const avatarEl = document.getElementById('hero-meta-avatar');
   const raw = (state.athleteName || '').trim();
+  if (avatarEl) avatarEl.textContent = raw ? raw.charAt(0).toUpperCase() : '—';
   if (nameEl) nameEl.textContent = raw ? raw.toUpperCase() : '—';
   if (dateEl) {
     const locale = lang === 'en' ? 'en-CA' : 'fr-CA';
@@ -5590,6 +5706,135 @@ function renderTracker(evalResult) {
       <span class="tracker-legend-item"><span class="tracker-legend-dot dot-off"></span>${escapeHtml(t(lang, 'block.off'))}</span>
     `;
     card.appendChild(legend);
+  }
+}
+
+/**
+ * Form-progression area chart: readiness score per camp day.
+ * Rendered as inline SVG in #progression-chart.
+ */
+function renderProgression(evalResult) {
+  const host = document.getElementById('progression-chart');
+  const summary = document.getElementById('progression-summary');
+  if (!host) return;
+
+  const lang = state.lang;
+  const history = loadHistory();
+  const plan = evalResult.plan;
+  const todayIdx = evalResult.dayIdx;
+
+  // Build per-day score (null if no record yet)
+  const points = plan.map((row) => {
+    const score = history[row.date];
+    return { day: row.day, date: row.date, score: typeof score === 'number' ? score : null };
+  });
+
+  const recorded = points.filter((p) => p.score !== null);
+
+  const W = 320;
+  const H = 160;
+  const PAD_L = 14;
+  const PAD_R = 14;
+  const PAD_T = 14;
+  const PAD_B = 28;
+  const innerW = W - PAD_L - PAD_R;
+  const innerH = H - PAD_T - PAD_B;
+  const stepX = innerW / 9; // 10 days = 9 intervals
+
+  function px(i) { return PAD_L + i * stepX; }
+  function py(score) { return PAD_T + (innerH - (score / 100) * innerH); }
+
+  // Build path commands across all known points (skip nulls)
+  const path = [];
+  let started = false;
+  recorded.forEach((p) => {
+    const i = p.day - 1;
+    const x = px(i);
+    const y = py(p.score);
+    path.push(`${started ? 'L' : 'M'} ${x.toFixed(1)} ${y.toFixed(1)}`);
+    started = true;
+  });
+
+  // Area path = same path but closed to baseline
+  const areaPath = recorded.length
+    ? `${path.join(' ')} L ${px(recorded[recorded.length - 1].day - 1).toFixed(1)} ${(PAD_T + innerH).toFixed(1)} L ${px(recorded[0].day - 1).toFixed(1)} ${(PAD_T + innerH).toFixed(1)} Z`
+    : '';
+
+  // Reference lines at 50 and 75
+  const ref50 = py(50);
+  const ref75 = py(75);
+
+  // Day labels under each tick
+  const xLabels = plan.map((row, i) => {
+    const x = px(i);
+    const isToday = todayIdx && row.day === todayIdx;
+    return `<text x="${x.toFixed(1)}" y="${(H - 6).toFixed(1)}" font-size="9" font-weight="${isToday ? 800 : 600}" text-anchor="middle" fill="${isToday ? '#A40517' : '#8a958f'}">J${row.day}</text>`;
+  }).join('');
+
+  // Dots per recorded score
+  const dots = recorded.map((p) => {
+    const i = p.day - 1;
+    const x = px(i);
+    const y = py(p.score);
+    const isToday = todayIdx && p.day === todayIdx;
+    return `
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${isToday ? 5 : 3.5}"
+              fill="${isToday ? '#D80621' : '#143b2c'}"
+              stroke="#fbfaf6" stroke-width="2"/>
+      ${isToday ? `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="9" fill="none" stroke="#D80621" stroke-width="1.5" opacity="0.4"/>` : ''}
+    `;
+  }).join('');
+
+  host.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" width="100%" height="auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Progression de la forme">
+      <defs>
+        <linearGradient id="progFill" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#2a6f47" stop-opacity="0.32"/>
+          <stop offset="100%" stop-color="#2a6f47" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <!-- Reference lines -->
+      <line x1="${PAD_L}" x2="${W - PAD_R}" y1="${ref75.toFixed(1)}" y2="${ref75.toFixed(1)}" stroke="rgba(20,33,26,0.08)" stroke-dasharray="3 4"/>
+      <line x1="${PAD_L}" x2="${W - PAD_R}" y1="${ref50.toFixed(1)}" y2="${ref50.toFixed(1)}" stroke="rgba(20,33,26,0.08)" stroke-dasharray="3 4"/>
+      <text x="${(W - PAD_R - 2).toFixed(1)}" y="${(ref75 - 3).toFixed(1)}" font-size="8" fill="#8a958f" text-anchor="end">75</text>
+      <text x="${(W - PAD_R - 2).toFixed(1)}" y="${(ref50 - 3).toFixed(1)}" font-size="8" fill="#8a958f" text-anchor="end">50</text>
+
+      ${areaPath ? `<path d="${areaPath}" fill="url(#progFill)"/>` : ''}
+      ${path.length ? `<path d="${path.join(' ')}" fill="none" stroke="#143b2c" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>` : ''}
+      ${dots}
+      ${xLabels}
+    </svg>
+  `;
+
+  // Summary line (avg + delta vs yesterday)
+  if (summary) {
+    if (recorded.length === 0) {
+      summary.innerHTML = `<span class="prog-empty">${escapeHtml(t(lang, 'result.progressionEmpty'))}</span>`;
+    } else {
+      const last = recorded[recorded.length - 1];
+      const avg = Math.round(recorded.reduce((s, p) => s + p.score, 0) / recorded.length);
+      const prev = recorded.length >= 2 ? recorded[recorded.length - 2].score : null;
+      const delta = prev != null ? last.score - prev : null;
+      const deltaStr = delta == null ? '' :
+        delta > 0 ? `<span class="prog-delta up">▲ +${delta}</span>` :
+        delta < 0 ? `<span class="prog-delta down">▼ ${delta}</span>` :
+        `<span class="prog-delta flat">●</span>`;
+      summary.innerHTML = `
+        <div class="prog-stat">
+          <span class="prog-stat-label">${escapeHtml(t(lang, 'result.progressionLast'))}</span>
+          <span class="prog-stat-value">${last.score}/100</span>
+          ${deltaStr}
+        </div>
+        <div class="prog-stat">
+          <span class="prog-stat-label">${escapeHtml(t(lang, 'result.progressionAvg'))}</span>
+          <span class="prog-stat-value">${avg}/100</span>
+        </div>
+        <div class="prog-stat">
+          <span class="prog-stat-label">${escapeHtml(t(lang, 'result.progressionRecorded'))}</span>
+          <span class="prog-stat-value">${recorded.length}/10</span>
+        </div>
+      `;
+    }
   }
 }
 
@@ -6074,57 +6319,25 @@ function restart() {
 }
 
 /* ============================================
-   Scroll-driven hero choreography
-   ============================================
-   Phase 1 (0    → 0.22): photo full, score hidden
-   Phase 2 (0.22 → 0.55): photo shrinks/fades, big score fades in
-   Phase 3 (0.45 → 1.0):  mini-header slides down (overlaps with big score)
-   Phase 4 (0.7  → 1.0):  big score fades out, mini stays sticky
-   The mini-header now appears WHILE the big score is still visible,
-   so the user always sees a score number on screen ("le score doit rester").
+   Scroll-driven mini-header reveal
+   No more photo choreography — the score is the immediate hero.
+   We just slide the sticky compact summary down once the user
+   scrolls past the hero card.
    ============================================ */
 function wireScrollChoreography() {
-  const photoCard = document.getElementById('hero-photo-card');
-  const scoreStage = document.getElementById('hero-score-stage');
-  const heroText = document.getElementById('hero-text-block');
+  const hero = document.getElementById('hero-card');
   const scrollCue = document.getElementById('scroll-cue');
   const miniHeader = document.getElementById('mini-header');
-  if (!photoCard || !scoreStage) return;
+  if (!hero) return;
 
   let ticking = false;
-
   function update() {
     ticking = false;
     const sy = window.scrollY;
-    const vh = window.innerHeight;
-    const range = vh * 1.2; // total scroll-distance for the full choreography
-    const p = clamp01(sy / range);
+    const heroHeight = hero.offsetHeight || window.innerHeight;
+    const p = clamp01(sy / (heroHeight * 0.55));
 
-    // Photo: scales down 1 → 0.55, opacity 1 → 0.05, drift up to -40px
-    const scale = 1 - 0.45 * p;
-    const photoOpacity = Math.max(0.05, 1 - 1.05 * p);
-    photoCard.style.transform = `translateY(${(-40 * p).toFixed(1)}px) scale(${scale.toFixed(3)})`;
-    photoCard.style.opacity = String(photoOpacity);
-
-    // Big score: fades IN from 0.22 to 0.55, then OUT from 0.7 to 0.95
-    const fadeIn = clamp01((p - 0.22) / 0.33);
-    const fadeOut = 1 - clamp01((p - 0.7) / 0.25);
-    const scoreOpacity = fadeIn * fadeOut;
-    scoreStage.classList.toggle('visible', scoreOpacity > 0.05);
-    scoreStage.style.opacity = String(scoreOpacity);
-    // Subtle upward drift past the photo midpoint
-    const scoreY = -50 * Math.max(0, p - 0.5);
-    scoreStage.style.transform = `translateY(${scoreY.toFixed(1)}px)`;
-
-    // Hero text (message + kindness) appears once big score is fading out
-    if (heroText) heroText.classList.toggle('visible', p > 0.55);
-
-    // Scroll cue
     if (scrollCue) scrollCue.classList.toggle('faded', p > 0.08);
-
-    // Mini header: appears DURING phase 2 (around p = 0.45) so the
-    // small score is on top of the screen by the time the big one
-    // starts fading away. The mini stays sticky from there on.
     if (miniHeader) miniHeader.classList.toggle('visible', p > 0.45);
   }
 
