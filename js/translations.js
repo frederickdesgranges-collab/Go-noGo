@@ -120,7 +120,10 @@ export const translations = {
       moodLow: 'Très basse',
       moodHigh: 'Excellente',
       willingness: "Disposition à grimper aujourd'hui",
-      recoveryPrs: 'Récupération PRS'
+      recoveryPrs: 'Récupération PRS',
+      recoveryPrsHint: 'Perceived Recovery Status — à quel point tu te sens récupéré de la dernière séance, sur 10.',
+      recoveryPrsLow: 'Pas récupéré',
+      recoveryPrsHigh: 'Totalement récupéré'
     },
     pain: {
       fingers: 'Doigts et articulations',
@@ -377,7 +380,10 @@ export const translations = {
       moodLow: 'Very low',
       moodHigh: 'Excellent',
       willingness: 'Willingness to climb today',
-      recoveryPrs: 'PRS recovery'
+      recoveryPrs: 'PRS recovery',
+      recoveryPrsHint: 'Perceived Recovery Status — how recovered you feel from the last session, out of 10.',
+      recoveryPrsLow: 'Not recovered',
+      recoveryPrsHigh: 'Fully recovered'
     },
     pain: {
       fingers: 'Fingers and joints',

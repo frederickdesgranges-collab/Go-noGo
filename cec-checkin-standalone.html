@@ -3356,10 +3356,11 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
             <label class="field-label" for="recovery-prs" data-i18n="wellbeing.recoveryPrs">Récupération PRS</label>
             <span class="slider-value" id="recovery-prs-value">7</span>
           </div>
+          <p class="field-hint" data-i18n="wellbeing.recoveryPrsHint">Perceived Recovery Status — à quel point tu te sens récupéré de la dernière séance, sur 10.</p>
           <input class="slider slider-recovery" id="recovery-prs" type="range" min="0" max="10" step="1" value="7" />
           <div class="slider-anchors">
-            <span data-i18n="scale.zero">0</span>
-            <span data-i18n="scale.ten">10</span>
+            <span data-i18n="wellbeing.recoveryPrsLow">Pas récupéré</span>
+            <span data-i18n="wellbeing.recoveryPrsHigh">Totalement récupéré</span>
           </div>
         </div>
       </article>
@@ -3800,7 +3801,10 @@ const translations = {
       moodLow: 'Très basse',
       moodHigh: 'Excellente',
       willingness: "Disposition à grimper aujourd'hui",
-      recoveryPrs: 'Récupération PRS'
+      recoveryPrs: 'Récupération PRS',
+      recoveryPrsHint: 'Perceived Recovery Status — à quel point tu te sens récupéré de la dernière séance, sur 10.',
+      recoveryPrsLow: 'Pas récupéré',
+      recoveryPrsHigh: 'Totalement récupéré'
     },
     pain: {
       fingers: 'Doigts et articulations',
@@ -4057,7 +4061,10 @@ const translations = {
       moodLow: 'Very low',
       moodHigh: 'Excellent',
       willingness: 'Willingness to climb today',
-      recoveryPrs: 'PRS recovery'
+      recoveryPrs: 'PRS recovery',
+      recoveryPrsHint: 'Perceived Recovery Status — how recovered you feel from the last session, out of 10.',
+      recoveryPrsLow: 'Not recovered',
+      recoveryPrsHigh: 'Fully recovered'
     },
     pain: {
       fingers: 'Fingers and joints',
