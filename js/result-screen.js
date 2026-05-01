@@ -293,9 +293,11 @@ function renderProgression(evalResult) {
     ? `${linePath.join(' ')} L ${px(recordedInRange[recordedInRange.length - 1].date).toFixed(1)} ${(PAD_T + innerH).toFixed(1)} L ${px(recordedInRange[0].date).toFixed(1)} ${(PAD_T + innerH).toFixed(1)} Z`
     : '';
 
-  // Reference lines at 50 and 75
+  // Reference threshold line at 75 (Track A / Track B boundary)
+  const TRACK_THRESHOLD = 75;
+  const refThreshold = py(TRACK_THRESHOLD);
   const ref50 = py(50);
-  const ref75 = py(75);
+  const ref75 = refThreshold;
 
   // Tick labels: choose granularity from zoom
   // 1W: every day; 1M: every ~4 days; 3M: every week
@@ -330,19 +332,39 @@ function renderProgression(evalResult) {
     `;
   }).join('');
 
+  // Zone backgrounds: green above the threshold (Track A) / red below (Track B)
+  const zoneGreenH = (refThreshold - PAD_T).toFixed(1);
+  const zoneRedH = (PAD_T + innerH - refThreshold).toFixed(1);
+
   host.innerHTML = `
     <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Progression de la forme">
       <defs>
         <linearGradient id="progFill" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stop-color="#2a6f47" stop-opacity="0.34"/>
-          <stop offset="100%" stop-color="#2a6f47" stop-opacity="0"/>
+          <stop offset="0%" stop-color="#143b2c" stop-opacity="0.0"/>
+          <stop offset="100%" stop-color="#143b2c" stop-opacity="0.0"/>
+        </linearGradient>
+        <linearGradient id="zoneGreen" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#2a6f47" stop-opacity="0.18"/>
+          <stop offset="100%" stop-color="#2a6f47" stop-opacity="0.06"/>
+        </linearGradient>
+        <linearGradient id="zoneRed" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#b91c1c" stop-opacity="0.07"/>
+          <stop offset="100%" stop-color="#b91c1c" stop-opacity="0.22"/>
         </linearGradient>
       </defs>
-      <line x1="0" x2="${W}" y1="${ref75.toFixed(1)}" y2="${ref75.toFixed(1)}" stroke="rgba(20,33,26,0.1)" stroke-dasharray="3 4"/>
-      <line x1="0" x2="${W}" y1="${ref50.toFixed(1)}" y2="${ref50.toFixed(1)}" stroke="rgba(20,33,26,0.1)" stroke-dasharray="3 4"/>
+
+      <!-- Track A green zone above the threshold -->
+      <rect x="0" y="${PAD_T}" width="${W}" height="${zoneGreenH}" fill="url(#zoneGreen)"/>
+      <!-- Track B red zone below the threshold -->
+      <rect x="0" y="${refThreshold.toFixed(1)}" width="${W}" height="${zoneRedH}" fill="url(#zoneRed)"/>
+
+      <!-- Threshold line -->
+      <line x1="0" x2="${W}" y1="${refThreshold.toFixed(1)}" y2="${refThreshold.toFixed(1)}" stroke="rgba(20,33,26,0.35)" stroke-width="1.2" stroke-dasharray="6 4"/>
+
       ${tickLabels}
-      ${areaPath ? `<path d="${areaPath}" fill="url(#progFill)"/>` : ''}
-      ${linePath.length ? `<path d="${linePath.join(' ')}" fill="none" stroke="#143b2c" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>` : ''}
+
+      <!-- Score line on top -->
+      ${linePath.length ? `<path d="${linePath.join(' ')}" fill="none" stroke="#143b2c" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>` : ''}
       ${dots}
     </svg>
   `;
