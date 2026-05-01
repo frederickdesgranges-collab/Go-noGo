@@ -6402,7 +6402,11 @@ function wireProgressionDotTooltips(chartHost) {
     card.appendChild(tip);
   }
 
-  function close() { tip.hidden = true; tip.classList.remove('visible'); }
+  function close() {
+    tip.hidden = true;
+    tip.classList.remove('visible');
+    tip.dataset.openDate = '';
+  }
 
   function show(target) {
     const lang = state.lang;
@@ -6441,19 +6445,28 @@ function wireProgressionDotTooltips(chartHost) {
     tip.style.left = `${left}px`;
     tip.style.top = `${top}px`;
     tip.hidden = false;
+    tip.dataset.openDate = date;
     requestAnimationFrame(() => tip.classList.add('visible'));
   }
 
   chartHost.querySelectorAll('.prog-dot').forEach((dot) => {
     dot.addEventListener('click', (e) => {
       e.stopPropagation();
+      // Toggle: if the tooltip is already open for this same dot, close it.
+      if (!tip.hidden && tip.dataset.openDate === dot.dataset.date) {
+        close();
+        return;
+      }
       show(dot);
     });
   });
 
-  // Click anywhere else closes the tooltip
+  // Click on the card outside any dot → close. Click outside the card → close.
   if (!card.dataset.tipBound) {
     card.dataset.tipBound = '1';
+    card.addEventListener('click', (e) => {
+      if (!e.target.closest('.prog-dot')) close();
+    });
     document.addEventListener('click', (e) => {
       if (!card.contains(e.target)) close();
     });
