@@ -260,8 +260,8 @@ function renderProgression(evalResult) {
 
   // SVG dimensions
   const W = totalDays * pxPerDay;
-  const H = 200;
-  const PAD_T = 18;
+  const H = 220;
+  const PAD_T = 38; // extra room for the CAMP / ARCO event ribbons
   const PAD_B = 32;
   const innerH = H - PAD_T - PAD_B;
 
@@ -336,6 +336,39 @@ function renderProgression(evalResult) {
   const zoneGreenH = (refThreshold - PAD_T).toFixed(1);
   const zoneRedH = (PAD_T + innerH - refThreshold).toFixed(1);
 
+  // Event ribbons: CAMP (Jul 5-13) and ARCO (Jul 14-25), both 2026
+  const events = [
+    { id: 'camp', start: '2026-07-05', end: '2026-07-13', labelKey: 'result.eventCamp' },
+    { id: 'arco', start: '2026-07-14', end: '2026-07-25', labelKey: 'result.eventArco' }
+  ];
+
+  function bandX(dateStr, edge = 'start') {
+    const off = dayOffset(dateStr);
+    return edge === 'start'
+      ? off * pxPerDay
+      : (off + 1) * pxPerDay;
+  }
+
+  const eventBands = events.map((ev) => {
+    const off1 = dayOffset(ev.start);
+    const off2 = dayOffset(ev.end);
+    if (off2 < 0 || off1 > totalDays) return ''; // out of range
+    const x1 = Math.max(0, bandX(ev.start, 'start'));
+    const x2 = Math.min(W, bandX(ev.end, 'end'));
+    const w = x2 - x1;
+    if (w <= 0) return '';
+    const cx = x1 + w / 2;
+    const labelText = t(lang, ev.labelKey).toUpperCase();
+    return `
+      <g class="event-band event-${ev.id}">
+        <rect x="${x1.toFixed(1)}" y="6" width="${w.toFixed(1)}" height="22" rx="6" fill="var(--event-fill-${ev.id})" stroke="var(--event-stroke-${ev.id})" stroke-width="1"/>
+        <text x="${cx.toFixed(1)}" y="21" font-size="10.5" font-weight="800" letter-spacing="0.22em" text-anchor="middle" fill="var(--event-text-${ev.id})">${labelText}</text>
+        <line x1="${x1.toFixed(1)}" x2="${x1.toFixed(1)}" y1="28" y2="${(PAD_T + innerH).toFixed(1)}" stroke="var(--event-stroke-${ev.id})" stroke-width="1" stroke-dasharray="2 4" opacity="0.55"/>
+        <line x1="${x2.toFixed(1)}" x2="${x2.toFixed(1)}" y1="28" y2="${(PAD_T + innerH).toFixed(1)}" stroke="var(--event-stroke-${ev.id})" stroke-width="1" stroke-dasharray="2 4" opacity="0.55"/>
+      </g>
+    `;
+  }).join('');
+
   host.innerHTML = `
     <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Progression de la forme">
       <defs>
@@ -352,6 +385,9 @@ function renderProgression(evalResult) {
           <stop offset="100%" stop-color="#b91c1c" stop-opacity="0.22"/>
         </linearGradient>
       </defs>
+
+      <!-- Event ribbons (CAMP / ARCO) at the top of the chart -->
+      ${eventBands}
 
       <!-- Track A green zone above the threshold -->
       <rect x="0" y="${PAD_T}" width="${W}" height="${zoneGreenH}" fill="url(#zoneGreen)"/>
