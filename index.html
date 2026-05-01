@@ -570,18 +570,26 @@
       <article class="card tracker-card" id="tracker-card">
         <header class="tracker-head">
           <span class="plan-eyebrow"><span data-i18n="result.planTracking">Suivi du camp</span></span>
-          <p class="tracker-sub" data-i18n="result.planTrackingSub">10 jours d'entraînement Innsbruck</p>
         </header>
         <div class="tracker-chart" id="tracker-chart"></div>
       </article>
 
-      <!-- Form progression over the camp days (score history) -->
+      <!-- Form progression over a continuous timeline (score history) -->
       <article class="card progression-card" id="progression-card">
-        <header class="tracker-head">
-          <span class="plan-eyebrow"><span data-i18n="result.progressionTitle">Progression de la forme</span></span>
-          <p class="tracker-sub" data-i18n="result.progressionSub">Score Readiness jour par jour</p>
+        <header class="progression-head">
+          <div class="progression-titles">
+            <span class="plan-eyebrow"><span data-i18n="result.progressionTitle">Progression de la forme</span></span>
+            <p class="tracker-sub" data-i18n="result.progressionSub">Score Readiness sur la durée</p>
+          </div>
+          <div class="progression-zoom" role="tablist" aria-label="Zoom timeline">
+            <button type="button" class="zoom-btn" data-zoom="1W" role="tab" aria-selected="false">1S</button>
+            <button type="button" class="zoom-btn" data-zoom="1M" role="tab" aria-selected="false">1M</button>
+            <button type="button" class="zoom-btn" data-zoom="3M" role="tab" aria-selected="false">3M</button>
+          </div>
         </header>
-        <div class="progression-chart" id="progression-chart"></div>
+        <div class="progression-scroll" id="progression-scroll">
+          <div class="progression-chart" id="progression-chart"></div>
+        </div>
         <div class="progression-summary" id="progression-summary"></div>
       </article>
 

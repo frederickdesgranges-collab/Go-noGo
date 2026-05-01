@@ -811,21 +811,100 @@
 .tracker-legend-dot.dot-off { background: repeating-linear-gradient(-45deg, #60a5fa 0, #60a5fa 3px, rgba(96,165,250,0.3) 3px, rgba(96,165,250,0.3) 6px); }
 
 /* ============================================
-   PROGRESSION CARD (form score over the camp days)
+   PROGRESSION CARD (continuous timeline · zoomable · pannable)
    ============================================ */
 .progression-card {
   padding: 24px 16px 18px;
 }
 
+.progression-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  padding: 0 4px;
+}
+
+.progression-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.progression-zoom {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-cream);
+  border: 1px solid var(--border-card);
+}
+
+.zoom-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+  font-variant-numeric: tabular-nums;
+}
+
+.zoom-btn:hover {
+  color: var(--text-primary);
+}
+
+.zoom-btn.active {
+  background: white;
+  color: var(--text-deep-green);
+  box-shadow: 0 2px 6px rgba(20, 33, 26, 0.08);
+}
+
+/* Horizontal scroller wraps the wide SVG */
+.progression-scroll {
+  position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(20, 33, 26, 0.18) transparent;
+  margin: 0 -8px;
+  padding: 4px 8px;
+  cursor: grab;
+}
+
+.progression-scroll::-webkit-scrollbar {
+  height: 5px;
+}
+
+.progression-scroll::-webkit-scrollbar-thumb {
+  background: rgba(20, 33, 26, 0.18);
+  border-radius: 999px;
+}
+
+.progression-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 .progression-chart {
-  margin-top: 4px;
-  padding: 4px 4px 0;
+  display: block;
+  white-space: nowrap;
 }
 
 .progression-chart svg {
-  width: 100%;
-  height: auto;
   display: block;
+  height: 200px;
 }
 
 .progression-summary {

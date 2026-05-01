@@ -9,7 +9,8 @@ const STORAGE_KEYS = {
   athleteName: 'cec_athlete_name',
   discipline: 'cec_discipline',
   profile: 'cec_profile',
-  history: 'cec_history'
+  history: 'cec_history',
+  progressionZoom: 'cec_progression_zoom'
 };
 
 const DEFAULT_COACH_PHONE = '14186095751';
@@ -134,6 +135,23 @@ export function todayDateKey(date = new Date()) {
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
+}
+
+export function loadProgressionZoom() {
+  try {
+    const z = localStorage.getItem(STORAGE_KEYS.progressionZoom);
+    return ['1W', '1M', '3M'].includes(z) ? z : '1M';
+  } catch (_) {
+    return '1M';
+  }
+}
+
+export function saveProgressionZoom(zoom) {
+  try {
+    if (['1W', '1M', '3M'].includes(zoom)) {
+      localStorage.setItem(STORAGE_KEYS.progressionZoom, zoom);
+    }
+  } catch (_) {}
 }
 
 export function saveLang(lang) {

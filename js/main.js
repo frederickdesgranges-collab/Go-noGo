@@ -62,6 +62,9 @@ function wireGlobalEvents() {
   // Form section scroll-reveal + watermark parallax
   wireSectionParallax();
 
+  // Progression chart: drag-to-pan for desktop (touch already works via overflow-x)
+  wireProgressionDrag();
+
   // Reveal details when they enter the viewport
   const detailsEl = document.getElementById('result-details');
   if (detailsEl && 'IntersectionObserver' in window) {
@@ -391,6 +394,37 @@ function wireScrollChoreography() {
 }
 
 function clamp01(v) { return Math.max(0, Math.min(1, v)); }
+
+/**
+ * Make the progression timeline pannable with mouse drag (touch
+ * already works via native overflow-x: auto + -webkit-overflow-scrolling).
+ */
+function wireProgressionDrag() {
+  const scroller = document.getElementById('progression-scroll');
+  if (!scroller) return;
+  let down = false;
+  let startX = 0;
+  let startScroll = 0;
+
+  scroller.addEventListener('mousedown', (e) => {
+    down = true;
+    startX = e.pageX;
+    startScroll = scroller.scrollLeft;
+    scroller.style.cursor = 'grabbing';
+    scroller.style.userSelect = 'none';
+  });
+  ['mouseup', 'mouseleave'].forEach((ev) => scroller.addEventListener(ev, () => {
+    down = false;
+    scroller.style.cursor = '';
+    scroller.style.userSelect = '';
+  }));
+  scroller.addEventListener('mousemove', (e) => {
+    if (!down) return;
+    e.preventDefault();
+    const dx = e.pageX - startX;
+    scroller.scrollLeft = startScroll - dx;
+  });
+}
 
 /**
  * Form section reveal-on-scroll + parallax on the giant letter watermark.

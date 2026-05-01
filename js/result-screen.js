@@ -3,7 +3,7 @@
  * Editorial light · Cormorant serif · stats list (Next Exchange-style)
  */
 
-import { state, loadHistory, saveScore, todayDateKey } from './state.js';
+import { state, loadHistory, saveScore, todayDateKey, loadProgressionZoom, saveProgressionZoom } from './state.js';
 import { t } from './translations.js';
 import { formatHours } from './form-logic.js';
 import { dayOfCamp } from './evaluation.js';
@@ -207,103 +207,156 @@ function renderTracker(evalResult) {
 }
 
 /**
- * Form-progression area chart: readiness score per camp day.
- * Rendered as inline SVG in #progression-chart.
+ * Form-progression area chart over a continuous timeline.
+ * Pannable horizontally inside .progression-scroll, zoom 1W / 1M / 3M
+ * controls the px-per-day. Today's score is highlighted.
  */
+const ZOOM_PX_PER_DAY = { '1W': 56, '1M': 16, '3M': 6 };
+
 function renderProgression(evalResult) {
   const host = document.getElementById('progression-chart');
+  const scroller = document.getElementById('progression-scroll');
   const summary = document.getElementById('progression-summary');
-  if (!host) return;
+  const zoomBtns = document.querySelectorAll('.progression-zoom .zoom-btn');
+  if (!host || !scroller) return;
 
   const lang = state.lang;
   const history = loadHistory();
-  const plan = evalResult.plan;
-  const todayIdx = evalResult.dayIdx;
+  const todayKey = todayDateKey();
+  const zoom = loadProgressionZoom();
+  const pxPerDay = ZOOM_PX_PER_DAY[zoom] || ZOOM_PX_PER_DAY['1M'];
 
-  // Build per-day score (null if no record yet)
-  const points = plan.map((row) => {
-    const score = history[row.date];
-    return { day: row.day, date: row.date, score: typeof score === 'number' ? score : null };
+  // Sync zoom toggle UI
+  zoomBtns.forEach((b) => {
+    const active = b.dataset.zoom === zoom;
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-selected', active ? 'true' : 'false');
   });
 
-  const recorded = points.filter((p) => p.score !== null);
+  // Wire zoom button clicks (idempotent)
+  zoomBtns.forEach((b) => {
+    if (b.dataset.bound === '1') return;
+    b.dataset.bound = '1';
+    b.addEventListener('click', () => {
+      const z = b.dataset.zoom;
+      saveProgressionZoom(z);
+      renderProgression(evalResult); // re-render with new zoom
+    });
+  });
 
-  const W = 320;
-  const H = 160;
-  const PAD_L = 14;
-  const PAD_R = 14;
-  const PAD_T = 14;
-  const PAD_B = 28;
-  const innerW = W - PAD_L - PAD_R;
+  // Build sorted points from the full history
+  const recorded = Object.entries(history)
+    .map(([d, score]) => ({ date: d, score }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  // Determine the date range to draw.
+  // Anchor on today; pad enough on both sides so the user can scroll back/forward.
+  const today = new Date(todayKey + 'T00:00:00');
+  const past = recorded.length ? new Date(recorded[0].date + 'T00:00:00') : new Date(today);
+  past.setDate(past.getDate() - 14);
+  const future = new Date(today);
+  future.setDate(future.getDate() + 14);
+  const totalDays = Math.max(30, daysBetween(past, future) + 1);
+
+  // SVG dimensions
+  const W = totalDays * pxPerDay;
+  const H = 200;
+  const PAD_T = 18;
+  const PAD_B = 32;
   const innerH = H - PAD_T - PAD_B;
-  const stepX = innerW / 9; // 10 days = 9 intervals
 
-  function px(i) { return PAD_L + i * stepX; }
-  function py(score) { return PAD_T + (innerH - (score / 100) * innerH); }
+  function dayOffset(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    return daysBetween(past, d);
+  }
+  function px(dateStr) {
+    return dayOffset(dateStr) * pxPerDay + pxPerDay / 2;
+  }
+  function py(score) {
+    return PAD_T + (innerH - (score / 100) * innerH);
+  }
 
-  // Build path commands across all known points (skip nulls)
-  const path = [];
-  let started = false;
-  recorded.forEach((p) => {
-    const i = p.day - 1;
-    const x = px(i);
-    const y = py(p.score);
-    path.push(`${started ? 'L' : 'M'} ${x.toFixed(1)} ${y.toFixed(1)}`);
-    started = true;
+  // Build line + area paths only using recorded points
+  const recordedInRange = recorded.filter((p) => {
+    const off = dayOffset(p.date);
+    return off >= 0 && off < totalDays;
   });
 
-  // Area path = same path but closed to baseline
-  const areaPath = recorded.length
-    ? `${path.join(' ')} L ${px(recorded[recorded.length - 1].day - 1).toFixed(1)} ${(PAD_T + innerH).toFixed(1)} L ${px(recorded[0].day - 1).toFixed(1)} ${(PAD_T + innerH).toFixed(1)} Z`
+  const linePath = [];
+  recordedInRange.forEach((p, i) => {
+    const x = px(p.date);
+    const y = py(p.score);
+    linePath.push(`${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`);
+  });
+
+  const areaPath = recordedInRange.length
+    ? `${linePath.join(' ')} L ${px(recordedInRange[recordedInRange.length - 1].date).toFixed(1)} ${(PAD_T + innerH).toFixed(1)} L ${px(recordedInRange[0].date).toFixed(1)} ${(PAD_T + innerH).toFixed(1)} Z`
     : '';
 
   // Reference lines at 50 and 75
   const ref50 = py(50);
   const ref75 = py(75);
 
-  // Day labels under each tick
-  const xLabels = plan.map((row, i) => {
-    const x = px(i);
-    const isToday = todayIdx && row.day === todayIdx;
-    return `<text x="${x.toFixed(1)}" y="${(H - 6).toFixed(1)}" font-size="9" font-weight="${isToday ? 800 : 600}" text-anchor="middle" fill="${isToday ? '#A40517' : '#8a958f'}">J${row.day}</text>`;
-  }).join('');
+  // Tick labels: choose granularity from zoom
+  // 1W: every day; 1M: every ~4 days; 3M: every week
+  const tickEvery = zoom === '1W' ? 1 : zoom === '1M' ? 4 : 7;
+  const monthFmt = lang === 'en' ? 'en-CA' : 'fr-CA';
 
-  // Dots per recorded score
-  const dots = recorded.map((p) => {
-    const i = p.day - 1;
-    const x = px(i);
+  let tickLabels = '';
+  for (let i = 0; i < totalDays; i++) {
+    const d = new Date(past);
+    d.setDate(past.getDate() + i);
+    const isToday = sameDay(d, today);
+    if (i % tickEvery !== 0 && !isToday) continue;
+    const x = i * pxPerDay + pxPerDay / 2;
+    const dayNum = d.getDate();
+    const monthShort = d.toLocaleDateString(monthFmt, { month: 'short' }).replace(/\.$/, '');
+    const isMonthStart = d.getDate() === 1 || (i === 0);
+    const labelTxt = isMonthStart ? `${monthShort} ${dayNum}` : String(dayNum);
+    tickLabels += `<text x="${x.toFixed(1)}" y="${(H - 8).toFixed(1)}" font-size="10" font-weight="${isToday ? 800 : 600}" text-anchor="middle" fill="${isToday ? '#A40517' : '#8a958f'}">${labelTxt}</text>`;
+    if (isToday) {
+      tickLabels += `<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${PAD_T}" y2="${(PAD_T + innerH).toFixed(1)}" stroke="rgba(216,6,33,0.18)" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+    }
+  }
+
+  // Dots
+  const dots = recordedInRange.map((p) => {
+    const x = px(p.date);
     const y = py(p.score);
-    const isToday = todayIdx && p.day === todayIdx;
+    const isToday = p.date === todayKey;
     return `
-      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${isToday ? 5 : 3.5}"
-              fill="${isToday ? '#D80621' : '#143b2c'}"
-              stroke="#fbfaf6" stroke-width="2"/>
-      ${isToday ? `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="9" fill="none" stroke="#D80621" stroke-width="1.5" opacity="0.4"/>` : ''}
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${isToday ? 5.5 : 3.5}" fill="${isToday ? '#D80621' : '#143b2c'}" stroke="#fbfaf6" stroke-width="2"/>
+      ${isToday ? `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="10" fill="none" stroke="#D80621" stroke-width="1.5" opacity="0.45"/>` : ''}
     `;
   }).join('');
 
   host.innerHTML = `
-    <svg viewBox="0 0 ${W} ${H}" width="100%" height="auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Progression de la forme">
+    <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Progression de la forme">
       <defs>
         <linearGradient id="progFill" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stop-color="#2a6f47" stop-opacity="0.32"/>
+          <stop offset="0%" stop-color="#2a6f47" stop-opacity="0.34"/>
           <stop offset="100%" stop-color="#2a6f47" stop-opacity="0"/>
         </linearGradient>
       </defs>
-      <!-- Reference lines -->
-      <line x1="${PAD_L}" x2="${W - PAD_R}" y1="${ref75.toFixed(1)}" y2="${ref75.toFixed(1)}" stroke="rgba(20,33,26,0.08)" stroke-dasharray="3 4"/>
-      <line x1="${PAD_L}" x2="${W - PAD_R}" y1="${ref50.toFixed(1)}" y2="${ref50.toFixed(1)}" stroke="rgba(20,33,26,0.08)" stroke-dasharray="3 4"/>
-      <text x="${(W - PAD_R - 2).toFixed(1)}" y="${(ref75 - 3).toFixed(1)}" font-size="8" fill="#8a958f" text-anchor="end">75</text>
-      <text x="${(W - PAD_R - 2).toFixed(1)}" y="${(ref50 - 3).toFixed(1)}" font-size="8" fill="#8a958f" text-anchor="end">50</text>
-
+      <line x1="0" x2="${W}" y1="${ref75.toFixed(1)}" y2="${ref75.toFixed(1)}" stroke="rgba(20,33,26,0.1)" stroke-dasharray="3 4"/>
+      <line x1="0" x2="${W}" y1="${ref50.toFixed(1)}" y2="${ref50.toFixed(1)}" stroke="rgba(20,33,26,0.1)" stroke-dasharray="3 4"/>
+      ${tickLabels}
       ${areaPath ? `<path d="${areaPath}" fill="url(#progFill)"/>` : ''}
-      ${path.length ? `<path d="${path.join(' ')}" fill="none" stroke="#143b2c" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>` : ''}
+      ${linePath.length ? `<path d="${linePath.join(' ')}" fill="none" stroke="#143b2c" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>` : ''}
       ${dots}
-      ${xLabels}
     </svg>
   `;
 
-  // Summary line (avg + delta vs yesterday)
+  // Auto-scroll so today is centered in the visible viewport
+  requestAnimationFrame(() => {
+    const todayOffset = dayOffset(todayKey);
+    if (todayOffset < 0 || todayOffset >= totalDays) return;
+    const todayX = todayOffset * pxPerDay + pxPerDay / 2;
+    const viewportW = scroller.clientWidth;
+    scroller.scrollLeft = Math.max(0, todayX - viewportW / 2);
+  });
+
+  // Summary stats over recorded history
   if (summary) {
     if (recorded.length === 0) {
       summary.innerHTML = `<span class="prog-empty">${escapeHtml(t(lang, 'result.progressionEmpty'))}</span>`;
@@ -328,11 +381,22 @@ function renderProgression(evalResult) {
         </div>
         <div class="prog-stat">
           <span class="prog-stat-label">${escapeHtml(t(lang, 'result.progressionRecorded'))}</span>
-          <span class="prog-stat-value">${recorded.length}/10</span>
+          <span class="prog-stat-value">${recorded.length}</span>
         </div>
       `;
     }
   }
+}
+
+function daysBetween(a, b) {
+  const ms = b - a;
+  return Math.round(ms / (24 * 60 * 60 * 1000));
+}
+
+function sameDay(a, b) {
+  return a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
 }
 
 function renderStatsList() {
