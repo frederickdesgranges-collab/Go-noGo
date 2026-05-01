@@ -421,8 +421,9 @@ function renderProgression(evalResult) {
       <!-- Track B red zone below the threshold -->
       <rect x="0" y="${refThreshold.toFixed(1)}" width="${W}" height="${zoneRedH}" fill="url(#zoneRed)"/>
 
-      <!-- Threshold line -->
-      <line x1="0" x2="${W}" y1="${refThreshold.toFixed(1)}" y2="${refThreshold.toFixed(1)}" stroke="rgba(20,33,26,0.35)" stroke-width="1.2" stroke-dasharray="6 4"/>
+      <!-- Threshold line + Track A label on the right -->
+      <line x1="0" x2="${W}" y1="${refThreshold.toFixed(1)}" y2="${refThreshold.toFixed(1)}" stroke="rgba(20,33,26,0.32)" stroke-width="1" stroke-dasharray="5 5"/>
+      <line x1="0" x2="14" y1="${refThreshold.toFixed(1)}" y2="${refThreshold.toFixed(1)}" stroke="#143b2c" stroke-width="2"/>
 
       ${tickLabels}
 
