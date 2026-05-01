@@ -38,9 +38,13 @@ export function renderResult(evalResult) {
   // Score (count up)
   renderReadiness(evalResult.score);
 
-  // Persist today's score for the progression chart
+  // Persist today's full result for the progression chart
   if (typeof evalResult.score === 'number') {
-    saveScore(todayDateKey(), evalResult.score);
+    saveScore(todayDateKey(), {
+      score: evalResult.score,
+      track: evalResult.track,
+      color: evalResult.color
+    });
   }
 
   // Today's plan card + 10-day tracker + form progression chart
@@ -244,9 +248,17 @@ function renderProgression(evalResult) {
     });
   });
 
-  // Build sorted points from the full history
+  // Build sorted points from the full history.
+  // History entries may be either a plain number (legacy) or
+  // { score, track, color } objects.
   const recorded = Object.entries(history)
-    .map(([d, score]) => ({ date: d, score }))
+    .map(([d, raw]) => {
+      const entry = typeof raw === 'number'
+        ? { score: raw, track: null, color: null }
+        : { score: raw?.score ?? 0, track: raw?.track ?? null, color: raw?.color ?? null };
+      return { date: d, ...entry };
+    })
+    .filter((p) => typeof p.score === 'number')
     .sort((a, b) => a.date.localeCompare(b.date));
 
   // Determine the date range to draw.
@@ -321,14 +333,29 @@ function renderProgression(evalResult) {
     }
   }
 
-  // Dots
+  // Dot color comes from the actual Track decision (A/B + tone), not the
+  // raw score. A high score with a yellow flag is still Track B and
+  // must show as such on the chart. Legacy entries with no track fall
+  // back to a neutral dark green.
+  function dotFill(p) {
+    if (p.track === 'A') return '#2a6f47';            // Track A · forest green
+    if (p.track === 'B' && p.color === 'yellow') return '#c2410c'; // Track B yellow · burnt orange
+    if (p.track === 'B' && p.color === 'red') return '#b91c1c';    // Track B red
+    if (p.track === 'B') return '#b91c1c';
+    return '#143b2c';                                  // legacy / unknown
+  }
+
   const dots = recordedInRange.map((p) => {
     const x = px(p.date);
     const y = py(p.score);
     const isToday = p.date === todayKey;
+    const fill = dotFill(p);
     return `
-      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${isToday ? 5.5 : 3.5}" fill="${isToday ? '#D80621' : '#143b2c'}" stroke="#fbfaf6" stroke-width="2"/>
-      ${isToday ? `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="10" fill="none" stroke="#D80621" stroke-width="1.5" opacity="0.45"/>` : ''}
+      <g class="prog-dot" data-date="${p.date}" data-score="${p.score}" data-track="${p.track || ''}" data-tone="${p.color || ''}">
+        <circle class="prog-hit" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="14" fill="transparent" pointer-events="all" style="cursor:pointer"/>
+        <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${isToday ? 5.5 : 4}" fill="${fill}" stroke="#fbfaf6" stroke-width="2"/>
+        ${isToday ? `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="10" fill="none" stroke="${fill}" stroke-width="1.5" opacity="0.5"/>` : ''}
+      </g>
     `;
   }).join('');
 
@@ -414,6 +441,9 @@ function renderProgression(evalResult) {
     scroller.scrollLeft = Math.max(0, todayX - viewportW / 2);
   });
 
+  // Wire click on each dot → show a tooltip with the date, score and track
+  wireProgressionDotTooltips(host);
+
   // Summary stats over recorded history
   if (summary) {
     if (recorded.length === 0) {
@@ -443,6 +473,80 @@ function renderProgression(evalResult) {
         </div>
       `;
     }
+  }
+}
+
+/**
+ * Click on a dot → DOM tooltip floating next to it with the date,
+ * score and Track. Re-bound on every render.
+ */
+function wireProgressionDotTooltips(chartHost) {
+  const card = document.getElementById('progression-card');
+  if (!card) return;
+  // Ensure a singleton tooltip element exists in the card
+  let tip = card.querySelector('.prog-tooltip');
+  if (!tip) {
+    tip = document.createElement('div');
+    tip.className = 'prog-tooltip';
+    tip.hidden = true;
+    card.appendChild(tip);
+  }
+
+  function close() { tip.hidden = true; tip.classList.remove('visible'); }
+
+  function show(target) {
+    const lang = state.lang;
+    const date = target.dataset.date;
+    const score = target.dataset.score;
+    const track = target.dataset.track || '';
+    const tone = target.dataset.tone || '';
+    const dateObj = new Date(date + 'T00:00:00');
+    const locale = lang === 'en' ? 'en-CA' : 'fr-CA';
+    const dateLabel = dateObj.toLocaleDateString(locale, {
+      weekday: 'short', day: 'numeric', month: 'short'
+    }).toUpperCase().replace(/\.,?$/g, '');
+
+    const trackLabelKey = track === 'A' ? 'result.trackA' : 'result.trackB';
+    const trackText = track ? t(lang, trackLabelKey) : '—';
+    const dotClass = track === 'A' ? 'tip-dot-green'
+      : (tone === 'yellow' ? 'tip-dot-orange'
+      : tone === 'red' ? 'tip-dot-red' : 'tip-dot-neutral');
+
+    tip.innerHTML = `
+      <div class="prog-tooltip-date">${escapeHtml(dateLabel)}</div>
+      <div class="prog-tooltip-row">
+        <span class="prog-tooltip-score">${escapeHtml(score)}</span>
+        <span class="prog-tooltip-suffix">/100</span>
+      </div>
+      <div class="prog-tooltip-track">
+        <span class="tip-dot ${dotClass}"></span>${escapeHtml(trackText)}
+      </div>
+    `;
+
+    // Position the tip near the clicked dot, inside the card
+    const cardRect = card.getBoundingClientRect();
+    const dotRect = target.getBoundingClientRect();
+    const left = dotRect.left + dotRect.width / 2 - cardRect.left;
+    const top = dotRect.top - cardRect.top - 8;
+    tip.style.left = `${left}px`;
+    tip.style.top = `${top}px`;
+    tip.hidden = false;
+    requestAnimationFrame(() => tip.classList.add('visible'));
+  }
+
+  chartHost.querySelectorAll('.prog-dot').forEach((dot) => {
+    dot.addEventListener('click', (e) => {
+      e.stopPropagation();
+      show(dot);
+    });
+  });
+
+  // Click anywhere else closes the tooltip
+  if (!card.dataset.tipBound) {
+    card.dataset.tipBound = '1';
+    document.addEventListener('click', (e) => {
+      if (!card.contains(e.target)) close();
+    });
   }
 }
 

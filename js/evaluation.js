@@ -186,8 +186,10 @@ export function evaluate() {
   if (color === 'yellow') ringRatio = 0.6;
   else if (color === 'red') ringRatio = 0.3;
 
-  // Granular readiness score 0-100 (independent of track decision)
-  const score = computeReadinessScore(medicalOverride);
+  // Granular readiness score 0-100 — penalised by flags so it tracks
+  // the A/B decision more tightly. Track A typically lands ≥ 80, Track
+  // B yellow lands in the 50-79 band, Track B red dives below 50.
+  const score = computeReadinessScore(medicalOverride, flags);
 
   // Plan + today's recommendation (depends on profile + day + score)
   const planKey = resolvePlanKey(score);
@@ -237,7 +239,7 @@ export function evaluate() {
  * Weighted sum of positive signals minus pain penalties.
  * PIP dorsal = automatic 0.
  */
-function computeReadinessScore(medicalOverride) {
+function computeReadinessScore(medicalOverride, flags) {
   if (medicalOverride) return 0;
 
   let score = 0;
@@ -280,6 +282,16 @@ function computeReadinessScore(medicalOverride) {
   // Hydration penalty
   if (state.hydration.urine !== null && state.hydration.urine >= 4) score -= 5;
   if (state.hydration.skippedMeal) score -= 4;
+
+  // Flag penalty so the score tracks the Track A/B decision.
+  // A single yellow flag must drop the score below 75 (visual Track B
+  // zone). A single red flag dives into the deep-red zone.
+  if (flags) {
+    const yellowCount = (flags.yellow?.length) || 0;
+    const redCount = (flags.red?.length) || 0;
+    score -= yellowCount * 18;
+    score -= redCount * 25;
+  }
 
   // Normalize to 0-100
   const pct = Math.round(Math.max(0, Math.min(100, (score / max) * 100)));

@@ -914,6 +914,94 @@
   --event-text-arco: #A40517;
 }
 
+/* Tooltip surfaced on dot click */
+.progression-card { position: relative; }
+
+.prog-tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  z-index: 10;
+  min-width: 132px;
+  padding: 10px 14px 12px;
+  background: var(--text-deep-green);
+  color: white;
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(20, 33, 26, 0.35);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.22s cubic-bezier(0.34, 1.4, 0.4, 1);
+}
+
+.prog-tooltip.visible {
+  opacity: 1;
+  transform: translate(-50%, calc(-100% - 4px));
+}
+
+.prog-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 10px;
+  height: 10px;
+  background: var(--text-deep-green);
+}
+
+.prog-tooltip-date {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 4px;
+}
+
+.prog-tooltip-row {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.prog-tooltip-score {
+  font-family: var(--font-serif);
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.prog-tooltip-suffix {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.04em;
+}
+
+.prog-tooltip-track {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  color: rgba(255, 255, 255, 0.92);
+  text-transform: uppercase;
+}
+
+.tip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.tip-dot-green   { background: #6ee7b7; }
+.tip-dot-orange  { background: #fb923c; }
+.tip-dot-red     { background: #f87171; }
+.tip-dot-neutral { background: rgba(255, 255, 255, 0.5); }
+
 .progression-summary {
   display: flex;
   flex-wrap: wrap;

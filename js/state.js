@@ -122,10 +122,11 @@ export function loadHistory() {
   }
 }
 
-export function saveScore(dateKey, score) {
+export function saveScore(dateKey, scoreOrEntry) {
   try {
     const h = loadHistory();
-    h[dateKey] = score;
+    // Accept either a plain number (legacy) or a full entry object
+    h[dateKey] = scoreOrEntry;
     localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(h));
   } catch (_) {}
 }
