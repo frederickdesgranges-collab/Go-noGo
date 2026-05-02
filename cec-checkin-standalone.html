@@ -4092,6 +4092,12 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
         </div>
 
         <div class="field">
+          <label class="field-label" for="coach-sheet-url" data-i18n="settings.coachSheetUrl">URL Google Sheet du coach</label>
+          <input class="text-input" id="coach-sheet-url" type="url" inputmode="url" autocomplete="off" placeholder="https://script.google.com/macros/s/.../exec" />
+          <p class="field-hint" data-i18n="settings.coachSheetUrlHint">Optionnel. Si renseigné, chaque check-in sera envoyé au tableau du coach automatiquement.</p>
+        </div>
+
+        <div class="field">
           <p class="field-label" data-i18n="settings.langLabel">Langue</p>
           <div class="lang-options">
             <label class="lang-option">
@@ -4362,6 +4368,8 @@ const translations = {
       title: 'Paramètres',
       coachPhone: 'Numéro WhatsApp du coach',
       coachPhoneHint: 'Format international sans + ni espace. Exemple Canada : 14186095751.',
+      coachSheetUrl: 'URL Google Sheet du coach',
+      coachSheetUrlHint: 'Optionnel. Si renseigné, chaque check-in sera envoyé au tableau du coach automatiquement.',
       langLabel: 'Langue',
       langFr: 'Français',
       langEn: 'English',
@@ -4630,6 +4638,8 @@ const translations = {
       title: 'Settings',
       coachPhone: "Coach's WhatsApp number",
       coachPhoneHint: 'International format without + or spaces. Canada example: 14186095751.',
+      coachSheetUrl: "Coach's Google Sheet URL",
+      coachSheetUrlHint: 'Optional. When set, every check-in is automatically sent to the coach dashboard.',
       langLabel: 'Language',
       langFr: 'Français',
       langEn: 'English',
@@ -4719,6 +4729,7 @@ function applyTranslations(lang) {
 const STORAGE_KEYS = {
   lang: 'cec_lang',
   coachPhone: 'cec_coach_phone',
+  coachSheetUrl: 'cec_coach_sheet_url',
   athleteName: 'cec_athlete_name',
   discipline: 'cec_discipline',
   profile: 'cec_profile',
@@ -4731,6 +4742,7 @@ const DEFAULT_COACH_PHONE = '14186095751';
 const initial = {
   lang: 'fr',
   coachPhone: DEFAULT_COACH_PHONE,
+  coachSheetUrl: '',
   athleteName: '',
   discipline: null,
   profile: null,
@@ -4773,10 +4785,11 @@ const state = structuredClone(initial);
  * Reset the in-memory state but keep user preferences.
  */
 function resetForm() {
-  const { lang, coachPhone, athleteName, discipline, profile } = state;
+  const { lang, coachPhone, coachSheetUrl, athleteName, discipline, profile } = state;
   Object.assign(state, structuredClone(initial));
   state.lang = lang;
   state.coachPhone = coachPhone;
+  state.coachSheetUrl = coachSheetUrl;
   state.athleteName = athleteName;
   state.discipline = discipline;
   state.profile = profile;
@@ -4787,6 +4800,8 @@ function loadPreferences() {
     if (lang === 'fr' || lang === 'en') state.lang = lang;
     const phone = localStorage.getItem(STORAGE_KEYS.coachPhone);
     if (phone) state.coachPhone = phone;
+    const sheetUrl = localStorage.getItem(STORAGE_KEYS.coachSheetUrl);
+    if (sheetUrl) state.coachSheetUrl = sheetUrl;
     const name = localStorage.getItem(STORAGE_KEYS.athleteName);
     if (name) state.athleteName = name;
     const discipline = localStorage.getItem(STORAGE_KEYS.discipline);
@@ -4866,6 +4881,16 @@ function saveLang(lang) {
 function saveCoachPhone(phone) {
   state.coachPhone = phone;
   try { localStorage.setItem(STORAGE_KEYS.coachPhone, phone); } catch (_) {}
+}
+function saveCoachSheetUrl(url) {
+  state.coachSheetUrl = (url || '').trim();
+  try {
+    if (state.coachSheetUrl) {
+      localStorage.setItem(STORAGE_KEYS.coachSheetUrl, state.coachSheetUrl);
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.coachSheetUrl);
+    }
+  } catch (_) {}
 }
 function saveAthleteName(name) {
   state.athleteName = name;
@@ -5956,6 +5981,12 @@ function renderResult(evalResult) {
     });
   }
 
+  // If the coach configured a Google Sheet endpoint in Settings, fire a
+  // best-effort POST so the daily check-in appears in their dashboard.
+  if (state.coachSheetUrl) {
+    sendToCoachSheet(evalResult);
+  }
+
   // Today's plan card + 10-day tracker + form progression chart
   renderPlanCard(evalResult);
   renderTracker(evalResult);
@@ -6473,6 +6504,67 @@ function wireProgressionDotTooltips(chartHost) {
   }
 }
 
+/**
+ * Best-effort POST of the daily check-in to the coach's Google Apps
+ * Script web app. Uses a "simple" text/plain body so the request is
+ * preflight-free (no CORS) and the script can JSON.parse it as
+ * e.postData.contents server-side. We don't need the response —
+ * everything is fire-and-forget so a network blip never blocks the
+ * athlete's UX.
+ */
+function sendToCoachSheet(evalResult) {
+  const url = state.coachSheetUrl;
+  if (!url) return;
+  const today = new Date();
+  const payload = {
+    timestamp: today.toISOString(),
+    date: todayDateKey(today),
+    athlete: state.athleteName || '',
+    discipline: state.discipline || '',
+    profile: state.profile || '',
+    score: evalResult.score,
+    track: evalResult.track,
+    color: evalResult.color,
+    medicalOverride: !!evalResult.medicalOverride,
+    dayOfCamp: evalResult.dayIdx ?? '',
+    sleepHours: state.sleep?.durationHours ?? '',
+    sleepBedtime: state.sleep?.bedtime ?? '',
+    sleepWake: state.sleep?.wake ?? '',
+    sleepQuality: state.sleep?.quality ?? '',
+    sleepWakings: state.sleep?.wakings ?? '',
+    energy: state.wellbeing?.energy ?? '',
+    muscles: state.wellbeing?.muscles ?? '',
+    forearms: state.wellbeing?.forearms ?? '',
+    calm: state.wellbeing?.calm ?? '',
+    mood: state.wellbeing?.mood ?? '',
+    willingness: state.wellbeing?.willingness ?? '',
+    recoveryPrs: state.wellbeing?.recoveryPrs ?? '',
+    painFingers: state.pain?.fingers ?? '',
+    painForearm: state.pain?.forearm ?? '',
+    painElbow: state.pain?.elbow ?? '',
+    painShoulders: state.pain?.shoulders ?? '',
+    painBack: state.pain?.back ?? '',
+    painSkin: state.pain?.skin ?? '',
+    painOther: state.pain?.other ?? '',
+    pipDorsal: !!state.pain?.pipDorsal,
+    urine: state.hydration?.urine ?? '',
+    skippedMeal: !!state.hydration?.skippedMeal,
+    note: state.hydration?.note ?? '',
+    flagsRed: (evalResult.flags?.red || []).map((f) => f.key).join('|'),
+    flagsYellow: (evalResult.flags?.yellow || []).map((f) => f.key).join('|')
+  };
+
+  try {
+    fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+      keepalive: true
+    }).catch(() => { /* silent */ });
+  } catch (_) { /* silent */ }
+}
+
 function daysBetween(a, b) {
   const ms = b - a;
   return Math.round(ms / (24 * 60 * 60 * 1000));
@@ -6892,6 +6984,8 @@ function refreshHeaderDate() {
 function openSettings() {
   const modal = document.getElementById('settings-modal');
   document.getElementById('coach-phone').value = state.coachPhone || '';
+  const sheetEl = document.getElementById('coach-sheet-url');
+  if (sheetEl) sheetEl.value = state.coachSheetUrl || '';
   document.querySelectorAll('input[name="lang-pref"]').forEach((r) => {
     r.checked = r.value === state.lang;
   });
@@ -6905,6 +6999,8 @@ function closeSettings() {
 function saveSettings() {
   const phoneInput = document.getElementById('coach-phone').value.replace(/\D+/g, '');
   saveCoachPhone(phoneInput);
+  const sheetEl = document.getElementById('coach-sheet-url');
+  saveCoachSheetUrl(sheetEl ? sheetEl.value : '');
   const langInput = document.querySelector('input[name="lang-pref"]:checked');
   if (langInput && langInput.value !== state.lang) {
     saveLang(langInput.value);

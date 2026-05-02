@@ -3,7 +3,7 @@
  * Boot, landing → form → result flow, global events.
  */
 
-import { state, loadPreferences, saveLang, saveCoachPhone, saveDiscipline, saveProfile, resetForm, saveAthleteName } from './state.js';
+import { state, loadPreferences, saveLang, saveCoachPhone, saveCoachSheetUrl, saveDiscipline, saveProfile, resetForm, saveAthleteName } from './state.js';
 import { applyTranslations, t } from './translations.js';
 import {
   buildLikertScales,
@@ -285,6 +285,8 @@ function refreshHeaderDate() {
 function openSettings() {
   const modal = document.getElementById('settings-modal');
   document.getElementById('coach-phone').value = state.coachPhone || '';
+  const sheetEl = document.getElementById('coach-sheet-url');
+  if (sheetEl) sheetEl.value = state.coachSheetUrl || '';
   document.querySelectorAll('input[name="lang-pref"]').forEach((r) => {
     r.checked = r.value === state.lang;
   });
@@ -298,6 +300,8 @@ function closeSettings() {
 function saveSettings() {
   const phoneInput = document.getElementById('coach-phone').value.replace(/\D+/g, '');
   saveCoachPhone(phoneInput);
+  const sheetEl = document.getElementById('coach-sheet-url');
+  saveCoachSheetUrl(sheetEl ? sheetEl.value : '');
   const langInput = document.querySelector('input[name="lang-pref"]:checked');
   if (langInput && langInput.value !== state.lang) {
     saveLang(langInput.value);

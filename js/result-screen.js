@@ -47,6 +47,12 @@ export function renderResult(evalResult) {
     });
   }
 
+  // If the coach configured a Google Sheet endpoint in Settings, fire a
+  // best-effort POST so the daily check-in appears in their dashboard.
+  if (state.coachSheetUrl) {
+    sendToCoachSheet(evalResult);
+  }
+
   // Today's plan card + 10-day tracker + form progression chart
   renderPlanCard(evalResult);
   renderTracker(evalResult);
@@ -562,6 +568,67 @@ function wireProgressionDotTooltips(chartHost) {
       if (!card.contains(e.target)) close();
     });
   }
+}
+
+/**
+ * Best-effort POST of the daily check-in to the coach's Google Apps
+ * Script web app. Uses a "simple" text/plain body so the request is
+ * preflight-free (no CORS) and the script can JSON.parse it as
+ * e.postData.contents server-side. We don't need the response —
+ * everything is fire-and-forget so a network blip never blocks the
+ * athlete's UX.
+ */
+function sendToCoachSheet(evalResult) {
+  const url = state.coachSheetUrl;
+  if (!url) return;
+  const today = new Date();
+  const payload = {
+    timestamp: today.toISOString(),
+    date: todayDateKey(today),
+    athlete: state.athleteName || '',
+    discipline: state.discipline || '',
+    profile: state.profile || '',
+    score: evalResult.score,
+    track: evalResult.track,
+    color: evalResult.color,
+    medicalOverride: !!evalResult.medicalOverride,
+    dayOfCamp: evalResult.dayIdx ?? '',
+    sleepHours: state.sleep?.durationHours ?? '',
+    sleepBedtime: state.sleep?.bedtime ?? '',
+    sleepWake: state.sleep?.wake ?? '',
+    sleepQuality: state.sleep?.quality ?? '',
+    sleepWakings: state.sleep?.wakings ?? '',
+    energy: state.wellbeing?.energy ?? '',
+    muscles: state.wellbeing?.muscles ?? '',
+    forearms: state.wellbeing?.forearms ?? '',
+    calm: state.wellbeing?.calm ?? '',
+    mood: state.wellbeing?.mood ?? '',
+    willingness: state.wellbeing?.willingness ?? '',
+    recoveryPrs: state.wellbeing?.recoveryPrs ?? '',
+    painFingers: state.pain?.fingers ?? '',
+    painForearm: state.pain?.forearm ?? '',
+    painElbow: state.pain?.elbow ?? '',
+    painShoulders: state.pain?.shoulders ?? '',
+    painBack: state.pain?.back ?? '',
+    painSkin: state.pain?.skin ?? '',
+    painOther: state.pain?.other ?? '',
+    pipDorsal: !!state.pain?.pipDorsal,
+    urine: state.hydration?.urine ?? '',
+    skippedMeal: !!state.hydration?.skippedMeal,
+    note: state.hydration?.note ?? '',
+    flagsRed: (evalResult.flags?.red || []).map((f) => f.key).join('|'),
+    flagsYellow: (evalResult.flags?.yellow || []).map((f) => f.key).join('|')
+  };
+
+  try {
+    fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+      keepalive: true
+    }).catch(() => { /* silent */ });
+  } catch (_) { /* silent */ }
 }
 
 function daysBetween(a, b) {

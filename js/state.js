@@ -6,6 +6,7 @@
 const STORAGE_KEYS = {
   lang: 'cec_lang',
   coachPhone: 'cec_coach_phone',
+  coachSheetUrl: 'cec_coach_sheet_url',
   athleteName: 'cec_athlete_name',
   discipline: 'cec_discipline',
   profile: 'cec_profile',
@@ -18,6 +19,7 @@ const DEFAULT_COACH_PHONE = '14186095751';
 const initial = {
   lang: 'fr',
   coachPhone: DEFAULT_COACH_PHONE,
+  coachSheetUrl: '',
   athleteName: '',
   discipline: null,
   profile: null,
@@ -61,10 +63,11 @@ export const state = structuredClone(initial);
  * Reset the in-memory state but keep user preferences.
  */
 export function resetForm() {
-  const { lang, coachPhone, athleteName, discipline, profile } = state;
+  const { lang, coachPhone, coachSheetUrl, athleteName, discipline, profile } = state;
   Object.assign(state, structuredClone(initial));
   state.lang = lang;
   state.coachPhone = coachPhone;
+  state.coachSheetUrl = coachSheetUrl;
   state.athleteName = athleteName;
   state.discipline = discipline;
   state.profile = profile;
@@ -76,6 +79,8 @@ export function loadPreferences() {
     if (lang === 'fr' || lang === 'en') state.lang = lang;
     const phone = localStorage.getItem(STORAGE_KEYS.coachPhone);
     if (phone) state.coachPhone = phone;
+    const sheetUrl = localStorage.getItem(STORAGE_KEYS.coachSheetUrl);
+    if (sheetUrl) state.coachSheetUrl = sheetUrl;
     const name = localStorage.getItem(STORAGE_KEYS.athleteName);
     if (name) state.athleteName = name;
     const discipline = localStorage.getItem(STORAGE_KEYS.discipline);
@@ -163,6 +168,17 @@ export function saveLang(lang) {
 export function saveCoachPhone(phone) {
   state.coachPhone = phone;
   try { localStorage.setItem(STORAGE_KEYS.coachPhone, phone); } catch (_) {}
+}
+
+export function saveCoachSheetUrl(url) {
+  state.coachSheetUrl = (url || '').trim();
+  try {
+    if (state.coachSheetUrl) {
+      localStorage.setItem(STORAGE_KEYS.coachSheetUrl, state.coachSheetUrl);
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.coachSheetUrl);
+    }
+  } catch (_) {}
 }
 
 export function saveAthleteName(name) {
