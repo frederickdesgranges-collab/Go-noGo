@@ -16,10 +16,16 @@ const STORAGE_KEYS = {
 
 const DEFAULT_COACH_PHONE = '14186095751';
 
+// Default Google Apps Script endpoint for the Innsbruck 2026 camp.
+// Hardcoded so every athlete who installs the app gets it pre-wired —
+// no copy-paste required. Each athlete can still override it in
+// Settings, and existing localStorage values are preserved on upgrade.
+const DEFAULT_COACH_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwgiDub11m2DsQf40sfy5SWz3kNhmIW-yVQTdz_g_IXfAVTAREBjukcRQia_L4l1iXJ0Q/exec';
+
 const initial = {
   lang: 'fr',
   coachPhone: DEFAULT_COACH_PHONE,
-  coachSheetUrl: '',
+  coachSheetUrl: DEFAULT_COACH_SHEET_URL,
   athleteName: '',
   discipline: null,
   profile: null,
