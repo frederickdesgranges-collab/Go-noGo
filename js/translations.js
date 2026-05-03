@@ -87,9 +87,9 @@ export const translations = {
         hint: '0 = aucune douleur. 10 = douleur maximale.'
       },
       hydration: {
-        eyebrow: 'Section D · Hydratation',
-        title: 'Hydratation & nutrition',
-        hint: 'Indicateurs simples mais cruciaux pour la performance.'
+        eyebrow: 'Section D · Veille',
+        title: 'Nutrition & hydratation',
+        hint: 'Un seul curseur pour résumer ta veille.'
       }
     },
     sleep: {
@@ -123,7 +123,11 @@ export const translations = {
       recoveryPrs: 'Récupération PRS',
       recoveryPrsHint: 'Perceived Recovery Status — à quel point tu te sens récupéré de la dernière séance, sur 10.',
       recoveryPrsLow: 'Pas récupéré',
-      recoveryPrsHigh: 'Totalement récupéré'
+      recoveryPrsHigh: 'Totalement récupéré',
+      prevSessionIntensity: "Intensité de la séance d'hier",
+      prevSessionIntensityHint: '0 = repos / très facile · 5 = séance très exigeante.',
+      prevSessionIntensityLow: 'Repos',
+      prevSessionIntensityHigh: 'Très intense'
     },
     pain: {
       fingers: 'Doigts et articulations',
@@ -138,10 +142,10 @@ export const translations = {
       otherPlaceholder: 'Décris brièvement…'
     },
     hydration: {
-      urine: 'Couleur de la première urine',
-      urineLow: 'Clair',
-      urineHigh: 'Très foncé',
-      skippedMeal: 'As-tu sauté un repas hier ?',
+      fuel: 'Bien nourri et hydraté la veille ?',
+      fuelHint: '0 = repas et eau négligés · 5 = nutrition et hydratation au top.',
+      fuelLow: 'Manqué',
+      fuelHigh: 'Au top',
       note: 'Note libre (optionnel)',
       notePlaceholder: 'Quelque chose à ajouter pour le coach ?'
     },
@@ -155,7 +159,7 @@ export const translations = {
     },
     validation: {
       missingName: 'Indique ton prénom avant de continuer.',
-      missingLikert: 'Réponds à toutes les questions obligatoires de la section Bien-être, Sommeil et Hydratation.'
+      missingLikert: 'Réponds à toutes les questions obligatoires de la section Sommeil et Bien-être.'
     },
     result: {
       trackA: 'TRACK A',
@@ -221,8 +225,9 @@ export const translations = {
       flagPainElbowMid: 'Douleur coude médial modérée',
       flagPainShoulderMid: 'Douleur épaule modérée',
       flagPainBackMid: 'Douleur bas du dos modérée',
-      flagUrineDark: 'Hydratation insuffisante',
-      flagSkippedMeal: 'Repas sauté hier',
+      flagFuelLow: 'Nutrition / hydratation insuffisante',
+      flagFuelMid: 'Nutrition / hydratation à surveiller',
+      flagPrevSessionHard: 'Séance d\'hier très exigeante',
       stat: {
         sleep: 'Sommeil',
         energy: 'Énergie',
@@ -232,6 +237,8 @@ export const translations = {
         mood: 'Humeur',
         willingness: 'Disposition',
         recovery: 'Récup PRS',
+        prevIntensity: 'Intensité veille',
+        fuel: 'Nutrition / hydratation',
         unitHours: 'h',
         unitOf5: '/5',
         unitOf10: '/10'
@@ -269,6 +276,8 @@ export const translations = {
       mood: 'Humeur',
       willingness: 'Disposition',
       recovery: 'Récup PRS',
+      prevIntensity: 'Intensité veille',
+      fuel: 'Nutrition / hydratation',
       pip: 'PIP dorsale',
       pipYes: 'OUI',
       pipNo: 'non'
@@ -357,9 +366,9 @@ export const translations = {
         hint: '0 = no pain. 10 = maximum pain.'
       },
       hydration: {
-        eyebrow: 'Section D · Hydration',
-        title: 'Hydration & nutrition',
-        hint: 'Simple but crucial performance markers.'
+        eyebrow: 'Section D · Yesterday',
+        title: 'Nutrition & hydration',
+        hint: 'A single slider to sum up yesterday.'
       }
     },
     sleep: {
@@ -393,7 +402,11 @@ export const translations = {
       recoveryPrs: 'PRS recovery',
       recoveryPrsHint: 'Perceived Recovery Status — how recovered you feel from the last session, out of 10.',
       recoveryPrsLow: 'Not recovered',
-      recoveryPrsHigh: 'Fully recovered'
+      recoveryPrsHigh: 'Fully recovered',
+      prevSessionIntensity: "Yesterday's session intensity",
+      prevSessionIntensityHint: '0 = rest / very easy · 5 = very demanding session.',
+      prevSessionIntensityLow: 'Rest',
+      prevSessionIntensityHigh: 'Very intense'
     },
     pain: {
       fingers: 'Fingers and joints',
@@ -408,10 +421,10 @@ export const translations = {
       otherPlaceholder: 'Describe briefly…'
     },
     hydration: {
-      urine: 'First urine color',
-      urineLow: 'Clear',
-      urineHigh: 'Very dark',
-      skippedMeal: 'Did you skip a meal yesterday?',
+      fuel: 'Well fed and hydrated yesterday?',
+      fuelHint: '0 = meals and water neglected · 5 = nutrition and hydration on point.',
+      fuelLow: 'Missed',
+      fuelHigh: 'On point',
       note: 'Free note (optional)',
       notePlaceholder: 'Anything to add for coach?'
     },
@@ -425,7 +438,7 @@ export const translations = {
     },
     validation: {
       missingName: 'Enter your first name before continuing.',
-      missingLikert: 'Answer all required questions in the Sleep, Well-being and Hydration sections.'
+      missingLikert: 'Answer all required questions in the Sleep and Well-being sections.'
     },
     result: {
       trackA: 'TRACK A',
@@ -491,8 +504,9 @@ export const translations = {
       flagPainElbowMid: 'Moderate medial elbow pain',
       flagPainShoulderMid: 'Moderate shoulder pain',
       flagPainBackMid: 'Moderate lower back pain',
-      flagUrineDark: 'Insufficient hydration',
-      flagSkippedMeal: 'Skipped meal yesterday',
+      flagFuelLow: 'Insufficient nutrition / hydration',
+      flagFuelMid: 'Nutrition / hydration to watch',
+      flagPrevSessionHard: "Yesterday's session was very demanding",
       stat: {
         sleep: 'Sleep',
         energy: 'Energy',
@@ -502,6 +516,8 @@ export const translations = {
         mood: 'Mood',
         willingness: 'Willingness',
         recovery: 'PRS recovery',
+        prevIntensity: 'Yesterday intensity',
+        fuel: 'Nutrition / hydration',
         unitHours: 'h',
         unitOf5: '/5',
         unitOf10: '/10'
@@ -539,6 +555,8 @@ export const translations = {
       mood: 'Mood',
       willingness: 'Willingness',
       recovery: 'PRS recovery',
+      prevIntensity: 'Yesterday intensity',
+      fuel: 'Nutrition / hydration',
       pip: 'Dorsal PIP',
       pipYes: 'YES',
       pipNo: 'no'

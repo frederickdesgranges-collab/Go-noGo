@@ -345,53 +345,6 @@
 .likert-btn[data-value="5"].active { background: var(--green); }
 
 /* ============================================
-   Urine colour scale (Section D · Hydratation)
-   The 5 buttons show realistic estimated urine shades from very pale
-   (well hydrated) to deep amber (dehydrated). Active state keeps the
-   shade and adds a dark ring for clarity.
-   ============================================ */
-.likert[data-likert="urine"] .likert-btn {
-  color: rgba(20, 33, 26, 0.7);
-  font-weight: 700;
-}
-.likert[data-likert="urine"] .likert-btn[data-value="1"] {
-  background: #fbf8d6;
-  border-color: rgba(20, 33, 26, 0.12);
-}
-.likert[data-likert="urine"] .likert-btn[data-value="2"] {
-  background: #f4e98a;
-  border-color: rgba(20, 33, 26, 0.14);
-}
-.likert[data-likert="urine"] .likert-btn[data-value="3"] {
-  background: #e7c43d;
-  border-color: rgba(20, 33, 26, 0.18);
-  color: rgba(20, 33, 26, 0.85);
-}
-.likert[data-likert="urine"] .likert-btn[data-value="4"] {
-  background: #c69020;
-  border-color: rgba(20, 33, 26, 0.22);
-  color: white;
-}
-.likert[data-likert="urine"] .likert-btn[data-value="5"] {
-  background: #8a5a14;
-  border-color: rgba(20, 33, 26, 0.3);
-  color: white;
-}
-/* Active state: keep the urine colour, add a strong dark ring + lift */
-.likert[data-likert="urine"] .likert-btn.active {
-  border-color: var(--text-deep-green);
-  box-shadow:
-    0 0 0 2px var(--text-deep-green),
-    0 6px 16px rgba(20, 33, 26, 0.18);
-  transform: translateY(-2px);
-}
-.likert[data-likert="urine"] .likert-btn[data-value="1"].active { background: #fbf8d6; }
-.likert[data-likert="urine"] .likert-btn[data-value="2"].active { background: #f4e98a; }
-.likert[data-likert="urine"] .likert-btn[data-value="3"].active { background: #e7c43d; }
-.likert[data-likert="urine"] .likert-btn[data-value="4"].active { background: #c69020; }
-.likert[data-likert="urine"] .likert-btn[data-value="5"].active { background: #8a5a14; }
-
-/* ============================================
    Sliders (light)
    ============================================ */
 .slider-header {
@@ -433,11 +386,11 @@
   cursor: pointer;
 }
 
-.slider-willingness, .slider-recovery {
+.slider-willingness, .slider-recovery, .slider-fuel {
   background: linear-gradient(90deg, var(--red) 0%, var(--yellow) 40%, var(--green) 100%);
 }
 
-.slider-pain {
+.slider-pain, .slider-intensity {
   background: linear-gradient(90deg, var(--green) 0%, var(--yellow) 50%, var(--red) 100%);
 }
 

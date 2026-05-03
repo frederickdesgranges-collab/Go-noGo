@@ -6,7 +6,7 @@
 import { state, saveAthleteName } from './state.js';
 import { t } from './translations.js';
 
-const REQUIRED_LIKERTS = ['sleep-quality', 'energy', 'muscles', 'forearms', 'calm', 'mood', 'urine'];
+const REQUIRED_LIKERTS = ['sleep-quality', 'energy', 'muscles', 'forearms', 'calm', 'mood'];
 
 /**
  * Map likert dataset key -> path inside state.
@@ -17,8 +17,7 @@ const LIKERT_TO_STATE = {
   'muscles': ['wellbeing', 'muscles'],
   'forearms': ['wellbeing', 'forearms'],
   'calm': ['wellbeing', 'calm'],
-  'mood': ['wellbeing', 'mood'],
-  'urine': ['hydration', 'urine']
+  'mood': ['wellbeing', 'mood']
 };
 
 const PAIN_FIELDS = [
@@ -138,6 +137,7 @@ export function wireFormControls() {
   // Wellbeing sliders
   bindSlider('willingness', ['wellbeing', 'willingness']);
   bindSlider('recovery-prs', ['wellbeing', 'recoveryPrs']);
+  bindSlider('prev-session-intensity', ['wellbeing', 'prevSessionIntensity']);
 
   // Pain sliders
   PAIN_FIELDS.forEach(([id, key]) => {
@@ -157,12 +157,8 @@ export function wireFormControls() {
     state.pain.other = painOther.value;
   });
 
-  // Skipped meal toggle
-  const skipped = $('skipped-meal');
-  skipped.addEventListener('change', () => {
-    state.hydration.skippedMeal = skipped.checked;
-    onChangeCallback();
-  });
+  // Fuel score slider
+  bindSlider('fuel-score', ['hydration', 'fuelScore']);
 
   // Free note
   const note = $('free-note');
@@ -208,6 +204,8 @@ export function syncFormFromState() {
   $('willingness-value').textContent = String(state.wellbeing.willingness);
   $('recovery-prs').value = String(state.wellbeing.recoveryPrs);
   $('recovery-prs-value').textContent = String(state.wellbeing.recoveryPrs);
+  $('prev-session-intensity').value = String(state.wellbeing.prevSessionIntensity);
+  $('prev-session-intensity-value').textContent = String(state.wellbeing.prevSessionIntensity);
 
   PAIN_FIELDS.forEach(([id, key]) => {
     const el = $(id);
@@ -217,7 +215,8 @@ export function syncFormFromState() {
 
   $('pip-dorsal').checked = state.pain.pipDorsal;
   $('pain-other').value = state.pain.other || '';
-  $('skipped-meal').checked = state.hydration.skippedMeal;
+  $('fuel-score').value = String(state.hydration.fuelScore);
+  $('fuel-score-value').textContent = String(state.hydration.fuelScore);
   $('free-note').value = state.hydration.note || '';
 
   // Likert visual sync

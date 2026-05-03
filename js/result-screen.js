@@ -605,6 +605,7 @@ function sendToCoachSheet(evalResult) {
     mood: state.wellbeing?.mood ?? '',
     willingness: state.wellbeing?.willingness ?? '',
     recoveryPrs: state.wellbeing?.recoveryPrs ?? '',
+    prevSessionIntensity: state.wellbeing?.prevSessionIntensity ?? '',
     painFingers: state.pain?.fingers ?? '',
     painForearm: state.pain?.forearm ?? '',
     painElbow: state.pain?.elbow ?? '',
@@ -613,8 +614,7 @@ function sendToCoachSheet(evalResult) {
     painSkin: state.pain?.skin ?? '',
     painOther: state.pain?.other ?? '',
     pipDorsal: !!state.pain?.pipDorsal,
-    urine: state.hydration?.urine ?? '',
-    skippedMeal: !!state.hydration?.skippedMeal,
+    fuelScore: state.hydration?.fuelScore ?? '',
     note: state.hydration?.note ?? '',
     flagsRed: (evalResult.flags?.red || []).map((f) => f.key).join('|'),
     flagsYellow: (evalResult.flags?.yellow || []).map((f) => f.key).join('|')
@@ -711,6 +711,22 @@ function renderStatsList() {
       icon: 'R',
       formatter: (v) => String(v),
       unit: '/10'
+    },
+    {
+      labelKey: 'result.stat.prevIntensity',
+      value: state.wellbeing.prevSessionIntensity,
+      tone: toneFromIntensity(state.wellbeing.prevSessionIntensity),
+      icon: 'I',
+      formatter: (v) => String(v),
+      unit: '/5'
+    },
+    {
+      labelKey: 'result.stat.fuel',
+      value: state.hydration.fuelScore,
+      tone: toneFromFuel(state.hydration.fuelScore),
+      icon: 'N',
+      formatter: (v) => v == null ? '—' : String(v),
+      unit: '/5'
     }
   ];
 
@@ -756,6 +772,18 @@ function toneFromLikert(v) {
 function toneFromHigherIsBetter(v) {
   if (v <= 4) return 'red';
   if (v <= 6) return 'yellow';
+  return 'green';
+}
+function toneFromIntensity(v) {
+  if (v == null) return 'blue';
+  if (v >= 5) return 'red';
+  if (v >= 4) return 'yellow';
+  return 'green';
+}
+function toneFromFuel(v) {
+  if (v == null) return 'blue';
+  if (v <= 1) return 'red';
+  if (v === 2) return 'yellow';
   return 'green';
 }
 function toneFromSleep(h) {

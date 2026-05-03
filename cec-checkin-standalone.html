@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
+<style>
 /* ============================================
    CEC Check-in - base.css
    Light editorial theme · Team Canada palette
@@ -664,53 +664,6 @@ a { color: inherit; text-decoration: none; }
 .likert-btn[data-value="5"].active { background: var(--green); }
 
 /* ============================================
-   Urine colour scale (Section D · Hydratation)
-   The 5 buttons show realistic estimated urine shades from very pale
-   (well hydrated) to deep amber (dehydrated). Active state keeps the
-   shade and adds a dark ring for clarity.
-   ============================================ */
-.likert[data-likert="urine"] .likert-btn {
-  color: rgba(20, 33, 26, 0.7);
-  font-weight: 700;
-}
-.likert[data-likert="urine"] .likert-btn[data-value="1"] {
-  background: #fbf8d6;
-  border-color: rgba(20, 33, 26, 0.12);
-}
-.likert[data-likert="urine"] .likert-btn[data-value="2"] {
-  background: #f4e98a;
-  border-color: rgba(20, 33, 26, 0.14);
-}
-.likert[data-likert="urine"] .likert-btn[data-value="3"] {
-  background: #e7c43d;
-  border-color: rgba(20, 33, 26, 0.18);
-  color: rgba(20, 33, 26, 0.85);
-}
-.likert[data-likert="urine"] .likert-btn[data-value="4"] {
-  background: #c69020;
-  border-color: rgba(20, 33, 26, 0.22);
-  color: white;
-}
-.likert[data-likert="urine"] .likert-btn[data-value="5"] {
-  background: #8a5a14;
-  border-color: rgba(20, 33, 26, 0.3);
-  color: white;
-}
-/* Active state: keep the urine colour, add a strong dark ring + lift */
-.likert[data-likert="urine"] .likert-btn.active {
-  border-color: var(--text-deep-green);
-  box-shadow:
-    0 0 0 2px var(--text-deep-green),
-    0 6px 16px rgba(20, 33, 26, 0.18);
-  transform: translateY(-2px);
-}
-.likert[data-likert="urine"] .likert-btn[data-value="1"].active { background: #fbf8d6; }
-.likert[data-likert="urine"] .likert-btn[data-value="2"].active { background: #f4e98a; }
-.likert[data-likert="urine"] .likert-btn[data-value="3"].active { background: #e7c43d; }
-.likert[data-likert="urine"] .likert-btn[data-value="4"].active { background: #c69020; }
-.likert[data-likert="urine"] .likert-btn[data-value="5"].active { background: #8a5a14; }
-
-/* ============================================
    Sliders (light)
    ============================================ */
 .slider-header {
@@ -752,11 +705,11 @@ a { color: inherit; text-decoration: none; }
   cursor: pointer;
 }
 
-.slider-willingness, .slider-recovery {
+.slider-willingness, .slider-recovery, .slider-fuel {
   background: linear-gradient(90deg, var(--red) 0%, var(--yellow) 40%, var(--green) 100%);
 }
 
-.slider-pain {
+.slider-pain, .slider-intensity {
   background: linear-gradient(90deg, var(--green) 0%, var(--yellow) 50%, var(--red) 100%);
 }
 
@@ -3499,7 +3452,7 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
   .parallax-headline { font-size: clamp(76px, 9vw, 132px); }
 }
 
-  </style>
+</style>
 </head>
 <body>
   <!-- Ambient background mesh + gradients -->
@@ -3831,6 +3784,19 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
             <span data-i18n="wellbeing.recoveryPrsHigh">Totalement récupéré</span>
           </div>
         </div>
+
+        <div class="field">
+          <div class="slider-header">
+            <label class="field-label" for="prev-session-intensity" data-i18n="wellbeing.prevSessionIntensity">Intensité de la séance d'hier</label>
+            <span class="slider-value" id="prev-session-intensity-value">0</span>
+          </div>
+          <p class="field-hint" data-i18n="wellbeing.prevSessionIntensityHint">0 = repos / très facile · 5 = séance très exigeante.</p>
+          <input class="slider slider-intensity" id="prev-session-intensity" type="range" min="0" max="5" step="1" value="0" />
+          <div class="slider-anchors">
+            <span data-i18n="wellbeing.prevSessionIntensityLow">Repos</span>
+            <span data-i18n="wellbeing.prevSessionIntensityHigh">Très intense</span>
+          </div>
+        </div>
       </article>
 
       <!-- ===== Section C : Douleur NRS ===== -->
@@ -3909,33 +3875,25 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
         </div>
       </article>
 
-      <!-- ===== Section D : Hydratation ===== -->
+      <!-- ===== Section D : Récupération veille ===== -->
       <article class="card section-card section-card-premium tone-purple" data-section="hydration" data-letter="D">
         <span class="section-watermark" aria-hidden="true">D</span>
         <header class="section-header">
-          <span class="section-eyebrow" data-i18n="sections.hydration.eyebrow">Section D · Hydratation</span>
-          <h2 class="section-title" data-i18n="sections.hydration.title">Hydratation & nutrition</h2>
-          <p class="section-hint" data-i18n="sections.hydration.hint">Indicateurs simples mais cruciaux pour la performance.</p>
+          <span class="section-eyebrow" data-i18n="sections.hydration.eyebrow">Section D · Veille</span>
+          <h2 class="section-title" data-i18n="sections.hydration.title">Nutrition & hydratation</h2>
+          <p class="section-hint" data-i18n="sections.hydration.hint">Un seul curseur pour résumer ta veille.</p>
         </header>
 
         <div class="field">
-          <label class="field-label" data-i18n="hydration.urine">Couleur de la première urine</label>
-          <div class="likert" data-likert="urine" data-required="true">
-            <div class="likert-anchors">
-              <span class="likert-anchor anchor-low" data-i18n="hydration.urineLow">Clair</span>
-              <span class="likert-anchor anchor-high" data-i18n="hydration.urineHigh">Très foncé</span>
-            </div>
-            <div class="likert-buttons" role="radiogroup" aria-label="Urine"></div>
+          <div class="slider-header">
+            <label class="field-label" for="fuel-score" data-i18n="hydration.fuel">Bien nourri et hydraté la veille ?</label>
+            <span class="slider-value" id="fuel-score-value">3</span>
           </div>
-        </div>
-
-        <div class="field">
-          <div class="toggle-row">
-            <label class="switch">
-              <input type="checkbox" id="skipped-meal" />
-              <span class="switch-slider"></span>
-            </label>
-            <span class="toggle-label" data-i18n="hydration.skippedMeal">As-tu sauté un repas hier ?</span>
+          <p class="field-hint" data-i18n="hydration.fuelHint">0 = repas et eau négligés · 5 = nutrition et hydratation au top.</p>
+          <input class="slider slider-fuel" id="fuel-score" type="range" min="0" max="5" step="1" value="3" />
+          <div class="slider-anchors">
+            <span data-i18n="hydration.fuelLow">Manqué</span>
+            <span data-i18n="hydration.fuelHigh">Au top</span>
           </div>
         </div>
 
@@ -4130,6 +4088,7 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
  * CEC Check-in - translations.js
  * FR / EN string tables. Resolved by dotted key (e.g. "sleep.bedtime").
  */
+
 const translations = {
   fr: {
     meta: {
@@ -4214,9 +4173,9 @@ const translations = {
         hint: '0 = aucune douleur. 10 = douleur maximale.'
       },
       hydration: {
-        eyebrow: 'Section D · Hydratation',
-        title: 'Hydratation & nutrition',
-        hint: 'Indicateurs simples mais cruciaux pour la performance.'
+        eyebrow: 'Section D · Veille',
+        title: 'Nutrition & hydratation',
+        hint: 'Un seul curseur pour résumer ta veille.'
       }
     },
     sleep: {
@@ -4250,7 +4209,11 @@ const translations = {
       recoveryPrs: 'Récupération PRS',
       recoveryPrsHint: 'Perceived Recovery Status — à quel point tu te sens récupéré de la dernière séance, sur 10.',
       recoveryPrsLow: 'Pas récupéré',
-      recoveryPrsHigh: 'Totalement récupéré'
+      recoveryPrsHigh: 'Totalement récupéré',
+      prevSessionIntensity: "Intensité de la séance d'hier",
+      prevSessionIntensityHint: '0 = repos / très facile · 5 = séance très exigeante.',
+      prevSessionIntensityLow: 'Repos',
+      prevSessionIntensityHigh: 'Très intense'
     },
     pain: {
       fingers: 'Doigts et articulations',
@@ -4265,10 +4228,10 @@ const translations = {
       otherPlaceholder: 'Décris brièvement…'
     },
     hydration: {
-      urine: 'Couleur de la première urine',
-      urineLow: 'Clair',
-      urineHigh: 'Très foncé',
-      skippedMeal: 'As-tu sauté un repas hier ?',
+      fuel: 'Bien nourri et hydraté la veille ?',
+      fuelHint: '0 = repas et eau négligés · 5 = nutrition et hydratation au top.',
+      fuelLow: 'Manqué',
+      fuelHigh: 'Au top',
       note: 'Note libre (optionnel)',
       notePlaceholder: 'Quelque chose à ajouter pour le coach ?'
     },
@@ -4282,7 +4245,7 @@ const translations = {
     },
     validation: {
       missingName: 'Indique ton prénom avant de continuer.',
-      missingLikert: 'Réponds à toutes les questions obligatoires de la section Bien-être, Sommeil et Hydratation.'
+      missingLikert: 'Réponds à toutes les questions obligatoires de la section Sommeil et Bien-être.'
     },
     result: {
       trackA: 'TRACK A',
@@ -4348,8 +4311,9 @@ const translations = {
       flagPainElbowMid: 'Douleur coude médial modérée',
       flagPainShoulderMid: 'Douleur épaule modérée',
       flagPainBackMid: 'Douleur bas du dos modérée',
-      flagUrineDark: 'Hydratation insuffisante',
-      flagSkippedMeal: 'Repas sauté hier',
+      flagFuelLow: 'Nutrition / hydratation insuffisante',
+      flagFuelMid: 'Nutrition / hydratation à surveiller',
+      flagPrevSessionHard: 'Séance d\'hier très exigeante',
       stat: {
         sleep: 'Sommeil',
         energy: 'Énergie',
@@ -4359,6 +4323,8 @@ const translations = {
         mood: 'Humeur',
         willingness: 'Disposition',
         recovery: 'Récup PRS',
+        prevIntensity: 'Intensité veille',
+        fuel: 'Nutrition / hydratation',
         unitHours: 'h',
         unitOf5: '/5',
         unitOf10: '/10'
@@ -4396,6 +4362,8 @@ const translations = {
       mood: 'Humeur',
       willingness: 'Disposition',
       recovery: 'Récup PRS',
+      prevIntensity: 'Intensité veille',
+      fuel: 'Nutrition / hydratation',
       pip: 'PIP dorsale',
       pipYes: 'OUI',
       pipNo: 'non'
@@ -4484,9 +4452,9 @@ const translations = {
         hint: '0 = no pain. 10 = maximum pain.'
       },
       hydration: {
-        eyebrow: 'Section D · Hydration',
-        title: 'Hydration & nutrition',
-        hint: 'Simple but crucial performance markers.'
+        eyebrow: 'Section D · Yesterday',
+        title: 'Nutrition & hydration',
+        hint: 'A single slider to sum up yesterday.'
       }
     },
     sleep: {
@@ -4520,7 +4488,11 @@ const translations = {
       recoveryPrs: 'PRS recovery',
       recoveryPrsHint: 'Perceived Recovery Status — how recovered you feel from the last session, out of 10.',
       recoveryPrsLow: 'Not recovered',
-      recoveryPrsHigh: 'Fully recovered'
+      recoveryPrsHigh: 'Fully recovered',
+      prevSessionIntensity: "Yesterday's session intensity",
+      prevSessionIntensityHint: '0 = rest / very easy · 5 = very demanding session.',
+      prevSessionIntensityLow: 'Rest',
+      prevSessionIntensityHigh: 'Very intense'
     },
     pain: {
       fingers: 'Fingers and joints',
@@ -4535,10 +4507,10 @@ const translations = {
       otherPlaceholder: 'Describe briefly…'
     },
     hydration: {
-      urine: 'First urine color',
-      urineLow: 'Clear',
-      urineHigh: 'Very dark',
-      skippedMeal: 'Did you skip a meal yesterday?',
+      fuel: 'Well fed and hydrated yesterday?',
+      fuelHint: '0 = meals and water neglected · 5 = nutrition and hydration on point.',
+      fuelLow: 'Missed',
+      fuelHigh: 'On point',
       note: 'Free note (optional)',
       notePlaceholder: 'Anything to add for coach?'
     },
@@ -4552,7 +4524,7 @@ const translations = {
     },
     validation: {
       missingName: 'Enter your first name before continuing.',
-      missingLikert: 'Answer all required questions in the Sleep, Well-being and Hydration sections.'
+      missingLikert: 'Answer all required questions in the Sleep and Well-being sections.'
     },
     result: {
       trackA: 'TRACK A',
@@ -4618,8 +4590,9 @@ const translations = {
       flagPainElbowMid: 'Moderate medial elbow pain',
       flagPainShoulderMid: 'Moderate shoulder pain',
       flagPainBackMid: 'Moderate lower back pain',
-      flagUrineDark: 'Insufficient hydration',
-      flagSkippedMeal: 'Skipped meal yesterday',
+      flagFuelLow: 'Insufficient nutrition / hydration',
+      flagFuelMid: 'Nutrition / hydration to watch',
+      flagPrevSessionHard: "Yesterday's session was very demanding",
       stat: {
         sleep: 'Sleep',
         energy: 'Energy',
@@ -4629,6 +4602,8 @@ const translations = {
         mood: 'Mood',
         willingness: 'Willingness',
         recovery: 'PRS recovery',
+        prevIntensity: 'Yesterday intensity',
+        fuel: 'Nutrition / hydration',
         unitHours: 'h',
         unitOf5: '/5',
         unitOf10: '/10'
@@ -4666,6 +4641,8 @@ const translations = {
       mood: 'Mood',
       willingness: 'Willingness',
       recovery: 'PRS recovery',
+      prevIntensity: 'Yesterday intensity',
+      fuel: 'Nutrition / hydration',
       pip: 'Dorsal PIP',
       pipYes: 'YES',
       pipNo: 'no'
@@ -4767,7 +4744,8 @@ const initial = {
     calm: null,
     mood: null,
     willingness: 7,
-    recoveryPrs: 7
+    recoveryPrs: 7,
+    prevSessionIntensity: 0
   },
   pain: {
     fingers: 0,
@@ -4780,11 +4758,11 @@ const initial = {
     other: ''
   },
   hydration: {
-    urine: null,
-    skippedMeal: false,
+    fuelScore: 3,
     note: ''
   }
 };
+
 const state = structuredClone(initial);
 
 /**
@@ -4800,6 +4778,7 @@ function resetForm() {
   state.discipline = discipline;
   state.profile = profile;
 }
+
 function loadPreferences() {
   try {
     const lang = localStorage.getItem(STORAGE_KEYS.lang);
@@ -4822,6 +4801,7 @@ function loadPreferences() {
     // localStorage unavailable; keep defaults
   }
 }
+
 function saveDiscipline(d) {
   state.discipline = d;
   try {
@@ -4829,6 +4809,7 @@ function saveDiscipline(d) {
     else localStorage.removeItem(STORAGE_KEYS.discipline);
   } catch (_) {}
 }
+
 function saveProfile(p) {
   state.profile = p;
   try {
@@ -4851,6 +4832,7 @@ function loadHistory() {
     return {};
   }
 }
+
 function saveScore(dateKey, scoreOrEntry) {
   try {
     const h = loadHistory();
@@ -4859,12 +4841,14 @@ function saveScore(dateKey, scoreOrEntry) {
     localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(h));
   } catch (_) {}
 }
+
 function todayDateKey(date = new Date()) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
 }
+
 function loadProgressionZoom() {
   try {
     const z = localStorage.getItem(STORAGE_KEYS.progressionZoom);
@@ -4873,6 +4857,7 @@ function loadProgressionZoom() {
     return '1M';
   }
 }
+
 function saveProgressionZoom(zoom) {
   try {
     if (['1W', '1M', '3M'].includes(zoom)) {
@@ -4880,14 +4865,17 @@ function saveProgressionZoom(zoom) {
     }
   } catch (_) {}
 }
+
 function saveLang(lang) {
   state.lang = lang;
   try { localStorage.setItem(STORAGE_KEYS.lang, lang); } catch (_) {}
 }
+
 function saveCoachPhone(phone) {
   state.coachPhone = phone;
   try { localStorage.setItem(STORAGE_KEYS.coachPhone, phone); } catch (_) {}
 }
+
 function saveCoachSheetUrl(url) {
   state.coachSheetUrl = (url || '').trim();
   try {
@@ -4898,6 +4886,7 @@ function saveCoachSheetUrl(url) {
     }
   } catch (_) {}
 }
+
 function saveAthleteName(name) {
   state.athleteName = name;
   try {
@@ -4905,6 +4894,7 @@ function saveAthleteName(name) {
     else localStorage.removeItem(STORAGE_KEYS.athleteName);
   } catch (_) {}
 }
+
 const STORAGE = STORAGE_KEYS;
 
 
@@ -4914,11 +4904,13 @@ const STORAGE = STORAGE_KEYS;
  * NO cartoons. Anatomically correct, monochrome with accent color,
  * dramatic lighting like a sports magazine cover.
  */
+
 function climberScene(color) {
   if (color === 'yellow') return yellowScene();
   if (color === 'red') return redScene();
   return greenScene();
 }
+
 function mountScene(container, color) {
   if (!container) return;
   container.innerHTML = climberScene(color);
@@ -5228,7 +5220,7 @@ function redScene() {
  */
 
 
-const REQUIRED_LIKERTS = ['sleep-quality', 'energy', 'muscles', 'forearms', 'calm', 'mood', 'urine'];
+const REQUIRED_LIKERTS = ['sleep-quality', 'energy', 'muscles', 'forearms', 'calm', 'mood'];
 
 /**
  * Map likert dataset key -> path inside state.
@@ -5239,8 +5231,7 @@ const LIKERT_TO_STATE = {
   'muscles': ['wellbeing', 'muscles'],
   'forearms': ['wellbeing', 'forearms'],
   'calm': ['wellbeing', 'calm'],
-  'mood': ['wellbeing', 'mood'],
-  'urine': ['hydration', 'urine']
+  'mood': ['wellbeing', 'mood']
 };
 
 const PAIN_FIELDS = [
@@ -5253,6 +5244,7 @@ const PAIN_FIELDS = [
 ];
 
 let onChangeCallback = () => {};
+
 function onAnyChange(cb) { onChangeCallback = cb; }
 
 function setNested(obj, path, value) {
@@ -5359,6 +5351,7 @@ function wireFormControls() {
   // Wellbeing sliders
   bindSlider('willingness', ['wellbeing', 'willingness']);
   bindSlider('recovery-prs', ['wellbeing', 'recoveryPrs']);
+  bindSlider('prev-session-intensity', ['wellbeing', 'prevSessionIntensity']);
 
   // Pain sliders
   PAIN_FIELDS.forEach(([id, key]) => {
@@ -5378,12 +5371,8 @@ function wireFormControls() {
     state.pain.other = painOther.value;
   });
 
-  // Skipped meal toggle
-  const skipped = $('skipped-meal');
-  skipped.addEventListener('change', () => {
-    state.hydration.skippedMeal = skipped.checked;
-    onChangeCallback();
-  });
+  // Fuel score slider
+  bindSlider('fuel-score', ['hydration', 'fuelScore']);
 
   // Free note
   const note = $('free-note');
@@ -5429,6 +5418,8 @@ function syncFormFromState() {
   $('willingness-value').textContent = String(state.wellbeing.willingness);
   $('recovery-prs').value = String(state.wellbeing.recoveryPrs);
   $('recovery-prs-value').textContent = String(state.wellbeing.recoveryPrs);
+  $('prev-session-intensity').value = String(state.wellbeing.prevSessionIntensity);
+  $('prev-session-intensity-value').textContent = String(state.wellbeing.prevSessionIntensity);
 
   PAIN_FIELDS.forEach(([id, key]) => {
     const el = $(id);
@@ -5438,7 +5429,8 @@ function syncFormFromState() {
 
   $('pip-dorsal').checked = state.pain.pipDorsal;
   $('pain-other').value = state.pain.other || '';
-  $('skipped-meal').checked = state.hydration.skippedMeal;
+  $('fuel-score').value = String(state.hydration.fuelScore);
+  $('fuel-score-value').textContent = String(state.hydration.fuelScore);
   $('free-note').value = state.hydration.note || '';
 
   // Likert visual sync
@@ -5533,6 +5525,7 @@ function computeSleepHours(bedtime, wake) {
   const minutes = wakeMinutes - bedMinutes;
   return Math.round((minutes / 60) * 10) / 10;
 }
+
 function formatHours(hours, lang) {
   if (!hours) return '—';
   const h = Math.floor(hours);
@@ -5688,13 +5681,16 @@ function evaluate() {
   if (state.pain.shoulders >= 6) flags.yellow.push({ key: 'flagPainShoulderMid' });
   if (state.pain.back >= 5) flags.yellow.push({ key: 'flagPainBackMid' });
 
-  // Hydration / nutrition
-  if (state.hydration.urine !== null && state.hydration.urine >= 4) {
-    flags.yellow.push({ key: 'flagUrineDark' });
+  // Fuel (nutrition + hydration combined, 0-5; higher = better)
+  const fuel = state.hydration.fuelScore;
+  if (fuel !== null && fuel !== undefined) {
+    if (fuel <= 1) flags.red.push({ key: 'flagFuelLow' });
+    else if (fuel === 2) flags.yellow.push({ key: 'flagFuelMid' });
   }
-  if (state.hydration.skippedMeal) {
-    flags.yellow.push({ key: 'flagSkippedMeal' });
-  }
+
+  // Previous session intensity (0-5; higher = harder yesterday)
+  const prevIntensity = state.wellbeing.prevSessionIntensity;
+  if (prevIntensity >= 5) flags.yellow.push({ key: 'flagPrevSessionHard' });
 
   // Decision
   let track = 'A';
@@ -5822,9 +5818,15 @@ function computeReadinessScore(medicalOverride, flags) {
   painPenalty = Math.min(30, painPenalty);
   score -= painPenalty;
 
-  // Hydration penalty
-  if (state.hydration.urine !== null && state.hydration.urine >= 4) score -= 5;
-  if (state.hydration.skippedMeal) score -= 4;
+  // Fuel penalty (low fuel = less ready)
+  const fuel = state.hydration.fuelScore;
+  if (fuel !== null && fuel !== undefined) {
+    if (fuel <= 1) score -= 8;
+    else if (fuel === 2) score -= 5;
+  }
+  // Previous session intensity = contextual fatigue load
+  if (state.wellbeing.prevSessionIntensity >= 5) score -= 5;
+  else if (state.wellbeing.prevSessionIntensity >= 4) score -= 2;
 
   // Flag penalty so the score tracks the Track A/B decision.
   // A single yellow flag must drop the score below 75 (visual Track B
@@ -5882,6 +5884,8 @@ function buildMessage(evalResult) {
     `• ${tt('whatsapp.mood')} : ${nullDash(state.wellbeing.mood)}/5`,
     `• ${tt('whatsapp.willingness')} : ${state.wellbeing.willingness}/10`,
     `• ${tt('whatsapp.recovery')} : ${state.wellbeing.recoveryPrs}/10`,
+    `• ${tt('whatsapp.prevIntensity')} : ${state.wellbeing.prevSessionIntensity}/5`,
+    `• ${tt('whatsapp.fuel')} : ${nullDash(state.hydration.fuelScore)}/5`,
     `• ${tt('whatsapp.pip')} : ${state.pain.pipDorsal ? tt('whatsapp.pipYes') : tt('whatsapp.pipNo')}`
   ].join('\n');
 
@@ -5948,6 +5952,10 @@ function formatTodayDate(lang) {
  * CEC Check-in - result-screen.js
  * Editorial light · Cormorant serif · stats list (Next Exchange-style)
  */
+
+
+
+
 function renderResult(evalResult) {
   const lang = state.lang;
   const screen = document.getElementById('screen-result');
@@ -6545,6 +6553,7 @@ function sendToCoachSheet(evalResult) {
     mood: state.wellbeing?.mood ?? '',
     willingness: state.wellbeing?.willingness ?? '',
     recoveryPrs: state.wellbeing?.recoveryPrs ?? '',
+    prevSessionIntensity: state.wellbeing?.prevSessionIntensity ?? '',
     painFingers: state.pain?.fingers ?? '',
     painForearm: state.pain?.forearm ?? '',
     painElbow: state.pain?.elbow ?? '',
@@ -6553,8 +6562,7 @@ function sendToCoachSheet(evalResult) {
     painSkin: state.pain?.skin ?? '',
     painOther: state.pain?.other ?? '',
     pipDorsal: !!state.pain?.pipDorsal,
-    urine: state.hydration?.urine ?? '',
-    skippedMeal: !!state.hydration?.skippedMeal,
+    fuelScore: state.hydration?.fuelScore ?? '',
     note: state.hydration?.note ?? '',
     flagsRed: (evalResult.flags?.red || []).map((f) => f.key).join('|'),
     flagsYellow: (evalResult.flags?.yellow || []).map((f) => f.key).join('|')
@@ -6651,6 +6659,22 @@ function renderStatsList() {
       icon: 'R',
       formatter: (v) => String(v),
       unit: '/10'
+    },
+    {
+      labelKey: 'result.stat.prevIntensity',
+      value: state.wellbeing.prevSessionIntensity,
+      tone: toneFromIntensity(state.wellbeing.prevSessionIntensity),
+      icon: 'I',
+      formatter: (v) => String(v),
+      unit: '/5'
+    },
+    {
+      labelKey: 'result.stat.fuel',
+      value: state.hydration.fuelScore,
+      tone: toneFromFuel(state.hydration.fuelScore),
+      icon: 'N',
+      formatter: (v) => v == null ? '—' : String(v),
+      unit: '/5'
     }
   ];
 
@@ -6696,6 +6720,18 @@ function toneFromLikert(v) {
 function toneFromHigherIsBetter(v) {
   if (v <= 4) return 'red';
   if (v <= 6) return 'yellow';
+  return 'green';
+}
+function toneFromIntensity(v) {
+  if (v == null) return 'blue';
+  if (v >= 5) return 'red';
+  if (v >= 4) return 'yellow';
+  return 'green';
+}
+function toneFromFuel(v) {
+  if (v == null) return 'blue';
+  if (v <= 1) return 'red';
+  if (v === 2) return 'yellow';
   return 'green';
 }
 function toneFromSleep(h) {
@@ -7205,7 +7241,6 @@ if (document.readyState === 'loading') {
 } else {
   boot();
 }
-
 })();
 </script>
 </body>

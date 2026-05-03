@@ -145,13 +145,16 @@ export function evaluate() {
   if (state.pain.shoulders >= 6) flags.yellow.push({ key: 'flagPainShoulderMid' });
   if (state.pain.back >= 5) flags.yellow.push({ key: 'flagPainBackMid' });
 
-  // Hydration / nutrition
-  if (state.hydration.urine !== null && state.hydration.urine >= 4) {
-    flags.yellow.push({ key: 'flagUrineDark' });
+  // Fuel (nutrition + hydration combined, 0-5; higher = better)
+  const fuel = state.hydration.fuelScore;
+  if (fuel !== null && fuel !== undefined) {
+    if (fuel <= 1) flags.red.push({ key: 'flagFuelLow' });
+    else if (fuel === 2) flags.yellow.push({ key: 'flagFuelMid' });
   }
-  if (state.hydration.skippedMeal) {
-    flags.yellow.push({ key: 'flagSkippedMeal' });
-  }
+
+  // Previous session intensity (0-5; higher = harder yesterday)
+  const prevIntensity = state.wellbeing.prevSessionIntensity;
+  if (prevIntensity >= 5) flags.yellow.push({ key: 'flagPrevSessionHard' });
 
   // Decision
   let track = 'A';
@@ -279,9 +282,15 @@ function computeReadinessScore(medicalOverride, flags) {
   painPenalty = Math.min(30, painPenalty);
   score -= painPenalty;
 
-  // Hydration penalty
-  if (state.hydration.urine !== null && state.hydration.urine >= 4) score -= 5;
-  if (state.hydration.skippedMeal) score -= 4;
+  // Fuel penalty (low fuel = less ready)
+  const fuel = state.hydration.fuelScore;
+  if (fuel !== null && fuel !== undefined) {
+    if (fuel <= 1) score -= 8;
+    else if (fuel === 2) score -= 5;
+  }
+  // Previous session intensity = contextual fatigue load
+  if (state.wellbeing.prevSessionIntensity >= 5) score -= 5;
+  else if (state.wellbeing.prevSessionIntensity >= 4) score -= 2;
 
   // Flag penalty so the score tracks the Track A/B decision.
   // A single yellow flag must drop the score below 75 (visual Track B

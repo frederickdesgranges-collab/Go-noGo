@@ -44,7 +44,8 @@ const initial = {
     calm: null,
     mood: null,
     willingness: 7,
-    recoveryPrs: 7
+    recoveryPrs: 7,
+    prevSessionIntensity: 0
   },
   pain: {
     fingers: 0,
@@ -57,8 +58,7 @@ const initial = {
     other: ''
   },
   hydration: {
-    urine: null,
-    skippedMeal: false,
+    fuelScore: 3,
     note: ''
   }
 };

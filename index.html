@@ -347,6 +347,19 @@
             <span data-i18n="wellbeing.recoveryPrsHigh">Totalement récupéré</span>
           </div>
         </div>
+
+        <div class="field">
+          <div class="slider-header">
+            <label class="field-label" for="prev-session-intensity" data-i18n="wellbeing.prevSessionIntensity">Intensité de la séance d'hier</label>
+            <span class="slider-value" id="prev-session-intensity-value">0</span>
+          </div>
+          <p class="field-hint" data-i18n="wellbeing.prevSessionIntensityHint">0 = repos / très facile · 5 = séance très exigeante.</p>
+          <input class="slider slider-intensity" id="prev-session-intensity" type="range" min="0" max="5" step="1" value="0" />
+          <div class="slider-anchors">
+            <span data-i18n="wellbeing.prevSessionIntensityLow">Repos</span>
+            <span data-i18n="wellbeing.prevSessionIntensityHigh">Très intense</span>
+          </div>
+        </div>
       </article>
 
       <!-- ===== Section C : Douleur NRS ===== -->
@@ -425,33 +438,25 @@
         </div>
       </article>
 
-      <!-- ===== Section D : Hydratation ===== -->
+      <!-- ===== Section D : Récupération veille ===== -->
       <article class="card section-card section-card-premium tone-purple" data-section="hydration" data-letter="D">
         <span class="section-watermark" aria-hidden="true">D</span>
         <header class="section-header">
-          <span class="section-eyebrow" data-i18n="sections.hydration.eyebrow">Section D · Hydratation</span>
-          <h2 class="section-title" data-i18n="sections.hydration.title">Hydratation & nutrition</h2>
-          <p class="section-hint" data-i18n="sections.hydration.hint">Indicateurs simples mais cruciaux pour la performance.</p>
+          <span class="section-eyebrow" data-i18n="sections.hydration.eyebrow">Section D · Veille</span>
+          <h2 class="section-title" data-i18n="sections.hydration.title">Nutrition & hydratation</h2>
+          <p class="section-hint" data-i18n="sections.hydration.hint">Un seul curseur pour résumer ta veille.</p>
         </header>
 
         <div class="field">
-          <label class="field-label" data-i18n="hydration.urine">Couleur de la première urine</label>
-          <div class="likert" data-likert="urine" data-required="true">
-            <div class="likert-anchors">
-              <span class="likert-anchor anchor-low" data-i18n="hydration.urineLow">Clair</span>
-              <span class="likert-anchor anchor-high" data-i18n="hydration.urineHigh">Très foncé</span>
-            </div>
-            <div class="likert-buttons" role="radiogroup" aria-label="Urine"></div>
+          <div class="slider-header">
+            <label class="field-label" for="fuel-score" data-i18n="hydration.fuel">Bien nourri et hydraté la veille ?</label>
+            <span class="slider-value" id="fuel-score-value">3</span>
           </div>
-        </div>
-
-        <div class="field">
-          <div class="toggle-row">
-            <label class="switch">
-              <input type="checkbox" id="skipped-meal" />
-              <span class="switch-slider"></span>
-            </label>
-            <span class="toggle-label" data-i18n="hydration.skippedMeal">As-tu sauté un repas hier ?</span>
+          <p class="field-hint" data-i18n="hydration.fuelHint">0 = repas et eau négligés · 5 = nutrition et hydratation au top.</p>
+          <input class="slider slider-fuel" id="fuel-score" type="range" min="0" max="5" step="1" value="3" />
+          <div class="slider-anchors">
+            <span data-i18n="hydration.fuelLow">Manqué</span>
+            <span data-i18n="hydration.fuelHigh">Au top</span>
           </div>
         </div>
 

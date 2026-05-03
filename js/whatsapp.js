@@ -40,6 +40,8 @@ export function buildMessage(evalResult) {
     `• ${tt('whatsapp.mood')} : ${nullDash(state.wellbeing.mood)}/5`,
     `• ${tt('whatsapp.willingness')} : ${state.wellbeing.willingness}/10`,
     `• ${tt('whatsapp.recovery')} : ${state.wellbeing.recoveryPrs}/10`,
+    `• ${tt('whatsapp.prevIntensity')} : ${state.wellbeing.prevSessionIntensity}/5`,
+    `• ${tt('whatsapp.fuel')} : ${nullDash(state.hydration.fuelScore)}/5`,
     `• ${tt('whatsapp.pip')} : ${state.pain.pipDorsal ? tt('whatsapp.pipYes') : tt('whatsapp.pipNo')}`
   ].join('\n');
 
