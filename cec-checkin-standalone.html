@@ -1764,16 +1764,17 @@ a { color: inherit; text-decoration: none; }
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  padding: 9px 22px;
+  padding: 9px 18px;
   border-radius: var(--radius-pill);
   font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.34em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   background: var(--green-light);
   color: var(--green-dark);
   border: 1px solid rgba(42, 111, 71, 0.32);
   margin-top: 4px;
+  white-space: nowrap;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.55) inset,
     0 4px 14px rgba(42, 111, 71, 0.12);
@@ -4248,8 +4249,8 @@ const translations = {
       missingLikert: 'Réponds à toutes les questions obligatoires de la section Sommeil et Bien-être.'
     },
     result: {
-      trackA: 'TRACK A',
-      trackB: 'TRACK B',
+      trackA: 'OVERREACHING PHYSIQUE',
+      trackB: 'OVERREACHING FONCTIONNELS',
       readiness: 'READINESS',
       todaysCheckin: 'Check-in du jour',
       helloPrefix: 'Bonjour',
@@ -4523,8 +4524,8 @@ const translations = {
       missingLikert: 'Answer all required questions in the Sleep and Well-being sections.'
     },
     result: {
-      trackA: 'TRACK A',
-      trackB: 'TRACK B',
+      trackA: 'PHYSICAL OVERREACHING',
+      trackB: 'FUNCTIONAL OVERREACHING',
       readiness: 'READINESS',
       todaysCheckin: "Today's check-in",
       helloPrefix: 'Hello',

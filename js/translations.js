@@ -162,8 +162,8 @@ export const translations = {
       missingLikert: 'Réponds à toutes les questions obligatoires de la section Sommeil et Bien-être.'
     },
     result: {
-      trackA: 'TRACK A',
-      trackB: 'TRACK B',
+      trackA: 'OVERREACHING PHYSIQUE',
+      trackB: 'OVERREACHING FONCTIONNELS',
       readiness: 'READINESS',
       todaysCheckin: 'Check-in du jour',
       helloPrefix: 'Bonjour',
@@ -437,8 +437,8 @@ export const translations = {
       missingLikert: 'Answer all required questions in the Sleep and Well-being sections.'
     },
     result: {
-      trackA: 'TRACK A',
-      trackB: 'TRACK B',
+      trackA: 'PHYSICAL OVERREACHING',
+      trackB: 'FUNCTIONAL OVERREACHING',
       readiness: 'READINESS',
       todaysCheckin: "Today's check-in",
       helloPrefix: 'Hello',
