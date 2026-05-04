@@ -120,18 +120,21 @@ export function evaluate() {
   }
 
   // Likerts (1-5; lower = worse)
+  // For energy/muscles/calm/mood, "3" means "moyen / correct" — not a deficit —
+  // so we no longer flag it. Only forearms (priority axis) keeps the yellow
+  // at 3 since fingers/forearms drive injury risk.
   const likertChecks = [
-    ['energy', 'flagLowEnergy', 'flagMidEnergy'],
-    ['muscles', 'flagLowMuscles', 'flagMidMuscles'],
+    ['energy', 'flagLowEnergy', null],
+    ['muscles', 'flagLowMuscles', null],
     ['forearms', 'flagLowForearms', 'flagMidForearms'],
-    ['calm', 'flagLowCalm', 'flagMidCalm'],
-    ['mood', 'flagLowMood', 'flagMidMood']
+    ['calm', 'flagLowCalm', null],
+    ['mood', 'flagLowMood', null]
   ];
   likertChecks.forEach(([field, lowKey, midKey]) => {
     const v = state.wellbeing[field];
     if (v === null || v === undefined) return;
     if (v <= 2) flags.red.push({ key: lowKey });
-    else if (v === 3) flags.yellow.push({ key: midKey });
+    else if (v === 3 && midKey) flags.yellow.push({ key: midKey });
   });
 
   // Sliders 0-10 (higher = better)
@@ -142,8 +145,9 @@ export function evaluate() {
   else if (state.wellbeing.recoveryPrs <= 6) flags.yellow.push({ key: 'flagMidRecovery' });
 
   // Pain NRS (higher = worse)
-  if (state.pain.fingers >= 4) flags.red.push({ key: 'flagPainFingersHigh' });
-  else if (state.pain.fingers >= 2) flags.yellow.push({ key: 'flagPainFingersMid' });
+  // Fingers: NRS 1-2 is normal climber background; only flag from 3 up.
+  if (state.pain.fingers >= 5) flags.red.push({ key: 'flagPainFingersHigh' });
+  else if (state.pain.fingers >= 3) flags.yellow.push({ key: 'flagPainFingersMid' });
 
   if (state.pain.forearm >= 7) flags.red.push({ key: 'flagPainForearmHigh' });
   else if (state.pain.forearm >= 5) flags.yellow.push({ key: 'flagPainForearmMid' });
