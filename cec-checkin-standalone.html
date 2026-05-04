@@ -4287,8 +4287,8 @@ const translations = {
       messageMedical: "STOP. Évaluation médicale requise avant toute charge.",
       kindnessMedical: "Préviens immédiatement le coach et l'équipe médicale. Ne grimpe pas aujourd'hui.",
       flagPipDorsal: 'PIP dorsale signalée — arrêt impératif',
-      flagSleepShort: 'Sommeil court (< 7h)',
-      flagSleepBorderline: 'Sommeil limite (< 8h)',
+      flagSleepShort: 'Sommeil très court (< 6h)',
+      flagSleepBorderline: 'Sommeil court & qualité faible (< 7h)',
       flagLowEnergy: 'Énergie basse',
       flagMidEnergy: 'Énergie moyenne',
       flagLowMuscles: 'Muscles courbatés',
@@ -4566,8 +4566,8 @@ const translations = {
       messageMedical: 'STOP. Medical evaluation required before any load.',
       kindnessMedical: 'Notify the coach and medical team immediately. Do not climb today.',
       flagPipDorsal: 'Dorsal PIP reported — mandatory stop',
-      flagSleepShort: 'Short sleep (< 7h)',
-      flagSleepBorderline: 'Borderline sleep (< 8h)',
+      flagSleepShort: 'Very short sleep (< 6h)',
+      flagSleepBorderline: 'Short sleep & poor quality (< 7h)',
       flagLowEnergy: 'Low energy',
       flagMidEnergy: 'Mid energy',
       flagLowMuscles: 'Sore muscles',
@@ -5641,10 +5641,19 @@ function evaluate() {
     flags.red.push({ key: 'flagPipDorsal' });
   }
 
-  // Sleep duration
+  // Sleep duration — only flag when the deficit is real.
+  // < 6h is a clear red zone regardless of quality.
+  // 6–7h is only yellow if the athlete also rates the quality poorly (≤3).
   const sleep = state.sleep.durationHours;
-  if (sleep > 0 && sleep < 7) flags.red.push({ key: 'flagSleepShort' });
-  else if (sleep > 0 && sleep < 8) flags.yellow.push({ key: 'flagSleepBorderline' });
+  const sleepQuality = state.sleep.quality;
+  if (sleep > 0 && sleep < 6) {
+    flags.red.push({ key: 'flagSleepShort' });
+  } else if (
+    sleep > 0 && sleep < 7 &&
+    sleepQuality !== null && sleepQuality !== undefined && sleepQuality <= 3
+  ) {
+    flags.yellow.push({ key: 'flagSleepBorderline' });
+  }
 
   // Likerts (1-5; lower = worse)
   const likertChecks = [

@@ -105,10 +105,19 @@ export function evaluate() {
     flags.red.push({ key: 'flagPipDorsal' });
   }
 
-  // Sleep duration
+  // Sleep duration — only flag when the deficit is real.
+  // < 6h is a clear red zone regardless of quality.
+  // 6–7h is only yellow if the athlete also rates the quality poorly (≤3).
   const sleep = state.sleep.durationHours;
-  if (sleep > 0 && sleep < 7) flags.red.push({ key: 'flagSleepShort' });
-  else if (sleep > 0 && sleep < 8) flags.yellow.push({ key: 'flagSleepBorderline' });
+  const sleepQuality = state.sleep.quality;
+  if (sleep > 0 && sleep < 6) {
+    flags.red.push({ key: 'flagSleepShort' });
+  } else if (
+    sleep > 0 && sleep < 7 &&
+    sleepQuality !== null && sleepQuality !== undefined && sleepQuality <= 3
+  ) {
+    flags.yellow.push({ key: 'flagSleepBorderline' });
+  }
 
   // Likerts (1-5; lower = worse)
   const likertChecks = [
