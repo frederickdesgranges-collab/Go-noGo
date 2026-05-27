@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#0a0e1a" />
+  <meta name="description" content="Chronomètre officiel pour compétitions de bloc · IFSC" />
+  <title>Boulder Timer · IFSC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #07090f;
+      --bg-2: #0d1220;
+      --panel: rgba(20, 25, 40, 0.7);
+      --panel-2: rgba(28, 34, 52, 0.85);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.16);
+      --text: #f4f6fb;
+      --text-dim: #9aa3b8;
+      --text-mute: #5d6478;
+
+      --accent: #5eb6ff;
+      --accent-2: #7c5cff;
+
+      --idle: #6b7280;
+      --observation: #a855f7;
+      --climb: #38bdf8;
+      --climb-warn: #f59e0b;
+      --climb-final: #ef4444;
+      --transition: #fb923c;
+      --finished: #22c55e;
+
+      --shadow-1: 0 1px 0 rgba(255,255,255,0.05) inset, 0 12px 32px -12px rgba(0,0,0,0.65);
+      --shadow-2: 0 20px 60px -20px rgba(0,0,0,0.8);
+
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      background-image:
+        radial-gradient(1200px 600px at 20% -10%, rgba(124, 92, 255, 0.18), transparent 60%),
+        radial-gradient(900px 600px at 110% 20%, rgba(94, 182, 255, 0.14), transparent 60%),
+        radial-gradient(800px 500px at 50% 120%, rgba(34, 197, 94, 0.06), transparent 60%);
+      overflow-x: hidden;
+      letter-spacing: -0.01em;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+
+    .grain {
+      pointer-events: none;
+      position: fixed; inset: 0; z-index: 0;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.85'/></svg>");
+      mix-blend-mode: overlay;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 18px clamp(14px, 3vw, 32px);
+      gap: 14px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* ====== TOP BAR ====== */
+    header.topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .logo {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: grid; place-items: center;
+      box-shadow: 0 10px 30px -10px rgba(124, 92, 255, 0.6);
+      position: relative;
+      overflow: hidden;
+    }
+    .logo::after {
+      content: '';
+      position: absolute; inset: 1px;
+      border-radius: 11px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.18), transparent 50%);
+    }
+    .logo svg { position: relative; z-index: 1; color: white; }
+    .brand-text { line-height: 1.1; }
+    .brand-title {
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: -0.02em;
+    }
+    .brand-sub {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 3px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .top-actions { display: flex; gap: 8px; }
+    .icon-btn {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      display: grid; place-items: center;
+      cursor: pointer;
+      transition: background .15s, border-color .15s, transform .1s;
+      backdrop-filter: blur(8px);
+    }
+    .icon-btn:hover { background: var(--panel-2); border-color: var(--border-strong); }
+    .icon-btn:active { transform: scale(0.96); }
+
+    /* ====== STAGE ====== */
+    main.stage {
+      display: grid;
+      grid-template-rows: auto 1fr auto auto;
+      gap: 18px;
+      min-height: 0;
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .phase-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border-strong);
+      background: var(--panel);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 13px;
+      backdrop-filter: blur(8px);
+      transition: background .25s, border-color .25s, color .25s;
+    }
+    .phase-chip::before {
+      content: '';
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--phase-color, var(--idle));
+      box-shadow: 0 0 12px var(--phase-color, var(--idle));
+      animation: pulse-dot 1.6s ease-in-out infinite;
+    }
+    .phase-chip[data-phase="idle"] { --phase-color: var(--idle); color: var(--text-dim); }
+    .phase-chip[data-phase="observation"] { --phase-color: var(--observation); color: #e9d5ff; }
+    .phase-chip[data-phase="climb"] { --phase-color: var(--climb); color: #bae6fd; }
+    .phase-chip[data-phase="transition"] { --phase-color: var(--transition); color: #fed7aa; }
+    .phase-chip[data-phase="finished"] { --phase-color: var(--finished); color: #bbf7d0; }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.55; transform: scale(1.18); }
+    }
+
+    .round-meta {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: var(--text-dim);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .round-meta strong { color: var(--text); font-weight: 600; }
+    .sep {
+      width: 4px; height: 4px;
+      background: var(--text-mute);
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* ====== TIMER DISPLAY ====== */
+    .timer-wrap {
+      position: relative;
+      display: grid;
+      place-items: center;
+      padding: 20px 0;
+      min-height: 0;
+    }
+    .timer-ring {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+    }
+    .timer-ring svg {
+      width: min(72vh, 96vw, 640px);
+      height: min(72vh, 96vw, 640px);
+      transform: rotate(-90deg);
+    }
+    .ring-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.04);
+      stroke-width: 6;
+    }
+    .ring-fg {
+      fill: none;
+      stroke: var(--phase-color, var(--idle));
+      stroke-width: 6;
+      stroke-linecap: round;
+      transition: stroke .25s, stroke-dashoffset .25s linear;
+      filter: drop-shadow(0 0 16px var(--phase-color, transparent));
+    }
+
+    .time-display {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      place-items: center;
+      gap: 10px;
+      text-align: center;
+    }
+    .time-label {
+      font-size: 12px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text-mute);
+      font-weight: 600;
+    }
+    .time {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      font-size: clamp(72px, 18vw, 200px);
+      line-height: 1;
+      color: var(--text);
+      letter-spacing: -0.04em;
+      text-shadow: 0 0 60px var(--phase-color, transparent);
+      transition: color .25s, text-shadow .25s, transform .15s;
+    }
+    .time.warn { color: var(--climb-warn); }
+    .time.final {
+      color: var(--climb-final);
+      animation: tick 1s ease-in-out infinite;
+    }
+    @keyframes tick {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+    .time-sub {
+      font-size: 13px;
+      color: var(--text-dim);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* ====== BOULDER PILLS ====== */
+    .boulders {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .boulder-pill {
+      min-width: 56px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all .2s ease;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-dim);
+    }
+    .boulder-pill:hover { background: var(--panel-2); }
+    .boulder-pill[data-state="current"] {
+      border-color: var(--climb);
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--text);
+      box-shadow: 0 0 0 1px var(--climb) inset, 0 8px 24px -8px rgba(56, 189, 248, 0.4);
+    }
+    .boulder-pill[data-state="done"] {
+      background: rgba(34, 197, 94, 0.08);
+      border-color: rgba(34, 197, 94, 0.3);
+      color: #bbf7d0;
+    }
+    .boulder-pill .num {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      background: rgba(255,255,255,0.06);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .boulder-pill[data-state="current"] .num {
+      background: var(--climb);
+      color: #07090f;
+    }
+    .boulder-pill[data-state="done"] .num {
+      background: var(--finished);
+      color: #07090f;
+    }
+    .boulder-pill[data-state="done"] .num::after { content: '✓'; }
+    .boulder-pill[data-state="done"] .num span { display: none; }
+
+    /* ====== CONTROLS ====== */
+    .controls {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: stretch;
+    }
+    .ctrl-grp {
+      display: flex;
+      gap: 8px;
+    }
+    .btn {
+      padding: 14px 18px;
+      border-radius: 14px;
+      border: 1px solid var(--border-strong);
+      background: var(--panel);
+      color: var(--text);
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      backdrop-filter: blur(8px);
+      transition: background .15s, border-color .15s, transform .1s, box-shadow .2s;
+      white-space: nowrap;
+    }
+    .btn:hover { background: var(--panel-2); border-color: rgba(255,255,255,0.22); }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn svg { flex-shrink: 0; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border-color: transparent;
+      color: #0a0e1a;
+      font-weight: 700;
+      box-shadow: 0 14px 40px -16px rgba(124, 92, 255, 0.7), 0 1px 0 rgba(255,255,255,0.4) inset;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #76c2ff, #8d6eff);
+      border-color: transparent;
+    }
+    .btn-primary[data-mode="pause"] {
+      background: linear-gradient(135deg, var(--climb-warn), #fbbf24);
+    }
+    .btn-primary[data-mode="resume"] {
+      background: linear-gradient(135deg, var(--finished), #4ade80);
+    }
+    .btn-lg {
+      padding: 18px 26px;
+      font-size: 16px;
+      flex: 1;
+      min-width: 0;
+    }
+    .btn-icon-only {
+      min-width: 50px;
+      padding: 14px;
+    }
+    .btn-ghost {
+      background: transparent;
+      border-color: var(--border);
+    }
+    .btn-danger { color: #fca5a5; }
+    .btn-danger:hover { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.4); }
+
+    /* ====== MODAL ====== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 8, 16, 0.6);
+      backdrop-filter: blur(12px);
+      z-index: 50;
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      overflow-y: auto;
+      padding: 30px 16px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      width: 100%;
+      max-width: 520px;
+      background: linear-gradient(180deg, rgba(28, 34, 52, 0.95), rgba(15, 18, 28, 0.95));
+      border: 1px solid var(--border-strong);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: var(--shadow-2);
+      animation: modal-in .25s cubic-bezier(.2,.9,.3,1);
+    }
+    @keyframes modal-in {
+      from { opacity: 0; transform: translateY(20px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 18px;
+    }
+    .modal h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .modal section { margin-bottom: 20px; }
+    .modal-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .preset-btn {
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      cursor: pointer;
+      text-align: left;
+      transition: all .15s;
+    }
+    .preset-btn:hover { border-color: var(--border-strong); background: rgba(255,255,255,0.06); }
+    .preset-btn.active {
+      border-color: var(--accent);
+      background: rgba(94, 182, 255, 0.1);
+      box-shadow: 0 0 0 1px var(--accent) inset;
+    }
+    .preset-btn .preset-title {
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 3px;
+    }
+    .preset-btn .preset-detail {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.04em;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .num-input-grp {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 4px;
+    }
+    .num-input {
+      width: 64px;
+      padding: 10px 6px;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      text-align: center;
+      -moz-appearance: textfield;
+      outline: none;
+    }
+    .num-input::-webkit-outer-spin-button,
+    .num-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .num-sep {
+      color: var(--text-dim);
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .num-unit { color: var(--text-mute); font-size: 12px; padding-right: 8px; }
+
+    .stepper {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      cursor: pointer;
+      display: grid; place-items: center;
+    }
+    .stepper:hover { background: rgba(255,255,255,0.08); }
+
+    .count-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+    .count-btn {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      transition: all .15s;
+    }
+    .count-btn:hover { background: rgba(255,255,255,0.06); }
+    .count-btn.active {
+      border-color: var(--accent);
+      background: rgba(94, 182, 255, 0.12);
+      color: #bae6fd;
+      box-shadow: 0 0 0 1px var(--accent) inset;
+    }
+
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+    .toggle-row .label { font-weight: 500; font-size: 14px; }
+    .toggle-row .hint { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+    .toggle {
+      width: 44px; height: 26px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 999px;
+      position: relative;
+      cursor: pointer;
+      transition: background .2s;
+      flex-shrink: 0;
+    }
+    .toggle::after {
+      content: ''; position: absolute;
+      top: 3px; left: 3px;
+      width: 20px; height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: transform .2s, background .2s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+    .toggle.on { background: var(--accent); }
+    .toggle.on::after { transform: translateX(18px); }
+
+    .slider-row {
+      display: flex; align-items: center; gap: 12px;
+      margin-top: 6px;
+    }
+    input[type="range"] {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 4px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 0 0 4px rgba(94, 182, 255, 0.15);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: none;
+    }
+    .slider-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 14px;
+      min-width: 48px;
+      text-align: right;
+    }
+
+    .modal-actions {
+      display: flex; gap: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      margin-top: 16px;
+    }
+
+    /* ====== TOAST ====== */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(120%);
+      background: var(--panel-2);
+      border: 1px solid var(--border-strong);
+      padding: 12px 18px;
+      border-radius: 12px;
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow-2);
+      font-weight: 500;
+      font-size: 14px;
+      transition: transform .35s cubic-bezier(.2,.9,.3,1);
+      z-index: 100;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ====== KEYBOARD HINTS ====== */
+    .kbd {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 5px;
+      border: 1px solid var(--border-strong);
+      background: rgba(255,255,255,0.05);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+    .shortcuts {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--text-mute);
+      padding-top: 4px;
+    }
+    .shortcuts span { display: inline-flex; align-items: center; gap: 6px; }
+
+    /* ====== FULLSCREEN MODE ====== */
+    body.fullscreen .topbar,
+    body.fullscreen .boulders,
+    body.fullscreen .shortcuts,
+    body.fullscreen .meta-row .round-meta { opacity: 0.5; transition: opacity .4s; }
+    body.fullscreen .timer-ring svg {
+      width: min(82vh, 100vw);
+      height: min(82vh, 100vw);
+    }
+
+    /* ====== RESPONSIVE ====== */
+    @media (max-width: 640px) {
+      .app { padding: 12px; gap: 10px; }
+      .brand-sub { display: none; }
+      .meta-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .controls { grid-template-columns: 1fr; }
+      .ctrl-grp { width: 100%; }
+      .ctrl-grp .btn { flex: 1; }
+      .preset-grid { grid-template-columns: 1fr; }
+      .count-grid { grid-template-columns: repeat(5, 1fr); }
+      .shortcuts { display: none; }
+    }
+
+    @media (max-height: 600px) {
+      .boulders { display: none; }
+      .shortcuts { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <div class="app">
+    <!-- ============ TOP BAR ============ -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="13" r="8"/>
+            <path d="M12 9v4l2.5 2.5"/>
+            <path d="M9 2h6"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">Boulder Timer</div>
+          <div class="brand-sub">Compétition · IFSC format</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="btn-sound" title="Activer / couper le son">
+          <svg id="icon-sound" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="btn-fullscreen" title="Plein écran">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9V5a2 2 0 0 1 2-2h4"/>
+            <path d="M21 9V5a2 2 0 0 0-2-2h-4"/>
+            <path d="M3 15v4a2 2 0 0 0 2 2h4"/>
+            <path d="M21 15v4a2 2 0 0 1-2 2h-4"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="btn-settings" title="Paramètres">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ============ STAGE ============ -->
+    <main class="stage">
+      <div class="meta-row">
+        <div class="phase-chip" id="phase-chip" data-phase="idle">
+          <span id="phase-label">Prêt</span>
+        </div>
+        <div class="round-meta">
+          <span><strong id="meta-round">Finales</strong></span>
+          <span class="sep"></span>
+          <span>Bloc <strong id="meta-boulder">1</strong> / <strong id="meta-total">4</strong></span>
+          <span class="sep"></span>
+          <span>Total <strong id="meta-total-time">00:00</strong></span>
+        </div>
+      </div>
+
+      <div class="timer-wrap">
+        <div class="timer-ring" aria-hidden="true">
+          <svg viewBox="0 0 200 200">
+            <circle class="ring-bg" cx="100" cy="100" r="94"/>
+            <circle class="ring-fg" id="ring-fg" cx="100" cy="100" r="94"
+              stroke-dasharray="590.6" stroke-dashoffset="0"/>
+          </svg>
+        </div>
+        <div class="time-display">
+          <div class="time-label" id="time-label">En attente</div>
+          <div class="time" id="time">04:00</div>
+          <div class="time-sub" id="time-sub">Appuyer sur démarrer</div>
+        </div>
+      </div>
+
+      <div class="boulders" id="boulders"></div>
+
+      <div class="shortcuts" id="shortcuts">
+        <span><span class="kbd">Espace</span> Démarrer / Pause</span>
+        <span><span class="kbd">S</span> Stop</span>
+        <span><span class="kbd">R</span> Réinitialiser</span>
+        <span><span class="kbd">N</span> Bloc suivant</span>
+        <span><span class="kbd">F</span> Plein écran</span>
+      </div>
+    </main>
+
+    <!-- ============ CONTROLS ============ -->
+    <div class="controls">
+      <div class="ctrl-grp">
+        <button class="btn btn-ghost btn-icon-only" id="btn-prev" title="Bloc précédent">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="11 17 6 12 11 7"/>
+            <polyline points="18 17 13 12 18 7"/>
+          </svg>
+        </button>
+        <button class="btn btn-ghost btn-icon-only" id="btn-skip" title="Phase suivante">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5 4 15 12 5 20 5 4"/>
+            <line x1="19" y1="5" x2="19" y2="19"/>
+          </svg>
+        </button>
+      </div>
+
+      <button class="btn btn-primary btn-lg" id="btn-main" data-mode="start">
+        <svg id="icon-main" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+          <polygon points="6 4 20 12 6 20 6 4"/>
+        </svg>
+        <span id="label-main">Démarrer</span>
+      </button>
+
+      <div class="ctrl-grp">
+        <button class="btn btn-ghost btn-icon-only" id="btn-stop" title="Stop">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <rect x="6" y="6" width="12" height="12" rx="2"/>
+          </svg>
+        </button>
+        <button class="btn btn-ghost btn-icon-only btn-danger" id="btn-reset" title="Réinitialiser tout">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="1 4 1 10 7 10"/>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SETTINGS MODAL ============ -->
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal" role="dialog" aria-labelledby="modal-title">
+      <div class="modal-head">
+        <h2 id="modal-title">Paramètres</h2>
+        <button class="icon-btn" id="btn-close-modal" title="Fermer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <section>
+        <span class="modal-label">Format de la ronde</span>
+        <div class="preset-grid">
+          <button class="preset-btn" data-preset="flash">
+            <div class="preset-title">Flash · Finales</div>
+            <div class="preset-detail">4:00 · 15s · obs</div>
+          </button>
+          <button class="preset-btn" data-preset="onsight">
+            <div class="preset-title">Semi · À vue</div>
+            <div class="preset-detail">5:00 · 15s</div>
+          </button>
+        </div>
+      </section>
+
+      <section>
+        <span class="modal-label">Temps d'escalade</span>
+        <div class="input-row">
+          <div class="num-input-grp">
+            <button class="stepper" data-action="dec-climb-min">−</button>
+            <input class="num-input" id="in-climb-min" type="number" min="0" max="20" value="4">
+            <button class="stepper" data-action="inc-climb-min">+</button>
+            <span class="num-sep">:</span>
+            <button class="stepper" data-action="dec-climb-sec">−</button>
+            <input class="num-input" id="in-climb-sec" type="number" min="0" max="59" value="0">
+            <button class="stepper" data-action="inc-climb-sec">+</button>
+            <span class="num-unit">mm:ss</span>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <span class="modal-label">Transition entre les blocs</span>
+        <div class="input-row">
+          <div class="num-input-grp">
+            <button class="stepper" data-action="dec-trans">−</button>
+            <input class="num-input" id="in-trans" type="number" min="0" max="120" value="15">
+            <button class="stepper" data-action="inc-trans">+</button>
+            <span class="num-unit">sec</span>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <span class="modal-label">Nombre de blocs</span>
+        <div class="count-grid" id="count-grid">
+          <button class="count-btn" data-count="1">1</button>
+          <button class="count-btn" data-count="2">2</button>
+          <button class="count-btn" data-count="3">3</button>
+          <button class="count-btn active" data-count="4">4</button>
+          <button class="count-btn" data-count="5">5</button>
+          <button class="count-btn" data-count="6">6</button>
+          <button class="count-btn" data-count="7">7</button>
+          <button class="count-btn" data-count="8">8</button>
+          <button class="count-btn" data-count="9">9</button>
+          <button class="count-btn" data-count="10">10</button>
+        </div>
+      </section>
+
+      <section>
+        <div class="toggle-row">
+          <div>
+            <div class="label">Période d'observation</div>
+            <div class="hint">Décompte avant le 1er bloc (finales).</div>
+          </div>
+          <div class="toggle" id="tg-observation"></div>
+        </div>
+        <div id="obs-time-wrap" style="display:none;">
+          <span class="modal-label">Durée d'observation</span>
+          <div class="num-input-grp">
+            <button class="stepper" data-action="dec-obs-min">−</button>
+            <input class="num-input" id="in-obs-min" type="number" min="0" max="20" value="2">
+            <button class="stepper" data-action="inc-obs-min">+</button>
+            <span class="num-sep">:</span>
+            <button class="stepper" data-action="dec-obs-sec">−</button>
+            <input class="num-input" id="in-obs-sec" type="number" min="0" max="59" value="0">
+            <button class="stepper" data-action="inc-obs-sec">+</button>
+            <span class="num-unit">mm:ss</span>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <span class="modal-label">Décompte sonore final</span>
+        <div class="slider-row">
+          <input type="range" id="in-countdown" min="0" max="10" step="1" value="5">
+          <span class="slider-val"><span id="lab-countdown">5</span>s</span>
+        </div>
+        <div class="hint" style="font-size:12px;color:var(--text-dim);margin-top:6px;">
+          Bips pendant les <strong id="lab-countdown-2">5</strong> dernières secondes de chaque phase.
+        </div>
+      </section>
+
+      <section>
+        <div class="toggle-row">
+          <div>
+            <div class="label">Garder l'écran allumé</div>
+            <div class="hint">Empêche la mise en veille pendant l'épreuve.</div>
+          </div>
+          <div class="toggle on" id="tg-wake"></div>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="label">Sons activés</div>
+            <div class="hint">Bips de décompte et signaux de phase.</div>
+          </div>
+          <div class="toggle on" id="tg-sound"></div>
+        </div>
+      </section>
+
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="btn-test-sound">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          </svg>
+          Tester les sons
+        </button>
+        <button class="btn btn-primary" id="btn-save" style="flex:1;">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+  (() => {
+    'use strict';
+
+    // ============ STATE ============
+    const PRESETS = {
+      flash: { climb: 240, transition: 15, observation: 120, observationOn: true, label: 'Finales' },
+      onsight: { climb: 300, transition: 15, observation: 0, observationOn: false, label: 'Semi-finales' },
+    };
+
+    const DEFAULTS = {
+      climbDuration: 240,
+      transitionDuration: 15,
+      observationDuration: 120,
+      observationEnabled: false,
+      numBoulders: 4,
+      countdownSeconds: 5,
+      soundEnabled: true,
+      wakeLockEnabled: true,
+      roundLabel: 'Finales',
+    };
+
+    let settings = loadSettings();
+    let runtime = freshRuntime();
+    let wakeLock = null;
+    let audioCtx = null;
+    let lastBeepSecond = -1;
+    let rafId = null;
+    let tickStart = 0;
+    let toastTimer = null;
+
+    function loadSettings() {
+      try {
+        const s = JSON.parse(localStorage.getItem('boulderTimer.settings') || '{}');
+        return { ...DEFAULTS, ...s };
+      } catch { return { ...DEFAULTS }; }
+    }
+    function saveSettings() {
+      try { localStorage.setItem('boulderTimer.settings', JSON.stringify(settings)); }
+      catch {}
+    }
+    function freshRuntime() {
+      return {
+        phase: 'idle',          // idle | observation | climb | transition | finished
+        boulder: 1,
+        running: false,
+        remaining: settings.climbDuration,
+        totalElapsed: 0,
+      };
+    }
+
+    // ============ AUDIO ============
+    function ensureAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    function tone({ freq = 880, duration = 0.18, volume = 0.45, type = 'sine', attack = 0.005, release = 0.04, delay = 0 } = {}) {
+      if (!settings.soundEnabled) return;
+      const ctx = ensureAudio();
+      const t0 = ctx.currentTime + delay;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, t0);
+      gain.gain.setValueAtTime(0, t0);
+      gain.gain.linearRampToValueAtTime(volume, t0 + attack);
+      gain.gain.setValueAtTime(volume, t0 + duration - release);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t0);
+      osc.stop(t0 + duration + 0.02);
+    }
+
+    // Court bip aigu (décompte 5..1)
+    function beepTick() {
+      tone({ freq: 1180, duration: 0.16, volume: 0.5, type: 'square', attack: 0.002, release: 0.06 });
+    }
+    // Bip de départ — clair et perçant
+    function beepStart() {
+      tone({ freq: 880, duration: 0.18, volume: 0.45, type: 'sine' });
+      tone({ freq: 1320, duration: 0.5, volume: 0.55, type: 'sine', delay: 0.15 });
+    }
+    // Buzzer de fin — grave, long, double
+    function beepEnd() {
+      tone({ freq: 220, duration: 0.9, volume: 0.6, type: 'sawtooth' });
+      tone({ freq: 165, duration: 1.4, volume: 0.55, type: 'sawtooth', delay: 0.05 });
+    }
+    // Bip de bascule (fin d'observation → départ)
+    function beepGo() {
+      tone({ freq: 880, duration: 0.12, volume: 0.5 });
+      tone({ freq: 1100, duration: 0.12, volume: 0.5, delay: 0.14 });
+      tone({ freq: 1480, duration: 0.4, volume: 0.6, delay: 0.28 });
+    }
+
+    // ============ DOM ============
+    const $ = (id) => document.getElementById(id);
+    const els = {
+      time: $('time'),
+      timeLabel: $('time-label'),
+      timeSub: $('time-sub'),
+      phaseChip: $('phase-chip'),
+      phaseLabel: $('phase-label'),
+      ringFg: $('ring-fg'),
+      metaRound: $('meta-round'),
+      metaBoulder: $('meta-boulder'),
+      metaTotal: $('meta-total'),
+      metaTotalTime: $('meta-total-time'),
+      boulders: $('boulders'),
+      btnMain: $('btn-main'),
+      labelMain: $('label-main'),
+      iconMain: $('icon-main'),
+      btnStop: $('btn-stop'),
+      btnReset: $('btn-reset'),
+      btnSkip: $('btn-skip'),
+      btnPrev: $('btn-prev'),
+      btnSettings: $('btn-settings'),
+      btnFs: $('btn-fullscreen'),
+      btnSound: $('btn-sound'),
+      iconSound: $('icon-sound'),
+      modal: $('modal-backdrop'),
+      btnClose: $('btn-close-modal'),
+      btnSave: $('btn-save'),
+      btnTest: $('btn-test-sound'),
+      inClimbMin: $('in-climb-min'),
+      inClimbSec: $('in-climb-sec'),
+      inTrans: $('in-trans'),
+      inObsMin: $('in-obs-min'),
+      inObsSec: $('in-obs-sec'),
+      inCountdown: $('in-countdown'),
+      labCountdown: $('lab-countdown'),
+      labCountdown2: $('lab-countdown-2'),
+      countGrid: $('count-grid'),
+      tgObs: $('tg-observation'),
+      tgWake: $('tg-wake'),
+      tgSound: $('tg-sound'),
+      obsTimeWrap: $('obs-time-wrap'),
+      toast: $('toast'),
+    };
+
+    // ============ UTILITIES ============
+    function fmt(seconds) {
+      const s = Math.max(0, Math.ceil(seconds));
+      const m = Math.floor(s / 60);
+      const r = s % 60;
+      return `${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}`;
+    }
+
+    function phaseTotalDuration() {
+      if (runtime.phase === 'observation') return settings.observationDuration;
+      if (runtime.phase === 'climb') return settings.climbDuration;
+      if (runtime.phase === 'transition') return settings.transitionDuration;
+      return settings.climbDuration;
+    }
+
+    function phaseInfo(phase) {
+      switch (phase) {
+        case 'idle': return { label: 'Prêt', sub: 'Appuyer sur démarrer', color: 'var(--idle)' };
+        case 'observation': return { label: 'Observation', sub: `Observation des ${settings.numBoulders} blocs`, color: 'var(--observation)' };
+        case 'climb': return { label: 'En escalade', sub: `Bloc ${runtime.boulder} sur ${settings.numBoulders}`, color: 'var(--climb)' };
+        case 'transition': return { label: 'Transition', sub: `Vers le bloc ${runtime.boulder}`, color: 'var(--transition)' };
+        case 'finished': return { label: 'Terminé', sub: 'Tour complété', color: 'var(--finished)' };
+      }
+    }
+
+    function showToast(msg) {
+      els.toast.textContent = msg;
+      els.toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => els.toast.classList.remove('show'), 2200);
+    }
+
+    // ============ RENDER ============
+    function renderBoulders() {
+      const n = settings.numBoulders;
+      els.boulders.innerHTML = '';
+      for (let i = 1; i <= n; i++) {
+        const div = document.createElement('div');
+        div.className = 'boulder-pill';
+        let state = 'pending';
+        if (runtime.phase === 'finished') {
+          state = 'done';
+        } else if (i < runtime.boulder) {
+          state = 'done';
+        } else if (i === runtime.boulder && (runtime.phase === 'climb' || runtime.phase === 'transition')) {
+          state = 'current';
+        } else if (i === runtime.boulder && runtime.phase === 'observation') {
+          state = 'current';
+        }
+        div.dataset.state = state;
+        div.dataset.boulder = i;
+        div.innerHTML = `<span class="num"><span>${i}</span></span><span>Bloc ${i}</span>`;
+        div.addEventListener('click', () => jumpToBoulder(i));
+        els.boulders.appendChild(div);
+      }
+    }
+
+    function render() {
+      const info = phaseInfo(runtime.phase);
+      els.phaseChip.dataset.phase = runtime.phase;
+      els.phaseLabel.textContent = info.label;
+
+      els.metaRound.textContent = settings.roundLabel;
+      els.metaBoulder.textContent = runtime.boulder;
+      els.metaTotal.textContent = settings.numBoulders;
+      els.metaTotalTime.textContent = fmt(runtime.totalElapsed);
+
+      els.time.textContent = fmt(runtime.remaining);
+      els.timeLabel.textContent = info.label;
+      els.timeSub.textContent = info.sub;
+
+      // Color states
+      els.time.classList.remove('warn', 'final');
+      if (runtime.phase === 'climb' || runtime.phase === 'observation' || runtime.phase === 'transition') {
+        if (runtime.remaining <= settings.countdownSeconds && runtime.remaining > 0) {
+          els.time.classList.add('final');
+        } else if (runtime.phase === 'climb' && runtime.remaining <= 30) {
+          els.time.classList.add('warn');
+        }
+      }
+
+      // Ring
+      const total = phaseTotalDuration();
+      const ratio = total > 0 ? Math.max(0, Math.min(1, runtime.remaining / total)) : 0;
+      const C = 2 * Math.PI * 94;
+      els.ringFg.setAttribute('stroke-dasharray', C.toFixed(2));
+      els.ringFg.setAttribute('stroke-dashoffset', (C * (1 - ratio)).toFixed(2));
+      els.ringFg.style.stroke = info.color;
+
+      // Boulder pills
+      renderBoulders();
+
+      // Main button
+      if (runtime.phase === 'idle' || runtime.phase === 'finished') {
+        els.btnMain.dataset.mode = 'start';
+        els.labelMain.textContent = runtime.phase === 'finished' ? 'Recommencer' : 'Démarrer';
+        els.iconMain.innerHTML = '<polygon points="6 4 20 12 6 20 6 4"/>';
+      } else if (runtime.running) {
+        els.btnMain.dataset.mode = 'pause';
+        els.labelMain.textContent = 'Pause';
+        els.iconMain.innerHTML = '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>';
+      } else {
+        els.btnMain.dataset.mode = 'resume';
+        els.labelMain.textContent = 'Reprendre';
+        els.iconMain.innerHTML = '<polygon points="6 4 20 12 6 20 6 4"/>';
+      }
+
+      // Sound button icon
+      els.iconSound.innerHTML = settings.soundEnabled
+        ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>'
+        : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+    }
+
+    // ============ ROUND LOGIC ============
+    function startPhase(phase) {
+      runtime.phase = phase;
+      runtime.remaining = phaseTotalDuration();
+      lastBeepSecond = -1;
+      runtime.running = true;
+      tickStart = performance.now();
+      requestWakeLock();
+      // Phase start cue
+      if (phase === 'climb' || phase === 'observation') {
+        beepStart();
+      }
+      render();
+      scheduleTick();
+    }
+
+    function startRound() {
+      ensureAudio(); // user gesture
+      runtime.boulder = 1;
+      runtime.totalElapsed = 0;
+      if (settings.observationEnabled && settings.observationDuration > 0) {
+        startPhase('observation');
+      } else {
+        startPhase('climb');
+      }
+    }
+
+    function advancePhase() {
+      // End of current phase
+      if (runtime.phase === 'observation') {
+        // → climb 1
+        startPhase('climb');
+        return;
+      }
+      if (runtime.phase === 'climb') {
+        if (runtime.boulder >= settings.numBoulders) {
+          finishRound();
+        } else if (settings.transitionDuration > 0) {
+          runtime.boulder += 1;
+          startPhase('transition');
+        } else {
+          runtime.boulder += 1;
+          startPhase('climb');
+        }
+        return;
+      }
+      if (runtime.phase === 'transition') {
+        // → next climb
+        startPhase('climb');
+        // Transition→climb cue handled by startPhase
+        return;
+      }
+    }
+
+    function finishRound() {
+      runtime.phase = 'finished';
+      runtime.running = false;
+      runtime.remaining = 0;
+      cancelTick();
+      releaseWakeLock();
+      showToast('Tour complété 🎉');
+      render();
+    }
+
+    function jumpToBoulder(n) {
+      if (n < 1 || n > settings.numBoulders) return;
+      runtime.boulder = n;
+      runtime.phase = 'climb';
+      runtime.remaining = settings.climbDuration;
+      runtime.running = false;
+      cancelTick();
+      lastBeepSecond = -1;
+      render();
+    }
+
+    // ============ TIMER LOOP ============
+    function scheduleTick() {
+      cancelTick();
+      tickStart = performance.now();
+      const startRemaining = runtime.remaining;
+      const tick = (now) => {
+        if (!runtime.running) return;
+        const elapsed = (now - tickStart) / 1000;
+        const newRemaining = Math.max(0, startRemaining - elapsed);
+        const prevSec = Math.ceil(runtime.remaining);
+        runtime.remaining = newRemaining;
+        const curSec = Math.ceil(newRemaining);
+
+        // Countdown beeps
+        if (curSec !== prevSec && curSec > 0 && curSec <= settings.countdownSeconds) {
+          if (lastBeepSecond !== curSec) {
+            beepTick();
+            lastBeepSecond = curSec;
+          }
+        }
+
+        if (newRemaining <= 0.05) {
+          // Phase ended
+          runtime.remaining = 0;
+          runtime.running = false;
+          // End cue depends on phase
+          if (runtime.phase === 'observation') {
+            beepGo();          // observation done → go climb
+            setTimeout(advancePhase, 200);
+          } else if (runtime.phase === 'climb') {
+            beepEnd();         // climbing done → buzzer
+            setTimeout(advancePhase, 800);
+          } else if (runtime.phase === 'transition') {
+            beepStart();       // transition done → climb start
+            setTimeout(advancePhase, 200);
+          }
+          render();
+          return;
+        }
+        render();
+        rafId = requestAnimationFrame(tick);
+      };
+      rafId = requestAnimationFrame(tick);
+    }
+    function cancelTick() {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+
+    // Total elapsed tracking via interval (only during climb / transition)
+    setInterval(() => {
+      if (runtime.running && (runtime.phase === 'climb' || runtime.phase === 'transition')) {
+        runtime.totalElapsed += 0.25;
+      }
+    }, 250);
+
+    // ============ CONTROLS ============
+    function mainAction() {
+      ensureAudio();
+      const mode = els.btnMain.dataset.mode;
+      if (mode === 'start') {
+        if (runtime.phase === 'finished' || runtime.phase === 'idle') {
+          startRound();
+        }
+      } else if (mode === 'pause') {
+        runtime.running = false;
+        cancelTick();
+        showToast('Pause');
+        render();
+      } else if (mode === 'resume') {
+        runtime.running = true;
+        scheduleTick();
+        render();
+      }
+    }
+
+    function stopAction() {
+      // Reset current phase timer (back to its start)
+      cancelTick();
+      runtime.running = false;
+      runtime.remaining = phaseTotalDuration();
+      lastBeepSecond = -1;
+      showToast('Phase remise à zéro');
+      render();
+    }
+
+    function resetAction() {
+      cancelTick();
+      releaseWakeLock();
+      runtime = freshRuntime();
+      lastBeepSecond = -1;
+      showToast('Réinitialisé');
+      render();
+    }
+
+    function skipAction() {
+      cancelTick();
+      runtime.running = false;
+      if (runtime.phase === 'idle') return;
+      advancePhase();
+    }
+
+    function prevAction() {
+      if (runtime.boulder > 1) {
+        runtime.boulder -= 1;
+      }
+      runtime.phase = 'climb';
+      runtime.remaining = settings.climbDuration;
+      runtime.running = false;
+      cancelTick();
+      lastBeepSecond = -1;
+      render();
+    }
+
+    // ============ WAKE LOCK ============
+    async function requestWakeLock() {
+      if (!settings.wakeLockEnabled) return;
+      if (!('wakeLock' in navigator)) return;
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+      } catch {}
+    }
+    function releaseWakeLock() {
+      if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && runtime.running) requestWakeLock();
+    });
+
+    // ============ FULLSCREEN ============
+    function toggleFullscreen() {
+      const el = document.documentElement;
+      if (!document.fullscreenElement) {
+        el.requestFullscreen?.().catch(() => {});
+        document.body.classList.add('fullscreen');
+      } else {
+        document.exitFullscreen?.();
+        document.body.classList.remove('fullscreen');
+      }
+    }
+    document.addEventListener('fullscreenchange', () => {
+      document.body.classList.toggle('fullscreen', !!document.fullscreenElement);
+    });
+
+    // ============ SETTINGS MODAL ============
+    function openModal() {
+      // Populate
+      els.inClimbMin.value = Math.floor(settings.climbDuration / 60);
+      els.inClimbSec.value = settings.climbDuration % 60;
+      els.inTrans.value = settings.transitionDuration;
+      els.inObsMin.value = Math.floor(settings.observationDuration / 60);
+      els.inObsSec.value = settings.observationDuration % 60;
+      els.inCountdown.value = settings.countdownSeconds;
+      els.labCountdown.textContent = settings.countdownSeconds;
+      els.labCountdown2.textContent = settings.countdownSeconds;
+      els.tgObs.classList.toggle('on', settings.observationEnabled);
+      els.tgWake.classList.toggle('on', settings.wakeLockEnabled);
+      els.tgSound.classList.toggle('on', settings.soundEnabled);
+      els.obsTimeWrap.style.display = settings.observationEnabled ? 'block' : 'none';
+      document.querySelectorAll('.count-btn').forEach(b => {
+        b.classList.toggle('active', parseInt(b.dataset.count) === settings.numBoulders);
+      });
+      // Preset highlight
+      let active = '';
+      if (settings.climbDuration === 240 && settings.transitionDuration === 15 && settings.observationEnabled) active = 'flash';
+      else if (settings.climbDuration === 300 && settings.transitionDuration === 15 && !settings.observationEnabled) active = 'onsight';
+      document.querySelectorAll('.preset-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.preset === active);
+      });
+
+      els.modal.classList.add('open');
+    }
+
+    function closeModal() { els.modal.classList.remove('open'); }
+
+    function saveModal() {
+      const climbMin = parseInt(els.inClimbMin.value) || 0;
+      const climbSec = parseInt(els.inClimbSec.value) || 0;
+      const obsMin = parseInt(els.inObsMin.value) || 0;
+      const obsSec = parseInt(els.inObsSec.value) || 0;
+      settings.climbDuration = Math.max(5, climbMin * 60 + climbSec);
+      settings.transitionDuration = Math.max(0, parseInt(els.inTrans.value) || 0);
+      settings.observationDuration = Math.max(0, obsMin * 60 + obsSec);
+      settings.observationEnabled = els.tgObs.classList.contains('on');
+      settings.wakeLockEnabled = els.tgWake.classList.contains('on');
+      settings.soundEnabled = els.tgSound.classList.contains('on');
+      settings.countdownSeconds = parseInt(els.inCountdown.value);
+      saveSettings();
+      // Reset runtime to apply new durations
+      if (runtime.phase === 'idle' || runtime.phase === 'finished') {
+        runtime = freshRuntime();
+      }
+      closeModal();
+      showToast('Paramètres enregistrés');
+      render();
+    }
+
+    function applyPreset(name) {
+      const p = PRESETS[name];
+      if (!p) return;
+      settings.climbDuration = p.climb;
+      settings.transitionDuration = p.transition;
+      settings.observationDuration = p.observation;
+      settings.observationEnabled = p.observationOn;
+      settings.roundLabel = p.label;
+      // Update UI
+      els.inClimbMin.value = Math.floor(p.climb / 60);
+      els.inClimbSec.value = p.climb % 60;
+      els.inTrans.value = p.transition;
+      els.inObsMin.value = Math.floor(p.observation / 60);
+      els.inObsSec.value = p.observation % 60;
+      els.tgObs.classList.toggle('on', p.observationOn);
+      els.obsTimeWrap.style.display = p.observationOn ? 'block' : 'none';
+      document.querySelectorAll('.preset-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.preset === name);
+      });
+    }
+
+    function stepValue(input, delta, min, max) {
+      let v = parseInt(input.value) || 0;
+      v = Math.min(max, Math.max(min, v + delta));
+      input.value = v;
+    }
+
+    // ============ TEST SOUND ============
+    async function testSounds() {
+      ensureAudio();
+      showToast('Test sonore en cours…');
+      beepStart();
+      await wait(900);
+      // 3-2-1 ticks
+      for (let i = 3; i >= 1; i--) {
+        beepTick();
+        await wait(700);
+      }
+      beepEnd();
+    }
+    function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    // ============ EVENT BINDINGS ============
+    els.btnMain.addEventListener('click', mainAction);
+    els.btnStop.addEventListener('click', stopAction);
+    els.btnReset.addEventListener('click', resetAction);
+    els.btnSkip.addEventListener('click', skipAction);
+    els.btnPrev.addEventListener('click', prevAction);
+    els.btnSettings.addEventListener('click', openModal);
+    els.btnFs.addEventListener('click', toggleFullscreen);
+    els.btnSound.addEventListener('click', () => {
+      settings.soundEnabled = !settings.soundEnabled;
+      els.tgSound.classList.toggle('on', settings.soundEnabled);
+      saveSettings();
+      showToast(settings.soundEnabled ? 'Son activé' : 'Son coupé');
+      render();
+    });
+    els.btnClose.addEventListener('click', closeModal);
+    els.btnSave.addEventListener('click', saveModal);
+    els.btnTest.addEventListener('click', testSounds);
+    els.modal.addEventListener('click', (e) => { if (e.target === els.modal) closeModal(); });
+
+    // Presets
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
+    });
+
+    // Count
+    document.querySelectorAll('.count-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        settings.numBoulders = parseInt(btn.dataset.count);
+      });
+    });
+
+    // Steppers
+    document.querySelectorAll('.stepper').forEach(s => {
+      s.addEventListener('click', () => {
+        const a = s.dataset.action;
+        if (a === 'dec-climb-min') stepValue(els.inClimbMin, -1, 0, 20);
+        if (a === 'inc-climb-min') stepValue(els.inClimbMin, 1, 0, 20);
+        if (a === 'dec-climb-sec') stepValue(els.inClimbSec, -5, 0, 59);
+        if (a === 'inc-climb-sec') stepValue(els.inClimbSec, 5, 0, 59);
+        if (a === 'dec-trans') stepValue(els.inTrans, -5, 0, 120);
+        if (a === 'inc-trans') stepValue(els.inTrans, 5, 0, 120);
+        if (a === 'dec-obs-min') stepValue(els.inObsMin, -1, 0, 20);
+        if (a === 'inc-obs-min') stepValue(els.inObsMin, 1, 0, 20);
+        if (a === 'dec-obs-sec') stepValue(els.inObsSec, -5, 0, 59);
+        if (a === 'inc-obs-sec') stepValue(els.inObsSec, 5, 0, 59);
+      });
+    });
+
+    // Toggles
+    els.tgObs.addEventListener('click', () => {
+      els.tgObs.classList.toggle('on');
+      els.obsTimeWrap.style.display = els.tgObs.classList.contains('on') ? 'block' : 'none';
+    });
+    els.tgWake.addEventListener('click', () => els.tgWake.classList.toggle('on'));
+    els.tgSound.addEventListener('click', () => els.tgSound.classList.toggle('on'));
+
+    // Countdown slider
+    els.inCountdown.addEventListener('input', (e) => {
+      els.labCountdown.textContent = e.target.value;
+      els.labCountdown2.textContent = e.target.value;
+    });
+
+    // ============ KEYBOARD ============
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT') return;
+      if (els.modal.classList.contains('open')) {
+        if (e.key === 'Escape') closeModal();
+        return;
+      }
+      if (e.code === 'Space') { e.preventDefault(); mainAction(); }
+      else if (e.key === 's' || e.key === 'S') stopAction();
+      else if (e.key === 'r' || e.key === 'R') resetAction();
+      else if (e.key === 'n' || e.key === 'N') skipAction();
+      else if (e.key === 'p' || e.key === 'P') prevAction();
+      else if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+      else if (e.key === 'm' || e.key === 'M') els.btnSound.click();
+    });
+
+    // ============ INIT ============
+    render();
+    // Show shortcut hint if not used in 8s
+    setTimeout(() => {
+      if (runtime.phase === 'idle') showToast('Astuce : barre espace = démarrer / pause');
+    }, 3500);
+  })();
+  </script>
+</body>
+</html>
