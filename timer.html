@@ -1300,6 +1300,7 @@
         remaining: settings.climbDuration,
         totalElapsed: 0,
         countdownFullTriggered: false,
+        startedWithTransition: false,
       };
     }
 
@@ -1644,7 +1645,14 @@
       ensureAudio(); // user gesture
       runtime.boulder = 1;
       runtime.totalElapsed = 0;
-      if (settings.observationEnabled && settings.observationDuration > 0) {
+      runtime.startedWithTransition = false;
+      // Always begin a round with the transition (walk-up / preparation
+      // time). If transition is disabled (=0), fall back to the original
+      // observation-or-climb start.
+      if (settings.transitionDuration > 0) {
+        runtime.startedWithTransition = true;
+        startPhase('transition');
+      } else if (settings.observationEnabled && settings.observationDuration > 0) {
         startPhase('observation');
       } else {
         startPhase('climb');
@@ -1671,9 +1679,16 @@
         return;
       }
       if (runtime.phase === 'transition') {
-        // → next climb
-        startPhase('climb');
-        // Transition→climb cue handled by startPhase
+        // The very first transition of a round can lead into observation
+        // (finals format). Otherwise it always advances to the next climb.
+        if (runtime.startedWithTransition
+            && settings.observationEnabled
+            && settings.observationDuration > 0) {
+          runtime.startedWithTransition = false;
+          startPhase('observation');
+        } else {
+          startPhase('climb');
+        }
         return;
       }
     }
