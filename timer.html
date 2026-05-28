@@ -8,10 +8,10 @@
   <title>Boulder Timer · IFSC</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
 
   <style>
-    :root {
+    :root, [data-theme="dark"] {
       --bg: #07090f;
       --bg-2: #0d1220;
       --panel: rgba(20, 25, 40, 0.7);
@@ -33,11 +33,49 @@
       --transition: #fb923c;
       --finished: #22c55e;
 
+      --bg-gradient-1: radial-gradient(1200px 600px at 20% -10%, rgba(124, 92, 255, 0.18), transparent 60%);
+      --bg-gradient-2: radial-gradient(900px 600px at 110% 20%, rgba(94, 182, 255, 0.14), transparent 60%);
+      --bg-gradient-3: radial-gradient(800px 500px at 50% 120%, rgba(34, 197, 94, 0.06), transparent 60%);
+      --grain-opacity: 0.035;
+      --grain-blend: overlay;
+
       --shadow-1: 0 1px 0 rgba(255,255,255,0.05) inset, 0 12px 32px -12px rgba(0,0,0,0.65);
       --shadow-2: 0 20px 60px -20px rgba(0,0,0,0.8);
 
       --radius: 16px;
       --radius-sm: 10px;
+    }
+
+    [data-theme="light"] {
+      --bg: #f6f4ef;
+      --bg-2: #ffffff;
+      --panel: rgba(255, 255, 255, 0.85);
+      --panel-2: #ffffff;
+      --border: rgba(15, 18, 28, 0.08);
+      --border-strong: rgba(15, 18, 28, 0.16);
+      --text: #0a0e1a;
+      --text-dim: #4b5160;
+      --text-mute: #8a8f9b;
+
+      --accent: #1f6feb;
+      --accent-2: #5a3df0;
+
+      --idle: #8a8f9b;
+      --observation: #8b5cf6;
+      --climb: #1f6feb;
+      --climb-warn: #d97706;
+      --climb-final: #dc2626;
+      --transition: #ea7c1f;
+      --finished: #16a34a;
+
+      --bg-gradient-1: none;
+      --bg-gradient-2: none;
+      --bg-gradient-3: none;
+      --grain-opacity: 0;
+      --grain-blend: normal;
+
+      --shadow-1: 0 1px 0 rgba(255,255,255,0.6) inset, 0 8px 24px -10px rgba(15,18,28,0.10);
+      --shadow-2: 0 20px 60px -20px rgba(15,18,28,0.18);
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -48,21 +86,22 @@
       color: var(--text);
       background: var(--bg);
       background-image:
-        radial-gradient(1200px 600px at 20% -10%, rgba(124, 92, 255, 0.18), transparent 60%),
-        radial-gradient(900px 600px at 110% 20%, rgba(94, 182, 255, 0.14), transparent 60%),
-        radial-gradient(800px 500px at 50% 120%, rgba(34, 197, 94, 0.06), transparent 60%);
+        var(--bg-gradient-1, none),
+        var(--bg-gradient-2, none),
+        var(--bg-gradient-3, none);
       overflow-x: hidden;
       letter-spacing: -0.01em;
       -webkit-font-smoothing: antialiased;
       user-select: none;
+      transition: background-color .3s, color .3s;
     }
 
     .grain {
       pointer-events: none;
       position: fixed; inset: 0; z-index: 0;
-      opacity: 0.035;
+      opacity: var(--grain-opacity, 0.035);
       background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.85'/></svg>");
-      mix-blend-mode: overlay;
+      mix-blend-mode: var(--grain-blend, overlay);
     }
 
     .app {
@@ -133,6 +172,25 @@
     }
     .icon-btn:hover { background: var(--panel-2); border-color: var(--border-strong); }
     .icon-btn:active { transform: scale(0.96); }
+
+    .lang-pill {
+      height: 40px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-strong);
+      background: var(--panel);
+      color: var(--text);
+      font: 600 13px/1 'Inter', sans-serif;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .15s, border-color .15s, transform .1s;
+      backdrop-filter: blur(8px);
+    }
+    .lang-pill:hover { background: var(--panel-2); border-color: var(--border-strong); }
+    .lang-pill:active { transform: scale(0.96); }
 
     /* ====== STAGE ====== */
     main.stage {
@@ -226,18 +284,19 @@
       font-weight: 600;
     }
     .time {
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 800;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-weight: 900;
       font-variant-numeric: tabular-nums;
-      font-size: clamp(140px, 32vw, 520px);
-      line-height: 0.95;
+      font-stretch: 75%;
+      font-size: clamp(140px, 34vw, 560px);
+      line-height: 0.9;
       color: var(--text);
-      letter-spacing: -0.05em;
-      text-shadow: 0 0 60px var(--phase-color, transparent);
-      transition: color .25s, text-shadow .25s, transform .1s, opacity .1s;
+      letter-spacing: -0.07em;
+      transition: color .25s, transform .1s, opacity .1s;
       cursor: pointer;
     }
     .time:active { transform: scale(0.97); opacity: 0.8; }
+    [data-theme="dark"] .time { text-shadow: 0 0 60px var(--phase-color, transparent); }
     .time.warn { color: var(--climb-warn); }
     .time.final {
       color: var(--climb-final);
@@ -733,18 +792,26 @@
         </div>
         <div class="brand-text">
           <div class="brand-title">Boulder Timer</div>
-          <div class="brand-sub">Compétition · IFSC format</div>
+          <div class="brand-sub" data-i18n="brand_subtitle">Compétition · IFSC format</div>
         </div>
       </div>
       <div class="top-actions">
-        <button class="icon-btn" id="btn-sound" title="Activer / couper le son">
+        <button class="lang-pill" id="btn-lang" title="Language / Langue" aria-label="Toggle language">
+          <span id="lang-current">FR</span>
+        </button>
+        <button class="icon-btn" id="btn-theme" title="Theme" aria-label="Toggle theme">
+          <svg id="icon-theme" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Filled in by JS depending on theme -->
+          </svg>
+        </button>
+        <button class="icon-btn" id="btn-sound" data-i18n-title="sound_button_title" title="Activer / couper le son">
           <svg id="icon-sound" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
             <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
             <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
           </svg>
         </button>
-        <button class="icon-btn" id="btn-fullscreen" title="Plein écran">
+        <button class="icon-btn" id="btn-fullscreen" data-i18n-title="fullscreen_button_title" title="Plein écran">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 9V5a2 2 0 0 1 2-2h4"/>
             <path d="M21 9V5a2 2 0 0 0-2-2h-4"/>
@@ -752,7 +819,7 @@
             <path d="M21 15v4a2 2 0 0 1-2 2h-4"/>
           </svg>
         </button>
-        <button class="icon-btn" id="btn-settings" title="Paramètres">
+        <button class="icon-btn" id="btn-settings" data-i18n-title="settings_button_title" title="Paramètres">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"/>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
@@ -770,9 +837,9 @@
         <div class="round-meta">
           <span><strong id="meta-round">Finales</strong></span>
           <span class="sep"></span>
-          <span>Bloc <strong id="meta-boulder">1</strong> / <strong id="meta-total">4</strong></span>
+          <span><span data-i18n="meta_boulder">Bloc</span> <strong id="meta-boulder">1</strong> / <strong id="meta-total">4</strong></span>
           <span class="sep"></span>
-          <span>Total <strong id="meta-total-time">00:00</strong></span>
+          <span><span data-i18n="meta_total">Total</span> <strong id="meta-total-time">00:00</strong></span>
         </div>
       </div>
 
@@ -794,24 +861,24 @@
       <div class="boulders" id="boulders"></div>
 
       <div class="shortcuts" id="shortcuts">
-        <span><span class="kbd">Espace</span> Démarrer / Pause</span>
-        <span><span class="kbd">S</span> Stop</span>
-        <span><span class="kbd">R</span> Réinitialiser</span>
-        <span><span class="kbd">N</span> Bloc suivant</span>
-        <span><span class="kbd">F</span> Plein écran</span>
+        <span><span class="kbd" data-i18n="kbd_space">Espace</span> <span data-i18n="shortcut_start_pause">Démarrer / Pause</span></span>
+        <span><span class="kbd">S</span> <span data-i18n="shortcut_stop">Stop</span></span>
+        <span><span class="kbd">R</span> <span data-i18n="shortcut_reset">Réinitialiser</span></span>
+        <span><span class="kbd">N</span> <span data-i18n="shortcut_next_boulder">Bloc suivant</span></span>
+        <span><span class="kbd">F</span> <span data-i18n="shortcut_fullscreen">Plein écran</span></span>
       </div>
     </main>
 
     <!-- ============ CONTROLS ============ -->
     <div class="controls">
       <div class="ctrl-grp">
-        <button class="btn btn-ghost btn-icon-only" id="btn-prev" title="Bloc précédent">
+        <button class="btn btn-ghost btn-icon-only" id="btn-prev" data-i18n-title="prev_button_title" title="Bloc précédent">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="11 17 6 12 11 7"/>
             <polyline points="18 17 13 12 18 7"/>
           </svg>
         </button>
-        <button class="btn btn-ghost btn-icon-only" id="btn-skip" title="Phase suivante">
+        <button class="btn btn-ghost btn-icon-only" id="btn-skip" data-i18n-title="skip_button_title" title="Phase suivante">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="5 4 15 12 5 20 5 4"/>
             <line x1="19" y1="5" x2="19" y2="19"/>
@@ -827,12 +894,12 @@
       </button>
 
       <div class="ctrl-grp">
-        <button class="btn btn-ghost btn-icon-only" id="btn-stop" title="Stop">
+        <button class="btn btn-ghost btn-icon-only" id="btn-stop" data-i18n-title="stop_button_title" title="Stop">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none">
             <rect x="6" y="6" width="12" height="12" rx="2"/>
           </svg>
         </button>
-        <button class="btn btn-ghost btn-icon-only btn-danger" id="btn-reset" title="Réinitialiser tout">
+        <button class="btn btn-ghost btn-icon-only btn-danger" id="btn-reset" data-i18n-title="reset_button_title" title="Réinitialiser tout">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="1 4 1 10 7 10"/>
             <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
@@ -846,8 +913,8 @@
   <div class="modal-backdrop" id="modal-backdrop">
     <div class="modal" role="dialog" aria-labelledby="modal-title">
       <div class="modal-head">
-        <h2 id="modal-title">Paramètres</h2>
-        <button class="icon-btn" id="btn-close-modal" title="Fermer">
+        <h2 id="modal-title" data-i18n="settings_modal_title">Paramètres</h2>
+        <button class="icon-btn" id="btn-close-modal" data-i18n-title="close_modal_title" title="Fermer">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"/>
             <line x1="6" y1="6" x2="18" y2="18"/>
@@ -856,33 +923,33 @@
       </div>
 
       <section>
-        <span class="modal-label">Format de la ronde</span>
+        <span class="modal-label" data-i18n="settings_round_format">Format de la ronde</span>
         <div class="preset-grid">
           <button class="preset-btn" data-preset="qualif-vue">
-            <div class="preset-title">Qualification à vue</div>
+            <div class="preset-title" data-i18n="preset_onsite">Qualification à vue</div>
             <div class="preset-detail">5:00 · 15s · ∞</div>
           </button>
           <button class="preset-btn" data-preset="qualif-flash">
-            <div class="preset-title">Qualification flash</div>
+            <div class="preset-title" data-i18n="preset_flash">Qualification flash</div>
             <div class="preset-detail">4:00 · 15s · ∞</div>
           </button>
           <button class="preset-btn" data-preset="demi-finales">
-            <div class="preset-title">Demi-finales</div>
+            <div class="preset-title" data-i18n="preset_semifinals">Demi-finales</div>
             <div class="preset-detail">5:00 · 15s · ∞</div>
           </button>
           <button class="preset-btn" data-preset="finale">
-            <div class="preset-title">Finale</div>
+            <div class="preset-title" data-i18n="preset_final">Finale</div>
             <div class="preset-detail">4:00 · 15s · ∞</div>
           </button>
           <button class="preset-btn" data-preset="observation">
-            <div class="preset-title">Observation</div>
-            <div class="preset-detail">3:00 · 30s · 4 blocs</div>
+            <div class="preset-title" data-i18n="preset_observation">Observation</div>
+            <div class="preset-detail" data-i18n="preset_observation_detail">3:00 · 30s · 4 blocs</div>
           </button>
         </div>
       </section>
 
       <section>
-        <span class="modal-label">Temps d'escalade</span>
+        <span class="modal-label" data-i18n="settings_climb_time">Temps d'escalade</span>
         <div class="input-row">
           <div class="num-input-grp">
             <button class="stepper" data-action="dec-climb-min">−</button>
@@ -898,19 +965,19 @@
       </section>
 
       <section>
-        <span class="modal-label">Transition entre les blocs</span>
+        <span class="modal-label" data-i18n="settings_transition">Transition entre les blocs</span>
         <div class="input-row">
           <div class="num-input-grp">
             <button class="stepper" data-action="dec-trans">−</button>
             <input class="num-input" id="in-trans" type="number" min="0" max="120" value="15">
             <button class="stepper" data-action="inc-trans">+</button>
-            <span class="num-unit">sec</span>
+            <span class="num-unit" data-i18n="unit_sec">sec</span>
           </div>
         </div>
       </section>
 
       <section>
-        <span class="modal-label">Nombre de blocs</span>
+        <span class="modal-label" data-i18n="settings_num_boulders">Nombre de blocs</span>
         <div class="count-grid" id="count-grid">
           <button class="count-btn" data-count="1">1</button>
           <button class="count-btn" data-count="2">2</button>
@@ -922,20 +989,20 @@
           <button class="count-btn" data-count="8">8</button>
           <button class="count-btn" data-count="9">9</button>
           <button class="count-btn" data-count="10">10</button>
-          <button class="count-btn count-btn-inf" data-count="inf" title="Illimité">∞ Illimité</button>
+          <button class="count-btn count-btn-inf" data-count="inf" data-i18n="btn_infinite" data-i18n-title="btn_infinite_title" title="Illimité">∞ Illimité</button>
         </div>
       </section>
 
       <section>
         <div class="toggle-row">
           <div>
-            <div class="label">Période d'observation</div>
-            <div class="hint">Décompte avant le 1er bloc (finales).</div>
+            <div class="label" data-i18n="settings_observation_period">Période d'observation</div>
+            <div class="hint" data-i18n="settings_observation_hint">Décompte avant le 1er bloc (finales).</div>
           </div>
           <div class="toggle" id="tg-observation"></div>
         </div>
         <div id="obs-time-wrap" style="display:none;">
-          <span class="modal-label">Durée d'observation</span>
+          <span class="modal-label" data-i18n="settings_observation_duration">Durée d'observation</span>
           <div class="num-input-grp">
             <button class="stepper" data-action="dec-obs-min">−</button>
             <input class="num-input" id="in-obs-min" type="number" min="0" max="20" value="2">
@@ -950,28 +1017,28 @@
       </section>
 
       <section>
-        <span class="modal-label">Décompte sonore final</span>
+        <span class="modal-label" data-i18n="settings_final_countdown">Décompte sonore final</span>
         <div class="slider-row">
           <input type="range" id="in-countdown" min="0" max="10" step="1" value="5">
           <span class="slider-val"><span id="lab-countdown">5</span>s</span>
         </div>
-        <div class="hint" style="font-size:12px;color:var(--text-dim);margin-top:6px;">
-          Bips pendant les <strong id="lab-countdown-2">5</strong> dernières secondes de chaque phase.
+        <div class="hint" style="font-size:12px;color:var(--text-dim);margin-top:6px;" id="hint-countdown">
+          <span data-i18n="settings_countdown_hint_a">Bips pendant les</span> <strong id="lab-countdown-2">5</strong> <span data-i18n="settings_countdown_hint_b">dernières secondes de chaque phase.</span>
         </div>
       </section>
 
       <section>
         <div class="toggle-row">
           <div>
-            <div class="label">Garder l'écran allumé</div>
-            <div class="hint">Empêche la mise en veille pendant l'épreuve.</div>
+            <div class="label" data-i18n="settings_keep_screen_on">Garder l'écran allumé</div>
+            <div class="hint" data-i18n="settings_keep_screen_hint">Empêche la mise en veille pendant l'épreuve.</div>
           </div>
           <div class="toggle on" id="tg-wake"></div>
         </div>
         <div class="toggle-row">
           <div>
-            <div class="label">Sons activés</div>
-            <div class="hint">Bips de décompte et signaux de phase.</div>
+            <div class="label" data-i18n="settings_sounds_enabled">Sons activés</div>
+            <div class="hint" data-i18n="settings_sounds_hint">Bips de décompte et signaux de phase.</div>
           </div>
           <div class="toggle on" id="tg-sound"></div>
         </div>
@@ -983,9 +1050,9 @@
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
             <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
           </svg>
-          Tester les sons
+          <span data-i18n="btn_test_sound">Tester les sons</span>
         </button>
-        <button class="btn btn-primary" id="btn-save" style="flex:1;">Enregistrer</button>
+        <button class="btn btn-primary" id="btn-save" style="flex:1;" data-i18n="btn_save">Enregistrer</button>
       </div>
     </div>
   </div>
@@ -998,12 +1065,159 @@
 
     // ============ STATE ============
     const PRESETS = {
-      'qualif-vue':   { climb: 300, transition: 15, observation: 0, observationOn: false, numBoulders: Infinity, label: 'Qualification à vue' },
-      'qualif-flash': { climb: 240, transition: 15, observation: 0, observationOn: false, numBoulders: Infinity, label: 'Qualification flash' },
-      'demi-finales': { climb: 300, transition: 15, observation: 0, observationOn: false, numBoulders: Infinity, label: 'Demi-finales' },
-      'finale':       { climb: 240, transition: 15, observation: 0, observationOn: false, numBoulders: Infinity, label: 'Finale' },
-      'observation':  { climb: 180, transition: 30, observation: 0, observationOn: false, numBoulders: 4,        label: 'Observation' },
+      'qualif-vue':   { climb: 300, transition: 15, observation: 0, observationOn: false, numBoulders: Infinity, labelKey: 'preset_onsite' },
+      'qualif-flash': { climb: 240, transition: 15, observation: 0, observationOn: false, numBoulders: Infinity, labelKey: 'preset_flash' },
+      'demi-finales': { climb: 300, transition: 15, observation: 0, observationOn: false, numBoulders: Infinity, labelKey: 'preset_semifinals' },
+      'finale':       { climb: 240, transition: 15, observation: 0, observationOn: false, numBoulders: Infinity, labelKey: 'preset_final' },
+      'observation':  { climb: 180, transition: 30, observation: 0, observationOn: false, numBoulders: 4,        labelKey: 'preset_observation' },
     };
+
+    const I18N = {
+      fr: {
+        brand_subtitle: 'Compétition · IFSC format',
+        sound_button_title: 'Activer / couper le son',
+        fullscreen_button_title: 'Plein écran',
+        settings_button_title: 'Paramètres',
+        settings_modal_title: 'Paramètres',
+        close_modal_title: 'Fermer',
+        meta_boulder: 'Bloc',
+        meta_total: 'Total',
+        kbd_space: 'Espace',
+        shortcut_start_pause: 'Démarrer / Pause',
+        shortcut_stop: 'Stop',
+        shortcut_reset: 'Réinitialiser',
+        shortcut_next_boulder: 'Bloc suivant',
+        shortcut_fullscreen: 'Plein écran',
+        prev_button_title: 'Bloc précédent',
+        skip_button_title: 'Phase suivante',
+        stop_button_title: 'Stop',
+        reset_button_title: 'Réinitialiser tout',
+        settings_round_format: 'Format de la ronde',
+        preset_onsite: 'Qualification à vue',
+        preset_flash: 'Qualification flash',
+        preset_semifinals: 'Demi-finales',
+        preset_final: 'Finale',
+        preset_observation: 'Observation',
+        preset_observation_detail: '3:00 · 30s · 4 blocs',
+        settings_climb_time: "Temps d'escalade",
+        settings_transition: 'Transition entre les blocs',
+        unit_sec: 'sec',
+        settings_num_boulders: 'Nombre de blocs',
+        btn_infinite: '∞ Illimité',
+        btn_infinite_title: 'Illimité',
+        settings_observation_period: "Période d'observation",
+        settings_observation_hint: 'Décompte avant le 1er bloc (finales).',
+        settings_observation_duration: "Durée d'observation",
+        settings_final_countdown: 'Décompte sonore final',
+        settings_countdown_hint_a: 'Bips pendant les',
+        settings_countdown_hint_b: 'dernières secondes de chaque phase.',
+        settings_keep_screen_on: "Garder l'écran allumé",
+        settings_keep_screen_hint: "Empêche la mise en veille pendant l'épreuve.",
+        settings_sounds_enabled: 'Sons activés',
+        settings_sounds_hint: 'Bips de décompte et signaux de phase.',
+        btn_test_sound: 'Tester les sons',
+        btn_save: 'Enregistrer',
+        phase_idle: 'Prêt',
+        phase_idle_sub: 'Appuyer sur démarrer',
+        phase_observation: 'Observation',
+        phase_observation_sub: 'Observation des {total} blocs',
+        phase_observation_sub_inf: 'Observation',
+        phase_climb: 'En escalade',
+        phase_climb_sub: 'Bloc {boulder} sur {total}',
+        phase_transition: 'Transition',
+        phase_transition_sub: 'Vers le bloc {boulder}',
+        phase_finished: 'Terminé',
+        phase_finished_sub: 'Tour complété',
+        time_label_idle: 'En attente',
+        time_sub_idle: 'Appuyer sur démarrer',
+        btn_start: 'Démarrer',
+        btn_pause: 'Pause',
+        btn_resume: 'Reprendre',
+        btn_restart: 'Recommencer',
+        toast_pause: 'Pause',
+        toast_phase_reset: 'Phase remise à zéro',
+        toast_reset: 'Réinitialisé',
+        toast_round_complete: 'Tour complété 🎉',
+        toast_settings_saved: 'Paramètres enregistrés',
+        toast_sound_enabled: 'Son activé',
+        toast_sound_disabled: 'Son coupé',
+        toast_sound_test: 'Test sonore en cours…',
+        toast_hint_spacebar: 'Astuce : barre espace = démarrer / pause',
+      },
+      en: {
+        brand_subtitle: 'Competition · IFSC format',
+        sound_button_title: 'Enable / mute sound',
+        fullscreen_button_title: 'Fullscreen',
+        settings_button_title: 'Settings',
+        settings_modal_title: 'Settings',
+        close_modal_title: 'Close',
+        meta_boulder: 'Boulder',
+        meta_total: 'Total',
+        kbd_space: 'Space',
+        shortcut_start_pause: 'Start / Pause',
+        shortcut_stop: 'Stop',
+        shortcut_reset: 'Reset',
+        shortcut_next_boulder: 'Next boulder',
+        shortcut_fullscreen: 'Fullscreen',
+        prev_button_title: 'Previous boulder',
+        skip_button_title: 'Next phase',
+        stop_button_title: 'Stop',
+        reset_button_title: 'Reset all',
+        settings_round_format: 'Round format',
+        preset_onsite: 'On-sight qualification',
+        preset_flash: 'Flash qualification',
+        preset_semifinals: 'Semi-finals',
+        preset_final: 'Final',
+        preset_observation: 'Observation',
+        preset_observation_detail: '3:00 · 30s · 4 boulders',
+        settings_climb_time: 'Climb time',
+        settings_transition: 'Transition between boulders',
+        unit_sec: 'sec',
+        settings_num_boulders: 'Number of boulders',
+        btn_infinite: '∞ Unlimited',
+        btn_infinite_title: 'Unlimited',
+        settings_observation_period: 'Observation period',
+        settings_observation_hint: 'Countdown before the first boulder (finals).',
+        settings_observation_duration: 'Observation duration',
+        settings_final_countdown: 'Final countdown beep',
+        settings_countdown_hint_a: 'Beeps during the last',
+        settings_countdown_hint_b: 'seconds of each phase.',
+        settings_keep_screen_on: 'Keep screen on',
+        settings_keep_screen_hint: 'Prevents the device from sleeping during the round.',
+        settings_sounds_enabled: 'Sounds enabled',
+        settings_sounds_hint: 'Countdown beeps and phase signals.',
+        btn_test_sound: 'Test sounds',
+        btn_save: 'Save',
+        phase_idle: 'Ready',
+        phase_idle_sub: 'Press start',
+        phase_observation: 'Observation',
+        phase_observation_sub: 'Observing {total} boulders',
+        phase_observation_sub_inf: 'Observation',
+        phase_climb: 'On the wall',
+        phase_climb_sub: 'Boulder {boulder} of {total}',
+        phase_transition: 'Transition',
+        phase_transition_sub: 'Moving to boulder {boulder}',
+        phase_finished: 'Finished',
+        phase_finished_sub: 'Round completed',
+        time_label_idle: 'Waiting',
+        time_sub_idle: 'Press start',
+        btn_start: 'Start',
+        btn_pause: 'Pause',
+        btn_resume: 'Resume',
+        btn_restart: 'Restart',
+        toast_pause: 'Pause',
+        toast_phase_reset: 'Phase reset',
+        toast_reset: 'Reset',
+        toast_round_complete: 'Round completed 🎉',
+        toast_settings_saved: 'Settings saved',
+        toast_sound_enabled: 'Sound on',
+        toast_sound_disabled: 'Sound muted',
+        toast_sound_test: 'Sound test in progress…',
+        toast_hint_spacebar: 'Tip: spacebar = start / pause',
+      },
+    };
+
+    const browserPrefersFr = (navigator.language || 'fr').toLowerCase().startsWith('fr');
 
     const DEFAULTS = {
       climbDuration: 240,
@@ -1014,8 +1228,21 @@
       countdownSeconds: 5,
       soundEnabled: true,
       wakeLockEnabled: true,
-      roundLabel: 'Finales',
+      roundLabelKey: 'preset_final',
+      language: browserPrefersFr ? 'fr' : 'en',
+      theme: 'auto',
     };
+
+    function t(key, params) {
+      const lang = (settings && settings.language) || (browserPrefersFr ? 'fr' : 'en');
+      let s = (I18N[lang] && I18N[lang][key]) || I18N.fr[key] || key;
+      if (params) {
+        for (const k in params) {
+          s = s.replace(new RegExp('\\{' + k + '\\}', 'g'), params[k]);
+        }
+      }
+      return s;
+    }
 
     let settings = loadSettings();
     let runtime = freshRuntime();
@@ -1030,6 +1257,20 @@
       try {
         const s = JSON.parse(localStorage.getItem('boulderTimer.settings') || '{}');
         if (s.numBoulders === 'inf') s.numBoulders = Infinity;
+        // Migrate legacy roundLabel (free-form string) → roundLabelKey
+        if (!s.roundLabelKey && s.roundLabel) {
+          const legacyMap = {
+            'Finales': 'preset_final',
+            'Finale': 'preset_final',
+            'Semi-finales': 'preset_semifinals',
+            'Demi-finales': 'preset_semifinals',
+            'Qualification à vue': 'preset_onsite',
+            'Qualification flash': 'preset_flash',
+            'Observation': 'preset_observation',
+          };
+          s.roundLabelKey = legacyMap[s.roundLabel] || 'preset_final';
+          delete s.roundLabel;
+        }
         return { ...DEFAULTS, ...s };
       } catch { return { ...DEFAULTS }; }
     }
@@ -1123,6 +1364,10 @@
       btnClose: $('btn-close-modal'),
       btnSave: $('btn-save'),
       btnTest: $('btn-test-sound'),
+      btnLang: $('btn-lang'),
+      langCurrent: $('lang-current'),
+      btnTheme: $('btn-theme'),
+      iconTheme: $('icon-theme'),
       inClimbMin: $('in-climb-min'),
       inClimbSec: $('in-climb-sec'),
       inTrans: $('in-trans'),
@@ -1160,12 +1405,13 @@
 
     function phaseInfo(phase) {
       const total = totalLabel();
+      const isInf = settings.numBoulders === Infinity;
       switch (phase) {
-        case 'idle': return { label: 'Prêt', sub: 'Appuyer sur démarrer', color: 'var(--idle)' };
-        case 'observation': return { label: 'Observation', sub: `Observation${settings.numBoulders === Infinity ? '' : ` des ${total} blocs`}`, color: 'var(--observation)' };
-        case 'climb': return { label: 'En escalade', sub: `Bloc ${runtime.boulder} sur ${total}`, color: 'var(--climb)' };
-        case 'transition': return { label: 'Transition', sub: `Vers le bloc ${runtime.boulder}`, color: 'var(--transition)' };
-        case 'finished': return { label: 'Terminé', sub: 'Tour complété', color: 'var(--finished)' };
+        case 'idle': return { label: t('phase_idle'), sub: t('phase_idle_sub'), color: 'var(--idle)' };
+        case 'observation': return { label: t('phase_observation'), sub: isInf ? t('phase_observation_sub_inf') : t('phase_observation_sub', { total }), color: 'var(--observation)' };
+        case 'climb': return { label: t('phase_climb'), sub: t('phase_climb_sub', { boulder: runtime.boulder, total }), color: 'var(--climb)' };
+        case 'transition': return { label: t('phase_transition'), sub: t('phase_transition_sub', { boulder: runtime.boulder }), color: 'var(--transition)' };
+        case 'finished': return { label: t('phase_finished'), sub: t('phase_finished_sub'), color: 'var(--finished)' };
       }
     }
 
@@ -1212,7 +1458,7 @@
       els.phaseChip.dataset.phase = runtime.phase;
       els.phaseLabel.textContent = info.label;
 
-      els.metaRound.textContent = settings.roundLabel;
+      els.metaRound.textContent = settings.roundLabelKey ? t(settings.roundLabelKey) : '';
       els.metaBoulder.textContent = runtime.boulder;
       els.metaTotal.textContent = totalLabel();
       els.metaTotalTime.textContent = fmt(runtime.totalElapsed);
@@ -1245,15 +1491,15 @@
       // Main button
       if (runtime.phase === 'idle' || runtime.phase === 'finished') {
         els.btnMain.dataset.mode = 'start';
-        els.labelMain.textContent = runtime.phase === 'finished' ? 'Recommencer' : 'Démarrer';
+        els.labelMain.textContent = runtime.phase === 'finished' ? t('btn_restart') : t('btn_start');
         els.iconMain.innerHTML = '<polygon points="6 4 20 12 6 20 6 4"/>';
       } else if (runtime.running) {
         els.btnMain.dataset.mode = 'pause';
-        els.labelMain.textContent = 'Pause';
+        els.labelMain.textContent = t('btn_pause');
         els.iconMain.innerHTML = '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>';
       } else {
         els.btnMain.dataset.mode = 'resume';
-        els.labelMain.textContent = 'Reprendre';
+        els.labelMain.textContent = t('btn_resume');
         els.iconMain.innerHTML = '<polygon points="6 4 20 12 6 20 6 4"/>';
       }
 
@@ -1323,7 +1569,7 @@
       runtime.remaining = 0;
       cancelTick();
       releaseWakeLock();
-      showToast('Tour complété 🎉');
+      showToast(t('toast_round_complete'));
       render();
     }
 
@@ -1405,7 +1651,7 @@
       } else if (mode === 'pause') {
         runtime.running = false;
         cancelTick();
-        showToast('Pause');
+        showToast(t('toast_pause'));
         render();
       } else if (mode === 'resume') {
         runtime.running = true;
@@ -1420,7 +1666,7 @@
       runtime.running = false;
       runtime.remaining = phaseTotalDuration();
       lastBeepSecond = -1;
-      showToast('Phase remise à zéro');
+      showToast(t('toast_phase_reset'));
       render();
     }
 
@@ -1429,7 +1675,7 @@
       releaseWakeLock();
       runtime = freshRuntime();
       lastBeepSecond = -1;
-      showToast('Réinitialisé');
+      showToast(t('toast_reset'));
       render();
     }
 
@@ -1502,12 +1748,10 @@
         const match = isInf ? (settings.numBoulders === Infinity) : (parseInt(b.dataset.count) === settings.numBoulders);
         b.classList.toggle('active', match);
       });
-      // Preset highlight
-      let active = '';
-      if (settings.climbDuration === 240 && settings.transitionDuration === 15 && settings.observationEnabled) active = 'flash';
-      else if (settings.climbDuration === 300 && settings.transitionDuration === 15 && !settings.observationEnabled) active = 'onsight';
+      // Preset highlight — match current roundLabelKey
       document.querySelectorAll('.preset-btn').forEach(b => {
-        b.classList.toggle('active', b.dataset.preset === active);
+        const p = PRESETS[b.dataset.preset];
+        b.classList.toggle('active', p && p.labelKey === settings.roundLabelKey);
       });
 
       els.modal.classList.add('open');
@@ -1533,7 +1777,7 @@
         runtime = freshRuntime();
       }
       closeModal();
-      showToast('Paramètres enregistrés');
+      showToast(t('toast_settings_saved'));
       render();
     }
 
@@ -1545,7 +1789,7 @@
       settings.observationDuration = p.observation;
       settings.observationEnabled = p.observationOn;
       settings.numBoulders = p.numBoulders;
-      settings.roundLabel = p.label;
+      settings.roundLabelKey = p.labelKey;
       // Update UI
       els.inClimbMin.value = Math.floor(p.climb / 60);
       els.inClimbSec.value = p.climb % 60;
@@ -1573,7 +1817,7 @@
     // ============ TEST SOUND ============
     async function testSounds() {
       ensureAudio();
-      showToast('Test sonore en cours…');
+      showToast(t('toast_sound_test'));
       beepStart();
       await wait(900);
       // 3-2-1 ticks
@@ -1598,7 +1842,7 @@
       settings.soundEnabled = !settings.soundEnabled;
       els.tgSound.classList.toggle('on', settings.soundEnabled);
       saveSettings();
-      showToast(settings.soundEnabled ? 'Son activé' : 'Son coupé');
+      showToast(t(settings.soundEnabled ? 'toast_sound_enabled' : 'toast_sound_disabled'));
       render();
     });
     els.btnClose.addEventListener('click', closeModal);
@@ -1667,11 +1911,67 @@
       else if (e.key === 'm' || e.key === 'M') els.btnSound.click();
     });
 
+    // ============ I18N + THEME ============
+    function applyLanguage(lang) {
+      if (!I18N[lang]) lang = 'fr';
+      settings.language = lang;
+      document.documentElement.lang = lang;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        const v = I18N[lang][key];
+        if (v != null) el.textContent = v;
+      });
+      document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.dataset.i18nTitle;
+        const v = I18N[lang][key];
+        if (v != null) el.title = v;
+      });
+      els.langCurrent.textContent = lang === 'fr' ? 'FR' : 'EN';
+      render();
+    }
+
+    const SUN_SVG  = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>';
+    const MOON_SVG = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+
+    function effectiveTheme(theme) {
+      if (theme === 'auto') {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      return theme === 'dark' ? 'dark' : 'light';
+    }
+
+    function applyTheme(theme) {
+      settings.theme = theme;
+      const eff = effectiveTheme(theme);
+      document.documentElement.dataset.theme = eff;
+      // Icon = the theme you'll switch TO
+      els.iconTheme.innerHTML = eff === 'dark' ? SUN_SVG : MOON_SVG;
+    }
+
+    // React to OS theme changes when in auto mode
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => {
+        if (settings.theme === 'auto') applyTheme('auto');
+      });
+    }
+
+    els.btnLang.addEventListener('click', () => {
+      applyLanguage(settings.language === 'fr' ? 'en' : 'fr');
+      saveSettings();
+    });
+    els.btnTheme.addEventListener('click', () => {
+      const eff = effectiveTheme(settings.theme);
+      applyTheme(eff === 'dark' ? 'light' : 'dark');
+      saveSettings();
+    });
+
     // ============ INIT ============
+    applyTheme(settings.theme || 'auto');
+    applyLanguage(settings.language || (browserPrefersFr ? 'fr' : 'en'));
     render();
     // Show shortcut hint if not used in 8s
     setTimeout(() => {
-      if (runtime.phase === 'idle') showToast('Astuce : barre espace = démarrer / pause');
+      if (runtime.phase === 'idle') showToast(t('toast_hint_spacebar'));
     }, 3500);
   })();
   </script>
