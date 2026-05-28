@@ -714,12 +714,20 @@
     }
     .shortcuts span { display: inline-flex; align-items: center; gap: 6px; }
 
-    /* ====== FULLSCREEN MODE ====== */
-    body.fullscreen .topbar,
+    /* ====== FULLSCREEN MODE ======
+       Dim individual chrome elements instead of the whole topbar.
+       Putting opacity on a parent dimmed every child (including the
+       settings cog) regardless of any per-child opacity override —
+       that is what made the cog disappear on Android. */
+    body.fullscreen .brand,
+    body.fullscreen #btn-sound,
+    body.fullscreen #btn-fullscreen,
+    body.fullscreen #btn-theme,
+    body.fullscreen #btn-lang,
     body.fullscreen .boulders,
     body.fullscreen .shortcuts,
-    body.fullscreen .meta-row .round-meta { opacity: 0.5; transition: opacity .4s; }
-    /* Settings stays at full opacity so it's always reachable. */
+    body.fullscreen .meta-row .round-meta { opacity: 0.6; transition: opacity .4s; }
+    /* Settings cog stays solid so it's obviously tappable in any mode. */
     body.fullscreen #btn-settings { opacity: 1; }
     body.fullscreen .timer-ring svg {
       width: min(82vh, 100vw);
@@ -808,10 +816,7 @@
         padding: 4px;
         gap: 2px;
         backdrop-filter: blur(8px);
-        opacity: 0.85;
-        transition: opacity .2s;
       }
-      header.topbar .top-actions:hover { opacity: 1; }
       header.topbar .icon-btn,
       header.topbar .lang-pill {
         width: 32px; height: 32px;
@@ -2215,24 +2220,32 @@
     // button; browser-initiated exits do not strip it.
     document.body.classList.add('fullscreen');
 
-    // Auto-enter actual browser fullscreen on the FIRST press of the
-    // Start button or the timer digits. Browsers require a user
-    // gesture to allow requestFullscreen, so we hook only those two
-    // elements (settings / sound / theme / language toggles don't
-    // trigger fullscreen). iOS Safari rejects the call silently — the
-    // .catch keeps it harmless.
-    let autoFsDone = false;
-    function autoFullscreenOnce() {
-      if (autoFsDone) return;
-      autoFsDone = true;
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen?.().catch(() => {});
-      }
+    // Auto-enter actual browser fullscreen on EVERY press of the Start
+    // button or the timer digits (not just the first). The check on
+    // document.fullscreenElement avoids re-requesting when already
+    // fullscreen. Vendor-prefixed names are tried for older Android /
+    // WebKit, which still rejects in some contexts — .catch keeps it
+    // harmless. Settings / sound / theme / language toggles do not
+    // trigger fullscreen so the user can configure the round first.
+    function tryRequestFullscreen() {
+      if (document.fullscreenElement
+          || document.webkitFullscreenElement
+          || document.mozFullScreenElement) return;
+      const el = document.documentElement;
+      const req = el.requestFullscreen
+                || el.webkitRequestFullscreen
+                || el.mozRequestFullScreen
+                || el.msRequestFullscreen;
+      if (!req) return;
+      try {
+        const p = req.call(el);
+        if (p && typeof p.catch === 'function') p.catch(() => {});
+      } catch (e) { /* ignored */ }
     }
-    els.btnMain.addEventListener('click',      autoFullscreenOnce, { once: true });
-    els.time.addEventListener('click',         autoFullscreenOnce, { once: true });
-    els.btnMain.addEventListener('touchstart', autoFullscreenOnce, { once: true, passive: true });
-    els.time.addEventListener('touchstart',    autoFullscreenOnce, { once: true, passive: true });
+    els.btnMain.addEventListener('click',      tryRequestFullscreen);
+    els.time.addEventListener('click',         tryRequestFullscreen);
+    els.btnMain.addEventListener('touchstart', tryRequestFullscreen, { passive: true });
+    els.time.addEventListener('touchstart',    tryRequestFullscreen, { passive: true });
 
     applyTheme(settings.theme || 'auto');
     applyLanguage(settings.language || (browserPrefersFr ? 'fr' : 'en'));
