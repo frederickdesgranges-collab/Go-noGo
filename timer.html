@@ -726,8 +726,16 @@
 
     /* ====== RESPONSIVE ====== */
     @media (max-width: 640px) {
-      .app { padding: 12px; gap: 10px; }
+      .app { padding: 10px; gap: 10px; }
       .brand-sub { display: none; }
+      .brand { gap: 10px; }
+      .logo { width: 36px; height: 36px; border-radius: 10px; }
+      .logo svg { width: 18px; height: 18px; }
+      .brand-title { font-size: 15px; }
+      .top-actions { gap: 4px; }
+      .icon-btn { width: 36px; height: 36px; border-radius: 10px; }
+      .icon-btn svg { width: 17px; height: 17px; }
+      .lang-pill { height: 36px; padding: 0 10px; font-size: 12px; }
       .meta-row { flex-direction: column; align-items: flex-start; gap: 8px; }
       .controls { grid-template-columns: 1fr; }
       .ctrl-grp { width: 100%; }
@@ -735,6 +743,10 @@
       .preset-grid { grid-template-columns: 1fr; }
       .count-grid { grid-template-columns: repeat(5, 1fr); }
       .shortcuts { display: none; }
+    }
+    /* Very narrow phones: drop the fullscreen button to make room */
+    @media (max-width: 380px) {
+      #btn-fullscreen { display: none; }
     }
 
     @media (max-height: 600px) {
@@ -1715,13 +1727,19 @@
     }
 
     // ============ TIMER LOOP ============
+    // Use setInterval at 50 ms instead of requestAnimationFrame: rAF is
+    // throttled by some browsers during audio playback and when the tab is
+    // partially obscured, which can cause visible "skips" of half a second
+    // or so during transitions. Wall-clock math keeps total accuracy.
     function scheduleTick() {
       cancelTick();
-      tickStart = performance.now();
+      const startTime = performance.now();
       const startRemaining = runtime.remaining;
-      const tick = (now) => {
+      tickStart = startTime;
+      const tick = () => {
         if (!runtime.running) return;
-        const elapsed = (now - tickStart) / 1000;
+        const now = performance.now();
+        const elapsed = (now - startTime) / 1000;
         const newRemaining = Math.max(0, startRemaining - elapsed);
         const prevSec = Math.ceil(runtime.remaining);
         runtime.remaining = newRemaining;
@@ -1757,10 +1775,11 @@
         }
 
         if (newRemaining <= 0.05) {
-          // Phase ended
+          // Phase ended — stop the interval so it doesn't fire during the
+          // setTimeout window, then schedule the phase advance.
           runtime.remaining = 0;
           runtime.running = false;
-          // End cue depends on phase
+          cancelTick();
           if (runtime.phase === 'observation') {
             beepGo();          // observation done → go climb
             setTimeout(advancePhase, 200);
@@ -1778,12 +1797,13 @@
           return;
         }
         render();
-        rafId = requestAnimationFrame(tick);
       };
-      rafId = requestAnimationFrame(tick);
+      // Tick immediately so the display updates right away on phase start
+      tick();
+      rafId = setInterval(tick, 50);
     }
     function cancelTick() {
-      if (rafId) cancelAnimationFrame(rafId);
+      if (rafId) clearInterval(rafId);
       rafId = null;
     }
 
