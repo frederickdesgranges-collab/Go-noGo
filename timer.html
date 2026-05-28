@@ -234,8 +234,10 @@
       color: var(--text);
       letter-spacing: -0.05em;
       text-shadow: 0 0 60px var(--phase-color, transparent);
-      transition: color .25s, text-shadow .25s, transform .15s;
+      transition: color .25s, text-shadow .25s, transform .1s, opacity .1s;
+      cursor: pointer;
     }
+    .time:active { transform: scale(0.97); opacity: 0.8; }
     .time.warn { color: var(--climb-warn); }
     .time.final {
       color: var(--climb-final);
@@ -1540,6 +1542,7 @@
 
     // ============ EVENT BINDINGS ============
     els.btnMain.addEventListener('click', mainAction);
+    els.time.addEventListener('click', mainAction);
     els.btnStop.addEventListener('click', stopAction);
     els.btnReset.addEventListener('click', resetAction);
     els.btnSkip.addEventListener('click', skipAction);
