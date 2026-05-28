@@ -1305,14 +1305,15 @@
 
     // ============ AUDIO ============
     // Real IFSC samples (loaded once); synth fallback if loading fails.
-    const SAMPLE_VERSION = '10';
+    const SAMPLE_VERSION = '11';
     const SAMPLE_URLS = {
       tick:           'assets/sounds/tick.mp3?v=' + SAMPLE_VERSION,
       end:            'assets/sounds/end.mp3?v=' + SAMPLE_VERSION,
       countdown_full: 'assets/sounds/countdown_full.mp3?v=' + SAMPLE_VERSION,
+      warn1min:       'assets/sounds/warn1min.mp3?v=' + SAMPLE_VERSION,
     };
-    const sampleBuffers = { tick: null, end: null, countdown_full: null };
-    const sampleArrayBuffers = { tick: null, end: null, countdown_full: null };
+    const sampleBuffers = { tick: null, end: null, countdown_full: null, warn1min: null };
+    const sampleArrayBuffers = { tick: null, end: null, countdown_full: null, warn1min: null };
     // Offset (in seconds) inside countdown_full.mp3 where the sustained
     // buzzer starts. Playing the sample at climb-remaining = this offset
     // means the buzzer hits exactly at end-of-climb (t=0).
@@ -1414,9 +1415,10 @@
       if (playSample('tick', 0.95)) return;
       tone({ freq: 1180, duration: 0.16, volume: 0.5, type: 'square', attack: 0.002, release: 0.06 });
     }
-    // 1-minute warning — same bip as ticks
+    // 1-minute warning — dedicated low 100 Hz tone (warn1min sample)
     function beep1Min() {
       ensureAudio();
+      if (playSample('warn1min', 1.0)) return;
       if (playSample('tick', 1.0)) return;
       tone({ freq: 1180, duration: 0.18, volume: 0.55, type: 'square' });
     }
