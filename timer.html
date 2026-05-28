@@ -2214,6 +2214,24 @@
     // expects on first open). User can toggle it off via the fullscreen
     // button; browser-initiated exits do not strip it.
     document.body.classList.add('fullscreen');
+
+    // Auto-enter actual browser fullscreen on the FIRST user gesture.
+    // Browsers reject requestFullscreen calls that aren't tied to a user
+    // gesture, so we attach one-shot listeners and fire on the first
+    // pointerdown/click/keydown. iOS Safari rejects the call silently
+    // (no Fullscreen API support) — the .catch keeps it harmless.
+    let autoFsDone = false;
+    function autoFullscreenOnce() {
+      if (autoFsDone) return;
+      autoFsDone = true;
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen?.().catch(() => {});
+      }
+    }
+    document.addEventListener('click',      autoFullscreenOnce, { once: true });
+    document.addEventListener('touchstart', autoFullscreenOnce, { once: true, passive: true });
+    document.addEventListener('keydown',    autoFullscreenOnce, { once: true });
+
     applyTheme(settings.theme || 'auto');
     applyLanguage(settings.language || (browserPrefersFr ? 'fr' : 'en'));
     // Warm up the HTTP cache for samples so the first user gesture can
