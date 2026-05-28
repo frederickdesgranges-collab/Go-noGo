@@ -1008,26 +1008,62 @@
       };
     }
 
-    // ============ AUDIO (IFSC-style broadcast horns) ============
+    // ============ AUDIO (offline-rendered studio samples) ============
     let masterBus = null;
+    const SAMPLE_URLS = {
+      tick:  'assets/sounds/tick.mp3',
+      go:    'assets/sounds/go.mp3',
+      start: 'assets/sounds/start.mp3',
+      end:   'assets/sounds/end.mp3',
+    };
+    const sampleBuffers = { tick: null, go: null, start: null, end: null };
+    let samplesLoading = null;
 
     function ensureAudio() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        // Master bus: gain → compressor → destination (broadcast polish)
-        const comp = audioCtx.createDynamicsCompressor();
-        comp.threshold.value = -16;
-        comp.knee.value = 14;
-        comp.ratio.value = 4;
-        comp.attack.value = 0.003;
-        comp.release.value = 0.12;
         const mg = audioCtx.createGain();
-        mg.gain.value = 0.85;
-        mg.connect(comp).connect(audioCtx.destination);
+        mg.gain.value = 1.0;
+        mg.connect(audioCtx.destination);
         masterBus = mg;
+        // Kick off sample loading on first audio context init
+        loadAllSamples();
       }
       if (audioCtx.state === 'suspended') audioCtx.resume();
       return audioCtx;
+    }
+
+    async function loadSample(key, url) {
+      try {
+        const r = await fetch(url, { cache: 'force-cache' });
+        if (!r.ok) throw new Error(r.status);
+        const ab = await r.arrayBuffer();
+        const buf = await audioCtx.decodeAudioData(ab);
+        sampleBuffers[key] = buf;
+      } catch (e) {
+        console.warn('Sample load failed:', key, e);
+      }
+    }
+
+    function loadAllSamples() {
+      if (samplesLoading) return samplesLoading;
+      samplesLoading = Promise.all(
+        Object.entries(SAMPLE_URLS).map(([k, u]) => loadSample(k, u))
+      );
+      return samplesLoading;
+    }
+
+    function playSample(key, volume = 1.0) {
+      if (!settings.soundEnabled) return false;
+      const buf = sampleBuffers[key];
+      if (!buf || !audioCtx) return false;
+      const src = audioCtx.createBufferSource();
+      src.buffer = buf;
+      const g = audioCtx.createGain();
+      g.gain.value = volume;
+      src.connect(g).connect(masterBus);
+      src.start();
+      return true;
     }
 
     // Short noise click — gives the attack a percussive "thud" like a real horn
@@ -1150,26 +1186,27 @@
     }
 
     // ===== PUBLIC SIGNAL API =====
+    // Plays studio-rendered MP3 samples; falls back to synthesis if not loaded.
 
-    // Décompte 5..1 — tic sec et clair
     function beepTick() {
+      if (playSample('tick', 0.9)) return;
       tickBeep({ freq: 1000, volume: 0.65 });
     }
 
-    // Départ d'épreuve (début bloc / début transition) — klaxon stadium type Bb4
     function beepStart() {
+      if (playSample('start', 0.95)) return;
       hornBlast({ freq: 466.16, duration: 1.0, volume: 0.72, brightness: 2600, attack: 0.006, release: 0.3 });
     }
 
-    // Bascule observation → grimpe — deux tics ascendants puis klaxon D5
     function beepGo() {
+      if (playSample('go', 0.95)) return;
       tickBeep({ freq: 1000, volume: 0.55, delay: 0.0 });
       tickBeep({ freq: 1250, volume: 0.6,  delay: 0.16 });
       hornBlast({ freq: 587.33, duration: 0.95, volume: 0.78, brightness: 2900, attack: 0.005, release: 0.28, delay: 0.34 });
     }
 
-    // Fin de grimpe — grosse corne grave (A2), longue, finale
     function beepEnd() {
+      if (playSample('end', 1.0)) return;
       hornBlast({ freq: 110.0, duration: 1.9, volume: 0.88, brightness: 1400, attack: 0.014, release: 0.55, sub: true });
     }
 
