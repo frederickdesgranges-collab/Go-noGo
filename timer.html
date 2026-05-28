@@ -1008,51 +1008,169 @@
       };
     }
 
-    // ============ AUDIO ============
+    // ============ AUDIO (IFSC-style broadcast horns) ============
+    let masterBus = null;
+
     function ensureAudio() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Master bus: gain → compressor → destination (broadcast polish)
+        const comp = audioCtx.createDynamicsCompressor();
+        comp.threshold.value = -16;
+        comp.knee.value = 14;
+        comp.ratio.value = 4;
+        comp.attack.value = 0.003;
+        comp.release.value = 0.12;
+        const mg = audioCtx.createGain();
+        mg.gain.value = 0.85;
+        mg.connect(comp).connect(audioCtx.destination);
+        masterBus = mg;
       }
       if (audioCtx.state === 'suspended') audioCtx.resume();
       return audioCtx;
     }
 
-    function tone({ freq = 880, duration = 0.18, volume = 0.45, type = 'sine', attack = 0.005, release = 0.04, delay = 0 } = {}) {
+    // Short noise click — gives the attack a percussive "thud" like a real horn
+    function noiseClick(ctx, dest, t0, duration, gainVal, bandFreq) {
+      const buf = ctx.createBuffer(1, Math.max(1, ctx.sampleRate * duration), ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      const bp = ctx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.value = bandFreq;
+      bp.Q.value = 0.7;
+      const g = ctx.createGain();
+      g.gain.value = gainVal;
+      src.connect(bp).connect(g).connect(dest);
+      src.start(t0);
+    }
+
+    // Stadium-grade horn blast: harmonic stack + detune + filter sweep + sub + click
+    function hornBlast({
+      freq = 466,
+      duration = 1.0,
+      volume = 0.7,
+      attack = 0.008,
+      release = 0.28,
+      detune = 6,
+      brightness = 2400,
+      sub = true,
+      delay = 0,
+    } = {}) {
       if (!settings.soundEnabled) return;
       const ctx = ensureAudio();
       const t0 = ctx.currentTime + delay;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, t0);
-      gain.gain.setValueAtTime(0, t0);
-      gain.gain.linearRampToValueAtTime(volume, t0 + attack);
-      gain.gain.setValueAtTime(volume, t0 + duration - release);
-      gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
-      osc.connect(gain).connect(ctx.destination);
-      osc.start(t0);
-      osc.stop(t0 + duration + 0.02);
+
+      const lpf = ctx.createBiquadFilter();
+      lpf.type = 'lowpass';
+      lpf.Q.value = 1.1;
+      lpf.frequency.setValueAtTime(brightness * 0.45, t0);
+      lpf.frequency.linearRampToValueAtTime(brightness, t0 + attack + 0.06);
+
+      const env = ctx.createGain();
+      env.gain.setValueAtTime(0.0001, t0);
+      env.gain.exponentialRampToValueAtTime(volume, t0 + attack);
+      env.gain.setValueAtTime(volume, t0 + duration - release);
+      env.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+
+      const partials = [
+        { mult: 1.0, amp: 1.00, type: 'sawtooth', det:  0 },
+        { mult: 1.0, amp: 0.55, type: 'square',   det:  detune },
+        { mult: 2.0, amp: 0.45, type: 'sawtooth', det: -detune },
+        { mult: 3.0, amp: 0.28, type: 'sawtooth', det:  detune * 1.4 },
+        { mult: 4.0, amp: 0.18, type: 'sawtooth', det: -detune * 1.2 },
+        { mult: 5.0, amp: 0.10, type: 'sine',     det:  detune * 2 },
+      ];
+      partials.forEach(p => {
+        const o = ctx.createOscillator();
+        o.type = p.type;
+        o.frequency.value = freq * p.mult;
+        o.detune.value = p.det;
+        const g = ctx.createGain();
+        g.gain.value = p.amp * 0.32;
+        o.connect(g).connect(lpf);
+        o.start(t0);
+        o.stop(t0 + duration + 0.05);
+      });
+
+      if (sub) {
+        const so = ctx.createOscillator();
+        so.type = 'sine';
+        so.frequency.value = freq * 0.5;
+        const sg = ctx.createGain();
+        sg.gain.value = 0.55;
+        so.connect(sg).connect(lpf);
+        so.start(t0);
+        so.stop(t0 + duration + 0.05);
+      }
+
+      noiseClick(ctx, env, t0, 0.018, volume * 0.55, freq * 4);
+
+      lpf.connect(env).connect(masterBus);
     }
 
-    // Court bip aigu (décompte 5..1)
+    // Sharp competition tick — clear, present, with subtle pitch drop
+    function tickBeep({ freq = 1000, volume = 0.65, duration = 0.13, delay = 0 } = {}) {
+      if (!settings.soundEnabled) return;
+      const ctx = ensureAudio();
+      const t0 = ctx.currentTime + delay;
+
+      const lpf = ctx.createBiquadFilter();
+      lpf.type = 'lowpass';
+      lpf.Q.value = 0.7;
+      lpf.frequency.value = 5000;
+
+      const env = ctx.createGain();
+      env.gain.setValueAtTime(0.0001, t0);
+      env.gain.exponentialRampToValueAtTime(volume, t0 + 0.004);
+      env.gain.setValueAtTime(volume, t0 + duration - 0.05);
+      env.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+
+      [
+        { mult: 1.0, amp: 1.00 },
+        { mult: 2.0, amp: 0.22 },
+        { mult: 3.0, amp: 0.09 },
+      ].forEach(p => {
+        const o = ctx.createOscillator();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(freq * p.mult, t0);
+        o.frequency.exponentialRampToValueAtTime(freq * p.mult * 0.96, t0 + duration);
+        const g = ctx.createGain();
+        g.gain.value = p.amp * 0.5;
+        o.connect(g).connect(lpf);
+        o.start(t0);
+        o.stop(t0 + duration + 0.02);
+      });
+
+      noiseClick(ctx, env, t0, 0.006, volume * 0.22, freq * 2);
+
+      lpf.connect(env).connect(masterBus);
+    }
+
+    // ===== PUBLIC SIGNAL API =====
+
+    // Décompte 5..1 — tic sec et clair
     function beepTick() {
-      tone({ freq: 1180, duration: 0.16, volume: 0.5, type: 'square', attack: 0.002, release: 0.06 });
+      tickBeep({ freq: 1000, volume: 0.65 });
     }
-    // Bip de départ — clair et perçant
+
+    // Départ d'épreuve (début bloc / début transition) — klaxon stadium type Bb4
     function beepStart() {
-      tone({ freq: 880, duration: 0.18, volume: 0.45, type: 'sine' });
-      tone({ freq: 1320, duration: 0.5, volume: 0.55, type: 'sine', delay: 0.15 });
+      hornBlast({ freq: 466.16, duration: 1.0, volume: 0.72, brightness: 2600, attack: 0.006, release: 0.3 });
     }
-    // Buzzer de fin — grave, long, double
-    function beepEnd() {
-      tone({ freq: 220, duration: 0.9, volume: 0.6, type: 'sawtooth' });
-      tone({ freq: 165, duration: 1.4, volume: 0.55, type: 'sawtooth', delay: 0.05 });
-    }
-    // Bip de bascule (fin d'observation → départ)
+
+    // Bascule observation → grimpe — deux tics ascendants puis klaxon D5
     function beepGo() {
-      tone({ freq: 880, duration: 0.12, volume: 0.5 });
-      tone({ freq: 1100, duration: 0.12, volume: 0.5, delay: 0.14 });
-      tone({ freq: 1480, duration: 0.4, volume: 0.6, delay: 0.28 });
+      tickBeep({ freq: 1000, volume: 0.55, delay: 0.0 });
+      tickBeep({ freq: 1250, volume: 0.6,  delay: 0.16 });
+      hornBlast({ freq: 587.33, duration: 0.95, volume: 0.78, brightness: 2900, attack: 0.005, release: 0.28, delay: 0.34 });
+    }
+
+    // Fin de grimpe — grosse corne grave (A2), longue, finale
+    function beepEnd() {
+      hornBlast({ freq: 110.0, duration: 1.9, volume: 0.88, brightness: 1400, attack: 0.014, release: 0.55, sub: true });
     }
 
     // ============ DOM ============
