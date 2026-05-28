@@ -1770,7 +1770,8 @@
             if (!runtime.countdownFullTriggered) beepEnd();
             setTimeout(advancePhase, 800);
           } else if (runtime.phase === 'transition') {
-            beepStart();       // transition done → climb start
+            // No cue here — startPhase('climb' | 'observation') fires beepStart
+            // when the next phase begins. Calling it here would double the buzzer.
             setTimeout(advancePhase, 200);
           }
           render();
