@@ -1299,20 +1299,27 @@
         running: false,
         remaining: settings.climbDuration,
         totalElapsed: 0,
+        countdownFullTriggered: false,
       };
     }
 
     // ============ AUDIO ============
     // Real IFSC samples (loaded once); synth fallback if loading fails.
-    const SAMPLE_VERSION = '7';
+    const SAMPLE_VERSION = '8';
     const SAMPLE_URLS = {
-      tick: 'assets/sounds/tick.mp3?v=' + SAMPLE_VERSION,
-      end:  'assets/sounds/end.mp3?v=' + SAMPLE_VERSION,
+      tick:           'assets/sounds/tick.mp3?v=' + SAMPLE_VERSION,
+      end:            'assets/sounds/end.mp3?v=' + SAMPLE_VERSION,
+      countdown_full: 'assets/sounds/countdown_full.mp3?v=' + SAMPLE_VERSION,
     };
-    const sampleBuffers = { tick: null, end: null };
-    const sampleArrayBuffers = { tick: null, end: null };
+    const sampleBuffers = { tick: null, end: null, countdown_full: null };
+    const sampleArrayBuffers = { tick: null, end: null, countdown_full: null };
+    // Offset (in seconds) inside countdown_full.mp3 where the sustained
+    // buzzer starts. Playing the sample at climb-remaining = this offset
+    // means the buzzer hits exactly at end-of-climb (t=0).
+    const COUNTDOWN_FULL_BUZZER_OFFSET = 5.18;
     let samplesPrefetched = null;
     let samplesDecoded = null;
+    let countdownAudioSource = null;
 
     // Pre-fetch immediately on page load (no AudioContext needed). This
     // primes the HTTP cache so the decode step is instant later.
@@ -1359,6 +1366,29 @@
       src.connect(g).connect(audioCtx.destination);
       src.start(audioCtx.currentTime + delay);
       return true;
+    }
+
+    // Play the full countdown+buzzer recording starting at the given
+    // offset inside the sample. Tracks the source node so we can stop
+    // it on pause/reset.
+    function playCountdownFull(offsetSeconds = 0) {
+      if (!settings.soundEnabled) return false;
+      const buf = sampleBuffers.countdown_full;
+      if (!buf || !audioCtx) return false;
+      stopCountdownAudio();
+      const src = audioCtx.createBufferSource();
+      src.buffer = buf;
+      src.connect(audioCtx.destination);
+      src.start(0, Math.max(0, offsetSeconds));
+      countdownAudioSource = src;
+      src.onended = () => { if (countdownAudioSource === src) countdownAudioSource = null; };
+      return true;
+    }
+    function stopCountdownAudio() {
+      if (countdownAudioSource) {
+        try { countdownAudioSource.stop(); } catch {}
+        countdownAudioSource = null;
+      }
     }
 
     function tone({ freq = 880, duration = 0.18, volume = 0.45, type = 'sine', attack = 0.005, release = 0.04, delay = 0 } = {}) {
@@ -1592,6 +1622,8 @@
       runtime.phase = phase;
       runtime.remaining = phaseTotalDuration();
       lastBeepSecond = -1;
+      runtime.countdownFullTriggered = false;
+      stopCountdownAudio();
       runtime.running = true;
       tickStart = performance.now();
       requestWakeLock();
@@ -1675,8 +1707,24 @@
         runtime.remaining = newRemaining;
         const curSec = Math.ceil(newRemaining);
 
-        // Countdown beeps
-        if (curSec !== prevSec && curSec > 0 && curSec <= settings.countdownSeconds) {
+        // Full IFSC countdown+buzzer sample (climb phase only). Plays once,
+        // calibrated so the sustained buzzer hits at climb_remaining = 0.
+        // Suppresses both the per-second ticks and the separate end buzzer
+        // for this phase so nothing doubles up.
+        if (runtime.phase === 'climb'
+            && !runtime.countdownFullTriggered
+            && sampleBuffers.countdown_full
+            && newRemaining <= COUNTDOWN_FULL_BUZZER_OFFSET
+            && newRemaining > 0.1) {
+          const offset = COUNTDOWN_FULL_BUZZER_OFFSET - newRemaining;
+          if (playCountdownFull(offset)) {
+            runtime.countdownFullTriggered = true;
+          }
+        }
+        const fullCountdownActive = runtime.phase === 'climb' && runtime.countdownFullTriggered;
+
+        // Countdown beeps (suppressed when the full sequence is playing)
+        if (!fullCountdownActive && curSec !== prevSec && curSec > 0 && curSec <= settings.countdownSeconds) {
           if (lastBeepSecond !== curSec) {
             beepTick();
             lastBeepSecond = curSec;
@@ -1697,7 +1745,9 @@
             beepGo();          // observation done → go climb
             setTimeout(advancePhase, 200);
           } else if (runtime.phase === 'climb') {
-            beepEnd();         // climbing done → buzzer
+            // The full IFSC sample already contains the buzzer; skip the
+            // separate beepEnd to avoid doubling.
+            if (!runtime.countdownFullTriggered) beepEnd();
             setTimeout(advancePhase, 800);
           } else if (runtime.phase === 'transition') {
             beepStart();       // transition done → climb start
@@ -1734,6 +1784,9 @@
       } else if (mode === 'pause') {
         runtime.running = false;
         cancelTick();
+        stopCountdownAudio();
+        // Clear the flag so the loop re-triggers at the correct offset on resume
+        runtime.countdownFullTriggered = false;
         showToast(t('toast_pause'));
         render();
       } else if (mode === 'resume') {
@@ -1746,8 +1799,10 @@
     function stopAction() {
       // Reset current phase timer (back to its start)
       cancelTick();
+      stopCountdownAudio();
       runtime.running = false;
       runtime.remaining = phaseTotalDuration();
+      runtime.countdownFullTriggered = false;
       lastBeepSecond = -1;
       showToast(t('toast_phase_reset'));
       render();
@@ -1755,6 +1810,7 @@
 
     function resetAction() {
       cancelTick();
+      stopCountdownAudio();
       releaseWakeLock();
       runtime = freshRuntime();
       lastBeepSecond = -1;
@@ -1764,6 +1820,7 @@
 
     function skipAction() {
       cancelTick();
+      stopCountdownAudio();
       runtime.running = false;
       if (runtime.phase === 'idle') return;
       advancePhase();
