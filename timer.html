@@ -1305,7 +1305,7 @@
 
     // ============ AUDIO ============
     // Real IFSC samples (loaded once); synth fallback if loading fails.
-    const SAMPLE_VERSION = '8';
+    const SAMPLE_VERSION = '9';
     const SAMPLE_URLS = {
       tick:           'assets/sounds/tick.mp3?v=' + SAMPLE_VERSION,
       end:            'assets/sounds/end.mp3?v=' + SAMPLE_VERSION,
@@ -1316,7 +1316,7 @@
     // Offset (in seconds) inside countdown_full.mp3 where the sustained
     // buzzer starts. Playing the sample at climb-remaining = this offset
     // means the buzzer hits exactly at end-of-climb (t=0).
-    const COUNTDOWN_FULL_BUZZER_OFFSET = 5.18;
+    const COUNTDOWN_FULL_BUZZER_OFFSET = 5.0;
     let samplesPrefetched = null;
     let samplesDecoded = null;
     let countdownAudioSource = null;
