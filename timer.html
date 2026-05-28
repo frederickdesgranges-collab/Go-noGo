@@ -8,7 +8,7 @@
   <title>Boulder Timer · IFSC</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root, [data-theme="dark"] {
@@ -38,6 +38,11 @@
       --bg-gradient-3: radial-gradient(800px 500px at 50% 120%, rgba(34, 197, 94, 0.06), transparent 60%);
       --grain-opacity: 0.035;
       --grain-blend: overlay;
+      --surface: rgba(255, 255, 255, 0.04);
+      --surface-hover: rgba(255, 255, 255, 0.07);
+      --surface-deep: rgba(0, 0, 0, 0.25);
+      --backdrop: rgba(5, 8, 16, 0.6);
+      --modal-bg: linear-gradient(180deg, rgba(28, 34, 52, 0.95), rgba(15, 18, 28, 0.95));
 
       --shadow-1: 0 1px 0 rgba(255,255,255,0.05) inset, 0 12px 32px -12px rgba(0,0,0,0.65);
       --shadow-2: 0 20px 60px -20px rgba(0,0,0,0.8);
@@ -76,6 +81,11 @@
 
       --shadow-1: 0 1px 0 rgba(255,255,255,0.6) inset, 0 8px 24px -10px rgba(15,18,28,0.10);
       --shadow-2: 0 20px 60px -20px rgba(15,18,28,0.18);
+      --surface: rgba(15, 18, 28, 0.04);
+      --surface-hover: rgba(15, 18, 28, 0.07);
+      --surface-deep: rgba(15, 18, 28, 0.03);
+      --backdrop: rgba(15, 18, 28, 0.45);
+      --modal-bg: #ffffff;
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -132,19 +142,11 @@
     .logo {
       width: 44px; height: 44px;
       border-radius: 12px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      background: var(--text);
       display: grid; place-items: center;
-      box-shadow: 0 10px 30px -10px rgba(124, 92, 255, 0.6);
-      position: relative;
-      overflow: hidden;
+      box-shadow: 0 6px 20px -8px rgba(0,0,0,0.25);
     }
-    .logo::after {
-      content: '';
-      position: absolute; inset: 1px;
-      border-radius: 11px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.18), transparent 50%);
-    }
-    .logo svg { position: relative; z-index: 1; color: white; }
+    .logo svg { color: var(--bg); }
     .brand-text { line-height: 1.1; }
     .brand-title {
       font-weight: 700;
@@ -211,16 +213,21 @@
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      padding: 10px 16px;
+      padding: 8px 14px;
       border-radius: 999px;
-      border: 1px solid var(--border-strong);
-      background: var(--panel);
-      font-weight: 600;
-      letter-spacing: 0.08em;
+      border: 1px solid var(--border);
+      background: var(--text);
+      color: var(--bg);
+      font-weight: 700;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      font-size: 13px;
-      backdrop-filter: blur(8px);
+      font-size: 12px;
       transition: background .25s, border-color .25s, color .25s;
+    }
+    .phase-chip[data-phase="idle"] {
+      background: transparent;
+      color: var(--text-dim);
+      border-color: var(--border-strong);
     }
     .phase-chip::before {
       content: '';
@@ -230,11 +237,11 @@
       box-shadow: 0 0 12px var(--phase-color, var(--idle));
       animation: pulse-dot 1.6s ease-in-out infinite;
     }
-    .phase-chip[data-phase="idle"] { --phase-color: var(--idle); color: var(--text-dim); }
-    .phase-chip[data-phase="observation"] { --phase-color: var(--observation); color: #e9d5ff; }
-    .phase-chip[data-phase="climb"] { --phase-color: var(--climb); color: #bae6fd; }
-    .phase-chip[data-phase="transition"] { --phase-color: var(--transition); color: #fed7aa; }
-    .phase-chip[data-phase="finished"] { --phase-color: var(--finished); color: #bbf7d0; }
+    .phase-chip[data-phase="idle"] { --phase-color: var(--idle); }
+    .phase-chip[data-phase="observation"] { --phase-color: var(--observation); }
+    .phase-chip[data-phase="climb"] { --phase-color: var(--climb); }
+    .phase-chip[data-phase="transition"] { --phase-color: var(--transition); }
+    .phase-chip[data-phase="finished"] { --phase-color: var(--finished); }
     @keyframes pulse-dot {
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.55; transform: scale(1.18); }
@@ -284,14 +291,13 @@
       font-weight: 600;
     }
     .time {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Archivo Black', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       font-weight: 900;
       font-variant-numeric: tabular-nums;
-      font-stretch: 75%;
-      font-size: clamp(140px, 34vw, 560px);
-      line-height: 0.9;
+      font-size: clamp(160px, 38vw, 600px);
+      line-height: 0.86;
       color: var(--text);
-      letter-spacing: -0.07em;
+      letter-spacing: -0.08em;
       transition: color .25s, transform .1s, opacity .1s;
       cursor: pointer;
     }
@@ -314,60 +320,53 @@
       font-weight: 600;
     }
 
-    /* ====== BOULDER PILLS ====== */
+    /* ====== BOULDER CARDS (TimeSpot-style) ====== */
     .boulders {
-      display: flex;
-      gap: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
       justify-content: center;
-      flex-wrap: wrap;
     }
     .boulder-pill {
-      min-width: 56px;
-      padding: 10px 14px;
-      border-radius: 12px;
+      padding: 14px 18px;
+      border-radius: 16px;
       border: 1px solid var(--border);
-      background: var(--panel);
-      backdrop-filter: blur(8px);
+      background: var(--bg-2);
       display: flex;
-      align-items: center;
-      gap: 8px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
       cursor: pointer;
       transition: all .2s ease;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-dim);
-    }
-    .boulder-pill:hover { background: var(--panel-2); }
-    .boulder-pill[data-state="current"] {
-      border-color: var(--climb);
-      background: rgba(56, 189, 248, 0.12);
+      font-weight: 700;
       color: var(--text);
-      box-shadow: 0 0 0 1px var(--climb) inset, 0 8px 24px -8px rgba(56, 189, 248, 0.4);
+      min-height: 72px;
     }
-    .boulder-pill[data-state="done"] {
-      background: rgba(34, 197, 94, 0.08);
-      border-color: rgba(34, 197, 94, 0.3);
-      color: #bbf7d0;
-    }
+    .boulder-pill:hover { border-color: var(--border-strong); }
     .boulder-pill .num {
-      width: 22px; height: 22px;
-      border-radius: 50%;
-      display: grid; place-items: center;
-      background: rgba(255,255,255,0.06);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      font-weight: 800;
+      font-family: 'Archivo Black', 'Inter', sans-serif;
+      font-size: 22px;
+      letter-spacing: -0.02em;
+      line-height: 1;
     }
-    .boulder-pill[data-state="current"] .num {
-      background: var(--climb);
-      color: #07090f;
+    .boulder-pill .num span { display: inline; }
+    .boulder-pill .num::before { content: '#'; opacity: 0.45; margin-right: 2px; }
+    .boulder-pill .status {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-mute);
     }
-    .boulder-pill[data-state="done"] .num {
-      background: var(--finished);
-      color: #07090f;
+    .boulder-pill[data-state="current"] {
+      background: var(--text);
+      color: var(--bg);
+      border-color: var(--text);
     }
-    .boulder-pill[data-state="done"] .num::after { content: '✓'; }
-    .boulder-pill[data-state="done"] .num span { display: none; }
+    .boulder-pill[data-state="current"] .status { color: rgba(255,255,255,0.65); }
+    .boulder-pill[data-state="current"] .num::before { opacity: 0.55; }
+    .boulder-pill[data-state="done"] { opacity: 0.55; }
+    .boulder-pill[data-state="done"] .num::before { content: '✓ '; opacity: 1; color: var(--finished); }
 
     /* ====== CONTROLS ====== */
     .controls {
@@ -398,27 +397,28 @@
       transition: background .15s, border-color .15s, transform .1s, box-shadow .2s;
       white-space: nowrap;
     }
-    .btn:hover { background: var(--panel-2); border-color: rgba(255,255,255,0.22); }
+    .btn:hover { background: var(--panel-2); border-color: var(--border-strong); }
     .btn:active { transform: scale(0.98); }
     .btn:disabled { opacity: 0.45; cursor: not-allowed; }
     .btn svg { flex-shrink: 0; }
 
     .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      border-color: transparent;
-      color: #0a0e1a;
+      background: var(--text);
+      border-color: var(--text);
+      color: var(--bg);
       font-weight: 700;
-      box-shadow: 0 14px 40px -16px rgba(124, 92, 255, 0.7), 0 1px 0 rgba(255,255,255,0.4) inset;
+      box-shadow: 0 8px 24px -10px rgba(0,0,0,0.35);
     }
-    .btn-primary:hover {
-      background: linear-gradient(135deg, #76c2ff, #8d6eff);
-      border-color: transparent;
-    }
+    .btn-primary:hover { opacity: 0.92; }
     .btn-primary[data-mode="pause"] {
-      background: linear-gradient(135deg, var(--climb-warn), #fbbf24);
+      background: var(--climb-warn);
+      border-color: var(--climb-warn);
+      color: #ffffff;
     }
     .btn-primary[data-mode="resume"] {
-      background: linear-gradient(135deg, var(--finished), #4ade80);
+      background: var(--finished);
+      border-color: var(--finished);
+      color: #ffffff;
     }
     .btn-lg {
       padding: 18px 26px;
@@ -441,7 +441,7 @@
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(5, 8, 16, 0.6);
+      background: var(--backdrop);
       backdrop-filter: blur(12px);
       z-index: 50;
       display: none;
@@ -454,7 +454,7 @@
     .modal {
       width: 100%;
       max-width: 520px;
-      background: linear-gradient(180deg, rgba(28, 34, 52, 0.95), rgba(15, 18, 28, 0.95));
+      background: var(--modal-bg);
       border: 1px solid var(--border-strong);
       border-radius: 22px;
       padding: 24px;
@@ -496,18 +496,20 @@
       padding: 12px;
       border-radius: 12px;
       border: 1px solid var(--border);
-      background: rgba(255,255,255,0.03);
+      background: var(--surface);
       color: var(--text);
       cursor: pointer;
       text-align: left;
       transition: all .15s;
     }
-    .preset-btn:hover { border-color: var(--border-strong); background: rgba(255,255,255,0.06); }
+    .preset-btn:hover { border-color: var(--border-strong); background: var(--surface-hover); }
     .preset-btn.active {
-      border-color: var(--accent);
-      background: rgba(94, 182, 255, 0.1);
-      box-shadow: 0 0 0 1px var(--accent) inset;
+      border-color: var(--text);
+      background: var(--text);
+      color: var(--bg);
+      box-shadow: 0 0 0 1px var(--text) inset;
     }
+    .preset-btn.active .preset-detail { color: rgba(255,255,255,0.55); }
     .preset-btn .preset-title {
       font-weight: 700;
       font-size: 13px;
@@ -529,7 +531,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      background: rgba(0,0,0,0.25);
+      background: var(--surface-deep);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 4px;
@@ -560,12 +562,12 @@
       width: 28px; height: 28px;
       border-radius: 8px;
       border: 1px solid var(--border);
-      background: rgba(255,255,255,0.04);
+      background: var(--surface);
       color: var(--text);
       cursor: pointer;
       display: grid; place-items: center;
     }
-    .stepper:hover { background: rgba(255,255,255,0.08); }
+    .stepper:hover { background: var(--surface-hover); }
 
     .count-grid {
       display: grid;
@@ -576,19 +578,19 @@
       padding: 10px;
       border-radius: 10px;
       border: 1px solid var(--border);
-      background: rgba(255,255,255,0.03);
+      background: var(--surface);
       color: var(--text);
       cursor: pointer;
       font-weight: 600;
       font-family: 'JetBrains Mono', monospace;
       transition: all .15s;
     }
-    .count-btn:hover { background: rgba(255,255,255,0.06); }
+    .count-btn:hover { background: var(--surface-hover); }
     .count-btn.active {
-      border-color: var(--accent);
-      background: rgba(94, 182, 255, 0.12);
-      color: #bae6fd;
-      box-shadow: 0 0 0 1px var(--accent) inset;
+      border-color: var(--text);
+      background: var(--text);
+      color: var(--bg);
+      box-shadow: 0 0 0 1px var(--text) inset;
     }
     .count-btn-inf {
       grid-column: 1 / -1;
@@ -600,7 +602,7 @@
       display: flex; align-items: center; justify-content: space-between;
       padding: 12px 14px;
       border-radius: 12px;
-      background: rgba(255,255,255,0.03);
+      background: var(--surface);
       border: 1px solid var(--border);
       margin-bottom: 8px;
     }
@@ -608,7 +610,8 @@
     .toggle-row .hint { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
     .toggle {
       width: 44px; height: 26px;
-      background: rgba(255,255,255,0.1);
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
       border-radius: 999px;
       position: relative;
       cursor: pointer;
@@ -617,14 +620,15 @@
     }
     .toggle::after {
       content: ''; position: absolute;
-      top: 3px; left: 3px;
+      top: 2px; left: 2px;
       width: 20px; height: 20px;
-      background: white;
+      background: var(--bg-2);
       border-radius: 50%;
       transition: transform .2s, background .2s;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
-    .toggle.on { background: var(--accent); }
+    .toggle.on { background: var(--text); border-color: var(--text); }
+    .toggle.on::after { background: var(--bg-2); }
     .toggle.on::after { transform: translateX(18px); }
 
     .slider-row {
@@ -635,7 +639,7 @@
       flex: 1;
       -webkit-appearance: none;
       height: 4px;
-      background: rgba(255,255,255,0.1);
+      background: var(--surface-hover);
       border-radius: 2px;
       outline: none;
     }
@@ -694,7 +698,7 @@
       padding: 2px 6px;
       border-radius: 5px;
       border: 1px solid var(--border-strong);
-      background: rgba(255,255,255,0.05);
+      background: var(--bg-2);
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
       color: var(--text-dim);
@@ -1143,6 +1147,9 @@
         toast_sound_disabled: 'Son coupé',
         toast_sound_test: 'Test sonore en cours…',
         toast_hint_spacebar: 'Astuce : barre espace = démarrer / pause',
+        status_current: 'En cours',
+        status_done: 'Terminé',
+        status_pending: 'À venir',
       },
       en: {
         brand_subtitle: 'Competition · IFSC format',
@@ -1214,6 +1221,9 @@
         toast_sound_disabled: 'Sound muted',
         toast_sound_test: 'Sound test in progress…',
         toast_hint_spacebar: 'Tip: spacebar = start / pause',
+        status_current: 'Active',
+        status_done: 'Done',
+        status_pending: 'Upcoming',
       },
     };
 
@@ -1436,18 +1446,15 @@
         const div = document.createElement('div');
         div.className = 'boulder-pill';
         let state = 'pending';
-        if (runtime.phase === 'finished') {
-          state = 'done';
-        } else if (i < runtime.boulder) {
-          state = 'done';
-        } else if (i === runtime.boulder && (runtime.phase === 'climb' || runtime.phase === 'transition')) {
-          state = 'current';
-        } else if (i === runtime.boulder && runtime.phase === 'observation') {
-          state = 'current';
-        }
+        if (runtime.phase === 'finished') state = 'done';
+        else if (i < runtime.boulder) state = 'done';
+        else if (i === runtime.boulder && runtime.phase !== 'idle') state = 'current';
         div.dataset.state = state;
         div.dataset.boulder = i;
-        div.innerHTML = `<span class="num"><span>${i}</span></span><span>Bloc ${i}</span>`;
+        const statusKey = state === 'current'
+          ? (runtime.phase === 'observation' ? 'phase_observation' : runtime.phase === 'transition' ? 'phase_transition' : 'status_current')
+          : state === 'done' ? 'status_done' : 'status_pending';
+        div.innerHTML = `<span class="num"><span>${i}</span></span><span class="status">${t(statusKey)}</span>`;
         div.addEventListener('click', () => jumpToBoulder(i));
         els.boulders.appendChild(div);
       }
@@ -1946,6 +1953,9 @@
       document.documentElement.dataset.theme = eff;
       // Icon = the theme you'll switch TO
       els.iconTheme.innerHTML = eff === 'dark' ? SUN_SVG : MOON_SVG;
+      // Mobile browser chrome
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.content = eff === 'dark' ? '#07090f' : '#f6f4ef';
     }
 
     // React to OS theme changes when in auto mode
