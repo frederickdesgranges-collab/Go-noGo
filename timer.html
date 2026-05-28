@@ -1305,7 +1305,7 @@
 
     // ============ AUDIO ============
     // Real IFSC samples (loaded once); synth fallback if loading fails.
-    const SAMPLE_VERSION = '15';
+    const SAMPLE_VERSION = '16';
     const SAMPLE_URLS = {
       tick:           'assets/sounds/tick.mp3?v=' + SAMPLE_VERSION,
       end:            'assets/sounds/end.mp3?v=' + SAMPLE_VERSION,
@@ -1625,7 +1625,10 @@
       runtime.remaining = phaseTotalDuration();
       lastBeepSecond = -1;
       runtime.countdownFullTriggered = false;
-      stopCountdownAudio();
+      // Note: do NOT stopCountdownAudio() here. A natural phase advance
+      // happens 800 ms after climb end, while the buzzer + echo tail still
+      // has ~1.5 s of audio left. We want that tail to play out naturally
+      // over the next phase. Pause / stop / reset / skip explicitly halt it.
       runtime.running = true;
       tickStart = performance.now();
       requestWakeLock();
