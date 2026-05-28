@@ -531,6 +531,11 @@
       color: #bae6fd;
       box-shadow: 0 0 0 1px var(--accent) inset;
     }
+    .count-btn-inf {
+      grid-column: 1 / -1;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.04em;
+    }
 
     .toggle-row {
       display: flex; align-items: center; justify-content: space-between;
@@ -853,13 +858,25 @@
       <section>
         <span class="modal-label">Format de la ronde</span>
         <div class="preset-grid">
-          <button class="preset-btn" data-preset="flash">
-            <div class="preset-title">Flash · Finales</div>
-            <div class="preset-detail">4:00 · 15s · obs</div>
+          <button class="preset-btn" data-preset="qualif-vue">
+            <div class="preset-title">Qualification à vue</div>
+            <div class="preset-detail">5:00 · 15s · ∞</div>
           </button>
-          <button class="preset-btn" data-preset="onsight">
-            <div class="preset-title">Semi · À vue</div>
-            <div class="preset-detail">5:00 · 15s</div>
+          <button class="preset-btn" data-preset="qualif-flash">
+            <div class="preset-title">Qualification flash</div>
+            <div class="preset-detail">4:00 · 15s · ∞</div>
+          </button>
+          <button class="preset-btn" data-preset="demi-finales">
+            <div class="preset-title">Demi-finales</div>
+            <div class="preset-detail">5:00 · 15s · ∞</div>
+          </button>
+          <button class="preset-btn" data-preset="finale">
+            <div class="preset-title">Finale</div>
+            <div class="preset-detail">4:00 · 15s · ∞</div>
+          </button>
+          <button class="preset-btn" data-preset="observation">
+            <div class="preset-title">Observation</div>
+            <div class="preset-detail">3:00 · 30s · 4 blocs</div>
           </button>
         </div>
       </section>
@@ -905,6 +922,7 @@
           <button class="count-btn" data-count="8">8</button>
           <button class="count-btn" data-count="9">9</button>
           <button class="count-btn" data-count="10">10</button>
+          <button class="count-btn count-btn-inf" data-count="inf" title="Illimité">∞ Illimité</button>
         </div>
       </section>
 
@@ -980,8 +998,11 @@
 
     // ============ STATE ============
     const PRESETS = {
-      flash: { climb: 240, transition: 15, observation: 120, observationOn: true, label: 'Finales' },
-      onsight: { climb: 300, transition: 15, observation: 0, observationOn: false, label: 'Semi-finales' },
+      'qualif-vue':   { climb: 300, transition: 15, observation: 0, observationOn: false, numBoulders: Infinity, label: 'Qualification à vue' },
+      'qualif-flash': { climb: 240, transition: 15, observation: 0, observationOn: false, numBoulders: Infinity, label: 'Qualification flash' },
+      'demi-finales': { climb: 300, transition: 15, observation: 0, observationOn: false, numBoulders: Infinity, label: 'Demi-finales' },
+      'finale':       { climb: 240, transition: 15, observation: 0, observationOn: false, numBoulders: Infinity, label: 'Finale' },
+      'observation':  { climb: 180, transition: 30, observation: 0, observationOn: false, numBoulders: 4,        label: 'Observation' },
     };
 
     const DEFAULTS = {
@@ -1008,11 +1029,16 @@
     function loadSettings() {
       try {
         const s = JSON.parse(localStorage.getItem('boulderTimer.settings') || '{}');
+        if (s.numBoulders === 'inf') s.numBoulders = Infinity;
         return { ...DEFAULTS, ...s };
       } catch { return { ...DEFAULTS }; }
     }
     function saveSettings() {
-      try { localStorage.setItem('boulderTimer.settings', JSON.stringify(settings)); }
+      try {
+        const toSave = { ...settings };
+        if (toSave.numBoulders === Infinity) toSave.numBoulders = 'inf';
+        localStorage.setItem('boulderTimer.settings', JSON.stringify(toSave));
+      }
       catch {}
     }
     function freshRuntime() {
@@ -1128,11 +1154,16 @@
       return settings.climbDuration;
     }
 
+    function totalLabel() {
+      return settings.numBoulders === Infinity ? '∞' : String(settings.numBoulders);
+    }
+
     function phaseInfo(phase) {
+      const total = totalLabel();
       switch (phase) {
         case 'idle': return { label: 'Prêt', sub: 'Appuyer sur démarrer', color: 'var(--idle)' };
-        case 'observation': return { label: 'Observation', sub: `Observation des ${settings.numBoulders} blocs`, color: 'var(--observation)' };
-        case 'climb': return { label: 'En escalade', sub: `Bloc ${runtime.boulder} sur ${settings.numBoulders}`, color: 'var(--climb)' };
+        case 'observation': return { label: 'Observation', sub: `Observation${settings.numBoulders === Infinity ? '' : ` des ${total} blocs`}`, color: 'var(--observation)' };
+        case 'climb': return { label: 'En escalade', sub: `Bloc ${runtime.boulder} sur ${total}`, color: 'var(--climb)' };
         case 'transition': return { label: 'Transition', sub: `Vers le bloc ${runtime.boulder}`, color: 'var(--transition)' };
         case 'finished': return { label: 'Terminé', sub: 'Tour complété', color: 'var(--finished)' };
       }
@@ -1149,6 +1180,12 @@
     function renderBoulders() {
       const n = settings.numBoulders;
       els.boulders.innerHTML = '';
+      // Infinite mode: no fixed pill list (training-style timer)
+      if (n === Infinity) {
+        els.boulders.style.display = 'none';
+        return;
+      }
+      els.boulders.style.display = '';
       for (let i = 1; i <= n; i++) {
         const div = document.createElement('div');
         div.className = 'boulder-pill';
@@ -1177,7 +1214,7 @@
 
       els.metaRound.textContent = settings.roundLabel;
       els.metaBoulder.textContent = runtime.boulder;
-      els.metaTotal.textContent = settings.numBoulders;
+      els.metaTotal.textContent = totalLabel();
       els.metaTotalTime.textContent = fmt(runtime.totalElapsed);
 
       els.time.textContent = fmt(runtime.remaining);
@@ -1461,7 +1498,9 @@
       els.tgSound.classList.toggle('on', settings.soundEnabled);
       els.obsTimeWrap.style.display = settings.observationEnabled ? 'block' : 'none';
       document.querySelectorAll('.count-btn').forEach(b => {
-        b.classList.toggle('active', parseInt(b.dataset.count) === settings.numBoulders);
+        const isInf = b.dataset.count === 'inf';
+        const match = isInf ? (settings.numBoulders === Infinity) : (parseInt(b.dataset.count) === settings.numBoulders);
+        b.classList.toggle('active', match);
       });
       // Preset highlight
       let active = '';
@@ -1505,6 +1544,7 @@
       settings.transitionDuration = p.transition;
       settings.observationDuration = p.observation;
       settings.observationEnabled = p.observationOn;
+      settings.numBoulders = p.numBoulders;
       settings.roundLabel = p.label;
       // Update UI
       els.inClimbMin.value = Math.floor(p.climb / 60);
@@ -1516,6 +1556,11 @@
       els.obsTimeWrap.style.display = p.observationOn ? 'block' : 'none';
       document.querySelectorAll('.preset-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.preset === name);
+      });
+      document.querySelectorAll('.count-btn').forEach(b => {
+        const isInf = b.dataset.count === 'inf';
+        const match = isInf ? (p.numBoulders === Infinity) : (parseInt(b.dataset.count) === p.numBoulders);
+        b.classList.toggle('active', match);
       });
     }
 
@@ -1571,7 +1616,7 @@
       btn.addEventListener('click', () => {
         document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        settings.numBoulders = parseInt(btn.dataset.count);
+        settings.numBoulders = btn.dataset.count === 'inf' ? Infinity : parseInt(btn.dataset.count);
       });
     });
 
