@@ -719,6 +719,8 @@
     body.fullscreen .boulders,
     body.fullscreen .shortcuts,
     body.fullscreen .meta-row .round-meta { opacity: 0.5; transition: opacity .4s; }
+    /* Settings stays at full opacity so it's always reachable. */
+    body.fullscreen #btn-settings { opacity: 1; }
     body.fullscreen .timer-ring svg {
       width: min(82vh, 100vw);
       height: min(82vh, 100vw);
@@ -762,16 +764,63 @@
         grid-template-rows: 1fr;
         max-width: none;
       }
-      /* Hide everything except the time digits */
-      header.topbar,
+      /* Hide the meta-row, pills, shortcuts, controls and the tiny sub-label.
+         Keep the phase label (.time-label) so the user always knows which
+         phase the timer is in (On the wall / Transition / etc.). The topbar
+         floats as a small action group top-right so settings stays reachable. */
       .meta-row,
       .boulders,
       .shortcuts,
       .controls,
-      .time-label,
-      .time-sub {
-        display: none !important;
+      .time-sub { display: none !important; }
+      .time-label {
+        position: fixed;
+        top: 12px;
+        left: 14px;
+        z-index: 25;
+        font-size: 13px;
+        letter-spacing: 0.18em;
+        font-weight: 700;
+        color: var(--text);
+        text-transform: uppercase;
+        padding: 6px 12px;
+        background: var(--panel);
+        border: 1px solid var(--border-strong);
+        border-radius: 999px;
+        backdrop-filter: blur(8px);
       }
+      header.topbar {
+        position: fixed;
+        top: 8px;
+        right: 8px;
+        left: auto;
+        z-index: 30;
+        background: transparent;
+        padding: 0;
+        margin: 0;
+        width: auto;
+      }
+      header.topbar .brand { display: none; }
+      header.topbar .top-actions {
+        background: var(--panel);
+        border: 1px solid var(--border-strong);
+        border-radius: 999px;
+        padding: 4px;
+        gap: 2px;
+        backdrop-filter: blur(8px);
+        opacity: 0.85;
+        transition: opacity .2s;
+      }
+      header.topbar .top-actions:hover { opacity: 1; }
+      header.topbar .icon-btn,
+      header.topbar .lang-pill {
+        width: 32px; height: 32px;
+        border-radius: 999px;
+        border-color: transparent;
+        background: transparent;
+      }
+      header.topbar .lang-pill { width: auto; padding: 0 8px; font-size: 11px; }
+      header.topbar .icon-btn svg { width: 16px; height: 16px; }
       main.stage {
         grid-template-rows: 1fr;
         gap: 0;
@@ -1895,18 +1944,27 @@
     });
 
     // ============ FULLSCREEN ============
+    // The body.fullscreen class drives the minimal-chrome look (dimmed
+    // top bar, focused timer). It's applied by default on init so the
+    // first impression is the "big-screen" view the user expects.
+    // Toggling the fullscreen button swaps both the browser fullscreen
+    // API and the visual class together. Browser-initiated exits
+    // (e.g. Esc) don't remove the visual class so the user keeps the
+    // intended look.
     function toggleFullscreen() {
-      const el = document.documentElement;
-      if (!document.fullscreenElement) {
-        el.requestFullscreen?.().catch(() => {});
-        document.body.classList.add('fullscreen');
-      } else {
+      const isOn = document.body.classList.contains('fullscreen');
+      if (isOn) {
         document.exitFullscreen?.();
         document.body.classList.remove('fullscreen');
+      } else {
+        document.documentElement.requestFullscreen?.().catch(() => {});
+        document.body.classList.add('fullscreen');
       }
     }
     document.addEventListener('fullscreenchange', () => {
-      document.body.classList.toggle('fullscreen', !!document.fullscreenElement);
+      // Only ensure the class is on when entering browser fullscreen.
+      // Browser-initiated exits do not strip the visual class.
+      if (document.fullscreenElement) document.body.classList.add('fullscreen');
     });
 
     // ============ SETTINGS MODAL ============
@@ -2152,6 +2210,10 @@
     });
 
     // ============ INIT ============
+    // Apply the minimal-chrome look by default ("big-screen" mode the user
+    // expects on first open). User can toggle it off via the fullscreen
+    // button; browser-initiated exits do not strip it.
+    document.body.classList.add('fullscreen');
     applyTheme(settings.theme || 'auto');
     applyLanguage(settings.language || (browserPrefersFr ? 'fr' : 'en'));
     // Warm up the HTTP cache for samples so the first user gesture can
