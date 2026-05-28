@@ -203,34 +203,11 @@
       position: relative;
       display: grid;
       place-items: center;
-      padding: 20px 0;
+      padding: 0;
       min-height: 0;
     }
-    .timer-ring {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      pointer-events: none;
-    }
-    .timer-ring svg {
-      width: min(72vh, 96vw, 640px);
-      height: min(72vh, 96vw, 640px);
-      transform: rotate(-90deg);
-    }
-    .ring-bg {
-      fill: none;
-      stroke: rgba(255, 255, 255, 0.04);
-      stroke-width: 6;
-    }
-    .ring-fg {
-      fill: none;
-      stroke: var(--phase-color, var(--idle));
-      stroke-width: 6;
-      stroke-linecap: round;
-      transition: stroke .25s, stroke-dashoffset .25s linear;
-      filter: drop-shadow(0 0 16px var(--phase-color, transparent));
-    }
+    /* Countdown ring removed for a clean digit-only display */
+    .timer-ring { display: none; }
 
     .time-display {
       position: relative;
@@ -239,6 +216,7 @@
       place-items: center;
       gap: 10px;
       text-align: center;
+      width: 100%;
     }
     .time-label {
       font-size: 12px;
@@ -249,12 +227,12 @@
     }
     .time {
       font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
+      font-weight: 800;
       font-variant-numeric: tabular-nums;
-      font-size: clamp(72px, 18vw, 200px);
-      line-height: 1;
+      font-size: clamp(140px, 32vw, 520px);
+      line-height: 0.95;
       color: var(--text);
-      letter-spacing: -0.04em;
+      letter-spacing: -0.05em;
       text-shadow: 0 0 60px var(--phase-color, transparent);
       transition: color .25s, text-shadow .25s, transform .15s;
     }
@@ -693,6 +671,43 @@
       .boulders { display: none; }
       .shortcuts { display: none; }
     }
+
+    /* ====== LANDSCAPE PHONE: timer-only mode ====== */
+    @media (orientation: landscape) and (max-height: 500px) {
+      .app {
+        padding: 0;
+        gap: 0;
+        grid-template-rows: 1fr;
+        max-width: none;
+      }
+      /* Hide everything except the time digits */
+      header.topbar,
+      .meta-row,
+      .boulders,
+      .shortcuts,
+      .controls,
+      .time-label,
+      .time-sub {
+        display: none !important;
+      }
+      main.stage {
+        grid-template-rows: 1fr;
+        gap: 0;
+        height: 100vh;
+        height: 100dvh;
+      }
+      .timer-wrap {
+        height: 100vh;
+        height: 100dvh;
+        padding: 0;
+      }
+      .time-display { gap: 0; }
+      .time {
+        font-size: min(34vw, 95vh);
+        letter-spacing: -0.06em;
+        line-height: 1;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1008,206 +1023,47 @@
       };
     }
 
-    // ============ AUDIO (offline-rendered studio samples) ============
-    let masterBus = null;
-    const SAMPLE_URLS = {
-      tick:  'assets/sounds/tick.mp3',
-      go:    'assets/sounds/go.mp3',
-      start: 'assets/sounds/start.mp3',
-      end:   'assets/sounds/end.mp3',
-    };
-    const sampleBuffers = { tick: null, go: null, start: null, end: null };
-    let samplesLoading = null;
-
+    // ============ AUDIO ============
     function ensureAudio() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const mg = audioCtx.createGain();
-        mg.gain.value = 1.0;
-        mg.connect(audioCtx.destination);
-        masterBus = mg;
-        // Kick off sample loading on first audio context init
-        loadAllSamples();
       }
       if (audioCtx.state === 'suspended') audioCtx.resume();
       return audioCtx;
     }
 
-    async function loadSample(key, url) {
-      try {
-        const r = await fetch(url, { cache: 'force-cache' });
-        if (!r.ok) throw new Error(r.status);
-        const ab = await r.arrayBuffer();
-        const buf = await audioCtx.decodeAudioData(ab);
-        sampleBuffers[key] = buf;
-      } catch (e) {
-        console.warn('Sample load failed:', key, e);
-      }
-    }
-
-    function loadAllSamples() {
-      if (samplesLoading) return samplesLoading;
-      samplesLoading = Promise.all(
-        Object.entries(SAMPLE_URLS).map(([k, u]) => loadSample(k, u))
-      );
-      return samplesLoading;
-    }
-
-    function playSample(key, volume = 1.0) {
-      if (!settings.soundEnabled) return false;
-      const buf = sampleBuffers[key];
-      if (!buf || !audioCtx) return false;
-      const src = audioCtx.createBufferSource();
-      src.buffer = buf;
-      const g = audioCtx.createGain();
-      g.gain.value = volume;
-      src.connect(g).connect(masterBus);
-      src.start();
-      return true;
-    }
-
-    // Short noise click — gives the attack a percussive "thud" like a real horn
-    function noiseClick(ctx, dest, t0, duration, gainVal, bandFreq) {
-      const buf = ctx.createBuffer(1, Math.max(1, ctx.sampleRate * duration), ctx.sampleRate);
-      const d = buf.getChannelData(0);
-      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
-      const src = ctx.createBufferSource();
-      src.buffer = buf;
-      const bp = ctx.createBiquadFilter();
-      bp.type = 'bandpass';
-      bp.frequency.value = bandFreq;
-      bp.Q.value = 0.7;
-      const g = ctx.createGain();
-      g.gain.value = gainVal;
-      src.connect(bp).connect(g).connect(dest);
-      src.start(t0);
-    }
-
-    // Stadium-grade horn blast: harmonic stack + detune + filter sweep + sub + click
-    function hornBlast({
-      freq = 466,
-      duration = 1.0,
-      volume = 0.7,
-      attack = 0.008,
-      release = 0.28,
-      detune = 6,
-      brightness = 2400,
-      sub = true,
-      delay = 0,
-    } = {}) {
+    function tone({ freq = 880, duration = 0.18, volume = 0.45, type = 'sine', attack = 0.005, release = 0.04, delay = 0 } = {}) {
       if (!settings.soundEnabled) return;
       const ctx = ensureAudio();
       const t0 = ctx.currentTime + delay;
-
-      const lpf = ctx.createBiquadFilter();
-      lpf.type = 'lowpass';
-      lpf.Q.value = 1.1;
-      lpf.frequency.setValueAtTime(brightness * 0.45, t0);
-      lpf.frequency.linearRampToValueAtTime(brightness, t0 + attack + 0.06);
-
-      const env = ctx.createGain();
-      env.gain.setValueAtTime(0.0001, t0);
-      env.gain.exponentialRampToValueAtTime(volume, t0 + attack);
-      env.gain.setValueAtTime(volume, t0 + duration - release);
-      env.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
-
-      const partials = [
-        { mult: 1.0, amp: 1.00, type: 'sawtooth', det:  0 },
-        { mult: 1.0, amp: 0.55, type: 'square',   det:  detune },
-        { mult: 2.0, amp: 0.45, type: 'sawtooth', det: -detune },
-        { mult: 3.0, amp: 0.28, type: 'sawtooth', det:  detune * 1.4 },
-        { mult: 4.0, amp: 0.18, type: 'sawtooth', det: -detune * 1.2 },
-        { mult: 5.0, amp: 0.10, type: 'sine',     det:  detune * 2 },
-      ];
-      partials.forEach(p => {
-        const o = ctx.createOscillator();
-        o.type = p.type;
-        o.frequency.value = freq * p.mult;
-        o.detune.value = p.det;
-        const g = ctx.createGain();
-        g.gain.value = p.amp * 0.32;
-        o.connect(g).connect(lpf);
-        o.start(t0);
-        o.stop(t0 + duration + 0.05);
-      });
-
-      if (sub) {
-        const so = ctx.createOscillator();
-        so.type = 'sine';
-        so.frequency.value = freq * 0.5;
-        const sg = ctx.createGain();
-        sg.gain.value = 0.55;
-        so.connect(sg).connect(lpf);
-        so.start(t0);
-        so.stop(t0 + duration + 0.05);
-      }
-
-      noiseClick(ctx, env, t0, 0.018, volume * 0.55, freq * 4);
-
-      lpf.connect(env).connect(masterBus);
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, t0);
+      gain.gain.setValueAtTime(0, t0);
+      gain.gain.linearRampToValueAtTime(volume, t0 + attack);
+      gain.gain.setValueAtTime(volume, t0 + duration - release);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t0);
+      osc.stop(t0 + duration + 0.02);
     }
-
-    // Sharp competition tick — clear, present, with subtle pitch drop
-    function tickBeep({ freq = 1000, volume = 0.65, duration = 0.13, delay = 0 } = {}) {
-      if (!settings.soundEnabled) return;
-      const ctx = ensureAudio();
-      const t0 = ctx.currentTime + delay;
-
-      const lpf = ctx.createBiquadFilter();
-      lpf.type = 'lowpass';
-      lpf.Q.value = 0.7;
-      lpf.frequency.value = 5000;
-
-      const env = ctx.createGain();
-      env.gain.setValueAtTime(0.0001, t0);
-      env.gain.exponentialRampToValueAtTime(volume, t0 + 0.004);
-      env.gain.setValueAtTime(volume, t0 + duration - 0.05);
-      env.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
-
-      [
-        { mult: 1.0, amp: 1.00 },
-        { mult: 2.0, amp: 0.22 },
-        { mult: 3.0, amp: 0.09 },
-      ].forEach(p => {
-        const o = ctx.createOscillator();
-        o.type = 'sine';
-        o.frequency.setValueAtTime(freq * p.mult, t0);
-        o.frequency.exponentialRampToValueAtTime(freq * p.mult * 0.96, t0 + duration);
-        const g = ctx.createGain();
-        g.gain.value = p.amp * 0.5;
-        o.connect(g).connect(lpf);
-        o.start(t0);
-        o.stop(t0 + duration + 0.02);
-      });
-
-      noiseClick(ctx, env, t0, 0.006, volume * 0.22, freq * 2);
-
-      lpf.connect(env).connect(masterBus);
-    }
-
-    // ===== PUBLIC SIGNAL API =====
-    // Plays studio-rendered MP3 samples; falls back to synthesis if not loaded.
 
     function beepTick() {
-      if (playSample('tick', 0.9)) return;
-      tickBeep({ freq: 1000, volume: 0.65 });
+      tone({ freq: 1180, duration: 0.16, volume: 0.5, type: 'square', attack: 0.002, release: 0.06 });
     }
-
     function beepStart() {
-      if (playSample('start', 0.95)) return;
-      hornBlast({ freq: 466.16, duration: 1.0, volume: 0.72, brightness: 2600, attack: 0.006, release: 0.3 });
+      tone({ freq: 880, duration: 0.18, volume: 0.45, type: 'sine' });
+      tone({ freq: 1320, duration: 0.5, volume: 0.55, type: 'sine', delay: 0.15 });
     }
-
-    function beepGo() {
-      if (playSample('go', 0.95)) return;
-      tickBeep({ freq: 1000, volume: 0.55, delay: 0.0 });
-      tickBeep({ freq: 1250, volume: 0.6,  delay: 0.16 });
-      hornBlast({ freq: 587.33, duration: 0.95, volume: 0.78, brightness: 2900, attack: 0.005, release: 0.28, delay: 0.34 });
-    }
-
     function beepEnd() {
-      if (playSample('end', 1.0)) return;
-      hornBlast({ freq: 110.0, duration: 1.9, volume: 0.88, brightness: 1400, attack: 0.014, release: 0.55, sub: true });
+      tone({ freq: 220, duration: 0.9, volume: 0.6, type: 'sawtooth' });
+      tone({ freq: 165, duration: 1.4, volume: 0.55, type: 'sawtooth', delay: 0.05 });
+    }
+    function beepGo() {
+      tone({ freq: 880, duration: 0.12, volume: 0.5 });
+      tone({ freq: 1100, duration: 0.12, volume: 0.5, delay: 0.14 });
+      tone({ freq: 1480, duration: 0.4, volume: 0.6, delay: 0.28 });
     }
 
     // ============ DOM ============
