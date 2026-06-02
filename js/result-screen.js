@@ -64,6 +64,18 @@ export function renderResult(evalResult) {
   // Indicators
   renderIndicators(evalResult.flags);
 
+  // Physio request banner — shown in parallel with the verdict, never replaces it.
+  const banner = document.getElementById('physio-banner');
+  if (banner) banner.hidden = !evalResult.physioRequest;
+
+  // WhatsApp button — surface only for urgent cases (red verdict or physio request).
+  // The full check-in already reaches the coach via the Google Sheet POST.
+  const waBtn = document.getElementById('whatsapp-btn');
+  if (waBtn) {
+    const showWa = evalResult.color === 'red' || evalResult.physioRequest === true;
+    waBtn.hidden = !showWa;
+  }
+
   // Reset scroll position so user starts on the photo full-screen
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
@@ -591,7 +603,7 @@ function sendToCoachSheet(evalResult) {
     score: evalResult.score,
     track: evalResult.track,
     color: evalResult.color,
-    medicalOverride: !!evalResult.medicalOverride,
+    physioRequest: !!evalResult.physioRequest,
     dayOfCamp: evalResult.dayIdx ?? '',
     sleepHours: state.sleep?.durationHours ?? '',
     sleepBedtime: state.sleep?.bedtime ?? '',
@@ -613,7 +625,7 @@ function sendToCoachSheet(evalResult) {
     painBack: state.pain?.back ?? '',
     painSkin: state.pain?.skin ?? '',
     painOther: state.pain?.other ?? '',
-    pipDorsal: !!state.pain?.pipDorsal,
+    wantsPhysio: !!state.pain?.wantsPhysio,
     fuelScore: state.hydration?.fuelScore ?? '',
     note: state.hydration?.note ?? '',
     flagsRed: (evalResult.flags?.red || []).map((f) => f.key).join('|'),

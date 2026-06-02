@@ -97,13 +97,11 @@ export function getPlan(planKey) {
  */
 export function evaluate() {
   const flags = { red: [], yellow: [] };
-  let medicalOverride = false;
 
-  // PIP dorsal — hard stop
-  if (state.pain.pipDorsal) {
-    medicalOverride = true;
-    flags.red.push({ key: 'flagPipDorsal' });
-  }
+  // Physio request — non-blocking. The athlete asks to be checked by the
+  // physio today; the coach is notified, but it does NOT push to Track B,
+  // does NOT change the colour, and does NOT zero the score.
+  const physioRequest = !!state.pain.wantsPhysio;
 
   // Sleep duration — only flag when the deficit is real.
   // < 6h is a clear red zone regardless of quality.
@@ -169,18 +167,17 @@ export function evaluate() {
   const prevIntensity = state.wellbeing.prevSessionIntensity;
   if (prevIntensity >= 5) flags.yellow.push({ key: 'flagPrevSessionHard' });
 
-  // Decision
+  // Score must be computed BEFORE the colour decision so a "no-flag but
+  // low reserve" day cannot show green while the plan says "go easy".
+  const score = computeReadinessScore();
+
+  // Decision — flags first, then a low-reserve safety net using the score.
   let track = 'A';
   let color = 'green';
   let messageKey = 'result.messageGreen';
   let kindnessKey = 'result.kindnessGreen';
 
-  if (medicalOverride) {
-    track = 'B';
-    color = 'red';
-    messageKey = 'result.messageMedical';
-    kindnessKey = 'result.kindnessMedical';
-  } else if (flags.red.length >= 1) {
+  if (flags.red.length >= 1) {
     track = 'B';
     color = 'red';
     messageKey = 'result.messageRed';
@@ -195,17 +192,18 @@ export function evaluate() {
     color = 'yellow';
     messageKey = 'result.messageYellowSoft';
     kindnessKey = 'result.kindnessYellowSoft';
+  } else if (score < 75) {
+    // No drapeau, but the reserve is too low for a full-load day.
+    track = 'B';
+    color = 'yellow';
+    messageKey = 'result.messageLowScore';
+    kindnessKey = 'result.kindnessYellowSoft';
   }
 
   // Ring fill ratio: 1 for green, 0.6 for yellow, 0.3 for red
   let ringRatio = 1;
   if (color === 'yellow') ringRatio = 0.6;
   else if (color === 'red') ringRatio = 0.3;
-
-  // Granular readiness score 0-100 — penalised by flags so it tracks
-  // the A/B decision more tightly. Track A typically lands ≥ 80, Track
-  // B yellow lands in the 50-79 band, Track B red dives below 50.
-  const score = computeReadinessScore(medicalOverride, flags);
 
   // Plan + today's recommendation (depends on profile + day + score)
   const planKey = resolvePlanKey(score);
@@ -217,7 +215,7 @@ export function evaluate() {
   // (score < 50 cuts intensity in half, 100 = full plan)
   let adjustedIntensity = today ? today.intensity : null;
   let adviceKey = 'reco.followPlan';
-  if (today && !medicalOverride) {
+  if (today) {
     if (score < 50) {
       adjustedIntensity = Math.round(today.intensity * 0.5);
       adviceKey = 'reco.lighter';
@@ -227,15 +225,12 @@ export function evaluate() {
     } else {
       adviceKey = today.intensity >= 100 ? 'reco.pushHard' : 'reco.followPlan';
     }
-  } else if (medicalOverride) {
-    adjustedIntensity = 0;
-    adviceKey = 'reco.medical';
   }
 
   return {
     track,
     color,
-    medicalOverride,
+    physioRequest,
     flags,
     messageKey,
     kindnessKey,
@@ -252,12 +247,10 @@ export function evaluate() {
 
 /**
  * Compute a 0-100 readiness score from the current state.
- * Weighted sum of positive signals minus pain penalties.
- * PIP dorsal = automatic 0.
+ * Sum of positive signals minus direct physical penalties. Each signal
+ * counts once — there is no extra flag-based penalty on top.
  */
-function computeReadinessScore(medicalOverride, flags) {
-  if (medicalOverride) return 0;
-
+function computeReadinessScore() {
   let score = 0;
   let max = 0;
 
@@ -304,16 +297,6 @@ function computeReadinessScore(medicalOverride, flags) {
   // Previous session intensity = contextual fatigue load
   if (state.wellbeing.prevSessionIntensity >= 5) score -= 5;
   else if (state.wellbeing.prevSessionIntensity >= 4) score -= 2;
-
-  // Flag penalty so the score tracks the Track A/B decision.
-  // A single yellow flag must drop the score below 75 (visual Track B
-  // zone). A single red flag dives into the deep-red zone.
-  if (flags) {
-    const yellowCount = (flags.yellow?.length) || 0;
-    const redCount = (flags.red?.length) || 0;
-    score -= yellowCount * 18;
-    score -= redCount * 25;
-  }
 
   // Normalize to 0-100
   const pct = Math.round(Math.max(0, Math.min(100, (score / max) * 100)));

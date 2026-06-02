@@ -1810,6 +1810,40 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 0 0 10px rgba(185, 28, 28, 0.5);
 }
 
+/* Physio request banner — shown alongside the verdict, never replaces it */
+.physio-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  background: var(--yellow-light);
+  color: var(--yellow-dark);
+  border: 1px solid rgba(180, 83, 9, 0.32);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  max-width: min(420px, 92%);
+  text-align: left;
+  box-shadow: 0 4px 14px rgba(180, 83, 9, 0.12);
+}
+
+.physio-banner[hidden] {
+  display: none;
+}
+
+.physio-banner-icon {
+  flex: 0 0 auto;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.physio-banner-text {
+  flex: 1 1 auto;
+}
+
 /* Hero text below the score stage (always visible — no scroll reveal needed) */
 .hero-text {
   position: relative;
@@ -3413,12 +3447,37 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
 .btn-arrow { transition: transform 0.25s ease; }
 .btn-cinematic:hover .btn-arrow { transform: translateX(4px); }
 
-.landing-disclaimer {
-  margin: 16px 0 0;
-  font-size: 11.5px;
+.landing-disclosure {
+  display: flex;
+  gap: 12px;
+  margin: 18px 0 22px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: rgba(20, 33, 26, 0.04);
+  border: 1px solid rgba(20, 33, 26, 0.16);
+  border-left: 3px solid var(--cec-red);
+}
+
+.landing-disclosure-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.landing-disclosure-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
+}
+
+.landing-disclosure-text {
+  margin: 0;
+  font-size: 12.5px;
   line-height: 1.5;
-  color: var(--text-tertiary);
-  text-align: center;
+  color: var(--text-secondary);
 }
 
 /* Transition states */
@@ -3630,14 +3689,19 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
             </div>
           </div>
 
+          <div class="landing-disclosure">
+            <div class="landing-disclosure-content">
+              <p class="landing-disclosure-title" data-i18n="landing.disclosureTitle">Envoyé au coach</p>
+              <p class="landing-disclosure-text" data-i18n="landing.disclaimer">Ce formulaire est envoyé directement à ton coach. Pour un signalement urgent, utilise WhatsApp.</p>
+            </div>
+          </div>
+
           <button class="btn btn-cinematic" id="landing-start" type="submit">
             <span data-i18n="landing.start">Commencer le check-in</span>
             <svg class="btn-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M5 12h14M13 6l6 6-6 6"/>
             </svg>
           </button>
-
-          <p class="landing-disclaimer" data-i18n="landing.disclaimer">Tes réponses ne quittent ton téléphone que si tu choisis de les envoyer au coach.</p>
         </form>
       </div>
     </section>
@@ -3819,12 +3883,12 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
         <div class="alert-box">
           <div class="alert-toggle">
             <label class="switch">
-              <input type="checkbox" id="pip-dorsal" />
+              <input type="checkbox" id="want-physio" />
               <span class="switch-slider"></span>
             </label>
             <div class="alert-content">
-              <p class="alert-title" data-i18n="pain.pipDorsalTitle">Douleur DORSALE sur articulation PIP ?</p>
-              <p class="alert-explain" data-i18n="pain.pipDorsalExplain">Douleur sur le DESSUS de l'articulation entre la 1re et la 2e phalange (pas la pulpe). Signal d'arrêt impératif.</p>
+              <p class="alert-title" data-i18n="pain.physioRequestTitle">Je veux voir le physio aujourd'hui</p>
+              <p class="alert-explain" data-i18n="pain.physioRequestExplain">Coche si tu as un inconfort que tu veux faire évaluer. Le coach sera averti. Vois le physio avant ta séance.</p>
             </div>
           </div>
         </div>
@@ -3949,6 +4013,10 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
           <span class="hero-score-value" id="readiness-value">—</span>
           <span class="hero-score-suffix">/ 100</span>
           <span class="track-pill" id="hero-track-label" data-i18n="result.trackA">TRACK A</span>
+          <div class="physio-banner" id="physio-banner" hidden>
+            <span class="physio-banner-icon" aria-hidden="true">🩹</span>
+            <span class="physio-banner-text" data-i18n="result.physioBanner">Tu as demandé à voir le physio. Vois-le avant de grimper.</span>
+          </div>
         </div>
 
         <div class="hero-text visible" id="hero-text-block">
@@ -4127,7 +4195,8 @@ const translations = {
       profileNotCompeting: 'Ne compétitionne pas',
       profileNotCompetingHint: "Camp d'entraînement",
       start: 'Commencer le check-in',
-      disclaimer: 'Tes réponses ne quittent ton téléphone que si tu choisis de les envoyer au coach.',
+      disclosureTitle: 'Envoyé au coach',
+      disclaimer: 'Ce formulaire est envoyé directement à ton coach. Pour un signalement urgent, utilise WhatsApp.',
       missingName: 'Indique ton prénom pour démarrer.',
       missingDiscipline: 'Choisis une discipline.',
       missingProfile: 'Choisis ton profil Arco.'
@@ -4153,7 +4222,6 @@ const translations = {
       pushHard: 'Tu es prêt. On pousse fort comme prévu.',
       cautious: 'On démarre prudemment. Réévalue après le warm-up.',
       lighter: 'On allège la journée. Volume et intensité réduits.',
-      medical: 'STOP. Évaluation médicale avant toute charge.',
       offDay: 'Journée off. Récupération active uniquement.'
     },
     sections: {
@@ -4217,8 +4285,8 @@ const translations = {
     },
     pain: {
       fingers: 'Doigts et articulations',
-      pipDorsalTitle: 'Douleur DORSALE sur articulation PIP ?',
-      pipDorsalExplain: "Douleur sur le DESSUS de l'articulation entre la 1re et la 2e phalange (pas la pulpe). Signal d'arrêt impératif.",
+      physioRequestTitle: "Je veux voir le physio aujourd'hui",
+      physioRequestExplain: 'Coche si tu as un inconfort que tu veux faire évaluer. Le coach sera averti. Vois le physio avant ta séance.',
       forearm: 'Avant-bras (zone fléchisseurs)',
       shoulders: 'Épaules / lats',
       elbow: 'Coude médial',
@@ -4241,7 +4309,7 @@ const translations = {
     },
     form: {
       submit: 'Calculer mon Track du jour',
-      disclaimer: "Tes réponses ne sont envoyées qu'à ton coach via WhatsApp, et seulement si tu décides de les partager."
+      disclaimer: "Tes réponses sont envoyées directement à ton coach. WhatsApp est réservé aux signalements urgents."
     },
     validation: {
       missingName: 'Indique ton prénom avant de continuer.',
@@ -4284,9 +4352,8 @@ const translations = {
       kindnessYellowHard: "C'est OK de ralentir aujourd'hui. La récup fait partie de la prépa.",
       messageRed: "Journée de récupération. Volume réduit, technique à l'aise.",
       kindnessRed: "Écouter son corps, c'est aussi un acte de performance. On reviendra plus fort demain.",
-      messageMedical: "STOP. Évaluation médicale requise avant toute charge.",
-      kindnessMedical: "Préviens immédiatement le coach et l'équipe médicale. Ne grimpe pas aujourd'hui.",
-      flagPipDorsal: 'PIP dorsale signalée — arrêt impératif',
+      messageLowScore: "Tes signaux sont corrects mais ta réserve du jour est basse. Journée prudente.",
+      physioBanner: "Tu as demandé à voir le physio. Vois-le avant de grimper.",
       flagSleepShort: 'Sommeil très court (< 6h)',
       flagSleepBorderline: 'Sommeil court & qualité faible (< 7h)',
       flagLowEnergy: 'Énergie basse',
@@ -4360,9 +4427,9 @@ const translations = {
       recovery: 'Récup PRS',
       prevIntensity: 'Intensité veille',
       fuel: 'Nutrition / hydratation',
-      pip: 'PIP dorsale',
-      pipYes: 'OUI',
-      pipNo: 'non'
+      physio: 'Demande physio',
+      physioYes: 'OUI',
+      physioNo: 'non'
     }
   },
   en: {
@@ -4402,7 +4469,8 @@ const translations = {
       profileNotCompeting: 'Not competing',
       profileNotCompetingHint: 'Training camp only',
       start: 'Start check-in',
-      disclaimer: 'Your answers stay on your phone until you choose to send them to coach.',
+      disclosureTitle: 'Sent to coach',
+      disclaimer: 'This form is sent directly to your coach. For an urgent alert, use WhatsApp.',
       missingName: 'Enter your first name to start.',
       missingDiscipline: 'Pick a discipline.',
       missingProfile: 'Pick your Arco profile.'
@@ -4428,7 +4496,6 @@ const translations = {
       pushHard: 'You\'re ready. Push hard as planned.',
       cautious: 'Start cautiously. Reassess after warm-up.',
       lighter: 'Lighter day today. Reduced volume and intensity.',
-      medical: 'STOP. Medical evaluation before any load.',
       offDay: 'Off day. Active recovery only.'
     },
     sections: {
@@ -4492,8 +4559,8 @@ const translations = {
     },
     pain: {
       fingers: 'Fingers and joints',
-      pipDorsalTitle: 'DORSAL pain on PIP joint?',
-      pipDorsalExplain: 'Pain on the TOP of the joint between the 1st and 2nd phalanx (not the pad). Mandatory stop signal.',
+      physioRequestTitle: 'I want to see the physio today',
+      physioRequestExplain: 'Check this if you have a discomfort you want checked. Your coach will be notified. See the physio before your session.',
       forearm: 'Forearm (flexor area)',
       shoulders: 'Shoulders / lats',
       elbow: 'Medial elbow',
@@ -4516,7 +4583,7 @@ const translations = {
     },
     form: {
       submit: "Calculate today's Track",
-      disclaimer: 'Your answers are only sent to your coach via WhatsApp, and only if you choose to share them.'
+      disclaimer: 'Your answers are sent directly to your coach. WhatsApp is reserved for urgent alerts.'
     },
     validation: {
       missingName: 'Enter your first name before continuing.',
@@ -4559,9 +4626,8 @@ const translations = {
       kindnessYellowHard: "It's OK to slow down today. Recovery is part of the prep.",
       messageRed: 'Recovery day. Reduced volume, easy technique work.',
       kindnessRed: "Listening to your body is also a performance act. We'll come back stronger tomorrow.",
-      messageMedical: 'STOP. Medical evaluation required before any load.',
-      kindnessMedical: 'Notify the coach and medical team immediately. Do not climb today.',
-      flagPipDorsal: 'Dorsal PIP reported — mandatory stop',
+      messageLowScore: "Your signals are fine but your reserve today is low. Easy day.",
+      physioBanner: "You asked to see the physio. See them before climbing.",
       flagSleepShort: 'Very short sleep (< 6h)',
       flagSleepBorderline: 'Short sleep & poor quality (< 7h)',
       flagLowEnergy: 'Low energy',
@@ -4635,9 +4701,9 @@ const translations = {
       recovery: 'PRS recovery',
       prevIntensity: 'Yesterday intensity',
       fuel: 'Nutrition / hydration',
-      pip: 'Dorsal PIP',
-      pipYes: 'YES',
-      pipNo: 'no'
+      physio: 'Physio request',
+      physioYes: 'YES',
+      physioNo: 'no'
     }
   }
 };
@@ -4741,7 +4807,7 @@ const initial = {
   },
   pain: {
     fingers: 0,
-    pipDorsal: false,
+    wantsPhysio: false,
     forearm: 0,
     shoulders: 0,
     elbow: 0,
@@ -5350,10 +5416,10 @@ function wireFormControls() {
     bindSlider(id, ['pain', key]);
   });
 
-  // PIP dorsal toggle
-  const pip = $('pip-dorsal');
-  pip.addEventListener('change', () => {
-    state.pain.pipDorsal = pip.checked;
+  // Physio request toggle (non-blocking — coach gets notified)
+  const physio = $('want-physio');
+  physio.addEventListener('change', () => {
+    state.pain.wantsPhysio = physio.checked;
     onChangeCallback();
   });
 
@@ -5419,7 +5485,7 @@ function syncFormFromState() {
     document.getElementById(`${id}-value`).textContent = String(state.pain[key]);
   });
 
-  $('pip-dorsal').checked = state.pain.pipDorsal;
+  $('want-physio').checked = state.pain.wantsPhysio;
   $('pain-other').value = state.pain.other || '';
   $('fuel-score').value = String(state.hydration.fuelScore);
   $('fuel-score-value').textContent = String(state.hydration.fuelScore);
@@ -5625,13 +5691,11 @@ function getPlan(planKey) {
  */
 function evaluate() {
   const flags = { red: [], yellow: [] };
-  let medicalOverride = false;
 
-  // PIP dorsal — hard stop
-  if (state.pain.pipDorsal) {
-    medicalOverride = true;
-    flags.red.push({ key: 'flagPipDorsal' });
-  }
+  // Physio request — non-blocking. The athlete asks to be checked by the
+  // physio today; the coach is notified, but it does NOT push to Track B,
+  // does NOT change the colour, and does NOT zero the score.
+  const physioRequest = !!state.pain.wantsPhysio;
 
   // Sleep duration — only flag when the deficit is real.
   // < 6h is a clear red zone regardless of quality.
@@ -5697,18 +5761,17 @@ function evaluate() {
   const prevIntensity = state.wellbeing.prevSessionIntensity;
   if (prevIntensity >= 5) flags.yellow.push({ key: 'flagPrevSessionHard' });
 
-  // Decision
+  // Score must be computed BEFORE the colour decision so a "no-flag but
+  // low reserve" day cannot show green while the plan says "go easy".
+  const score = computeReadinessScore();
+
+  // Decision — flags first, then a low-reserve safety net using the score.
   let track = 'A';
   let color = 'green';
   let messageKey = 'result.messageGreen';
   let kindnessKey = 'result.kindnessGreen';
 
-  if (medicalOverride) {
-    track = 'B';
-    color = 'red';
-    messageKey = 'result.messageMedical';
-    kindnessKey = 'result.kindnessMedical';
-  } else if (flags.red.length >= 1) {
+  if (flags.red.length >= 1) {
     track = 'B';
     color = 'red';
     messageKey = 'result.messageRed';
@@ -5723,17 +5786,18 @@ function evaluate() {
     color = 'yellow';
     messageKey = 'result.messageYellowSoft';
     kindnessKey = 'result.kindnessYellowSoft';
+  } else if (score < 75) {
+    // No drapeau, but the reserve is too low for a full-load day.
+    track = 'B';
+    color = 'yellow';
+    messageKey = 'result.messageLowScore';
+    kindnessKey = 'result.kindnessYellowSoft';
   }
 
   // Ring fill ratio: 1 for green, 0.6 for yellow, 0.3 for red
   let ringRatio = 1;
   if (color === 'yellow') ringRatio = 0.6;
   else if (color === 'red') ringRatio = 0.3;
-
-  // Granular readiness score 0-100 — penalised by flags so it tracks
-  // the A/B decision more tightly. Track A typically lands ≥ 80, Track
-  // B yellow lands in the 50-79 band, Track B red dives below 50.
-  const score = computeReadinessScore(medicalOverride, flags);
 
   // Plan + today's recommendation (depends on profile + day + score)
   const planKey = resolvePlanKey(score);
@@ -5745,7 +5809,7 @@ function evaluate() {
   // (score < 50 cuts intensity in half, 100 = full plan)
   let adjustedIntensity = today ? today.intensity : null;
   let adviceKey = 'reco.followPlan';
-  if (today && !medicalOverride) {
+  if (today) {
     if (score < 50) {
       adjustedIntensity = Math.round(today.intensity * 0.5);
       adviceKey = 'reco.lighter';
@@ -5755,15 +5819,12 @@ function evaluate() {
     } else {
       adviceKey = today.intensity >= 100 ? 'reco.pushHard' : 'reco.followPlan';
     }
-  } else if (medicalOverride) {
-    adjustedIntensity = 0;
-    adviceKey = 'reco.medical';
   }
 
   return {
     track,
     color,
-    medicalOverride,
+    physioRequest,
     flags,
     messageKey,
     kindnessKey,
@@ -5780,12 +5841,10 @@ function evaluate() {
 
 /**
  * Compute a 0-100 readiness score from the current state.
- * Weighted sum of positive signals minus pain penalties.
- * PIP dorsal = automatic 0.
+ * Sum of positive signals minus direct physical penalties. Each signal
+ * counts once — there is no extra flag-based penalty on top.
  */
-function computeReadinessScore(medicalOverride, flags) {
-  if (medicalOverride) return 0;
-
+function computeReadinessScore() {
   let score = 0;
   let max = 0;
 
@@ -5832,16 +5891,6 @@ function computeReadinessScore(medicalOverride, flags) {
   // Previous session intensity = contextual fatigue load
   if (state.wellbeing.prevSessionIntensity >= 5) score -= 5;
   else if (state.wellbeing.prevSessionIntensity >= 4) score -= 2;
-
-  // Flag penalty so the score tracks the Track A/B decision.
-  // A single yellow flag must drop the score below 75 (visual Track B
-  // zone). A single red flag dives into the deep-red zone.
-  if (flags) {
-    const yellowCount = (flags.yellow?.length) || 0;
-    const redCount = (flags.red?.length) || 0;
-    score -= yellowCount * 18;
-    score -= redCount * 25;
-  }
 
   // Normalize to 0-100
   const pct = Math.round(Math.max(0, Math.min(100, (score / max) * 100)));
@@ -5891,7 +5940,7 @@ function buildMessage(evalResult) {
     `• ${tt('whatsapp.recovery')} : ${state.wellbeing.recoveryPrs}/10`,
     `• ${tt('whatsapp.prevIntensity')} : ${state.wellbeing.prevSessionIntensity}/5`,
     `• ${tt('whatsapp.fuel')} : ${nullDash(state.hydration.fuelScore)}/5`,
-    `• ${tt('whatsapp.pip')} : ${state.pain.pipDorsal ? tt('whatsapp.pipYes') : tt('whatsapp.pipNo')}`
+    `• ${tt('whatsapp.physio')} : ${state.pain.wantsPhysio ? tt('whatsapp.physioYes') : tt('whatsapp.physioNo')}`
   ].join('\n');
 
   const disciplineLine = state.discipline
@@ -6016,6 +6065,18 @@ function renderResult(evalResult) {
 
   // Indicators
   renderIndicators(evalResult.flags);
+
+  // Physio request banner — shown in parallel with the verdict, never replaces it.
+  const banner = document.getElementById('physio-banner');
+  if (banner) banner.hidden = !evalResult.physioRequest;
+
+  // WhatsApp button — surface only for urgent cases (red verdict or physio request).
+  // The full check-in already reaches the coach via the Google Sheet POST.
+  const waBtn = document.getElementById('whatsapp-btn');
+  if (waBtn) {
+    const showWa = evalResult.color === 'red' || evalResult.physioRequest === true;
+    waBtn.hidden = !showWa;
+  }
 
   // Reset scroll position so user starts on the photo full-screen
   window.scrollTo({ top: 0, behavior: 'instant' });
@@ -6544,7 +6605,7 @@ function sendToCoachSheet(evalResult) {
     score: evalResult.score,
     track: evalResult.track,
     color: evalResult.color,
-    medicalOverride: !!evalResult.medicalOverride,
+    physioRequest: !!evalResult.physioRequest,
     dayOfCamp: evalResult.dayIdx ?? '',
     sleepHours: state.sleep?.durationHours ?? '',
     sleepBedtime: state.sleep?.bedtime ?? '',
@@ -6566,7 +6627,7 @@ function sendToCoachSheet(evalResult) {
     painBack: state.pain?.back ?? '',
     painSkin: state.pain?.skin ?? '',
     painOther: state.pain?.other ?? '',
-    pipDorsal: !!state.pain?.pipDorsal,
+    wantsPhysio: !!state.pain?.wantsPhysio,
     fuelScore: state.hydration?.fuelScore ?? '',
     note: state.hydration?.note ?? '',
     flagsRed: (evalResult.flags?.red || []).map((f) => f.key).join('|'),

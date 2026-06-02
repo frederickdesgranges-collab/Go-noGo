@@ -49,7 +49,7 @@ const initial = {
   },
   pain: {
     fingers: 0,
-    pipDorsal: false,
+    wantsPhysio: false,
     forearm: 0,
     shoulders: 0,
     elbow: 0,

@@ -144,10 +144,10 @@ export function wireFormControls() {
     bindSlider(id, ['pain', key]);
   });
 
-  // PIP dorsal toggle
-  const pip = $('pip-dorsal');
-  pip.addEventListener('change', () => {
-    state.pain.pipDorsal = pip.checked;
+  // Physio request toggle (non-blocking — coach gets notified)
+  const physio = $('want-physio');
+  physio.addEventListener('change', () => {
+    state.pain.wantsPhysio = physio.checked;
     onChangeCallback();
   });
 
@@ -213,7 +213,7 @@ export function syncFormFromState() {
     document.getElementById(`${id}-value`).textContent = String(state.pain[key]);
   });
 
-  $('pip-dorsal').checked = state.pain.pipDorsal;
+  $('want-physio').checked = state.pain.wantsPhysio;
   $('pain-other').value = state.pain.other || '';
   $('fuel-score').value = String(state.hydration.fuelScore);
   $('fuel-score-value').textContent = String(state.hydration.fuelScore);

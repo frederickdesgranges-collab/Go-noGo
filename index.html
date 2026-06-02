@@ -193,14 +193,19 @@
             </div>
           </div>
 
+          <div class="landing-disclosure">
+            <div class="landing-disclosure-content">
+              <p class="landing-disclosure-title" data-i18n="landing.disclosureTitle">Envoyé au coach</p>
+              <p class="landing-disclosure-text" data-i18n="landing.disclaimer">Ce formulaire est envoyé directement à ton coach. Pour un signalement urgent, utilise WhatsApp.</p>
+            </div>
+          </div>
+
           <button class="btn btn-cinematic" id="landing-start" type="submit">
             <span data-i18n="landing.start">Commencer le check-in</span>
             <svg class="btn-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M5 12h14M13 6l6 6-6 6"/>
             </svg>
           </button>
-
-          <p class="landing-disclaimer" data-i18n="landing.disclaimer">Tes réponses ne quittent ton téléphone que si tu choisis de les envoyer au coach.</p>
         </form>
       </div>
     </section>
@@ -382,12 +387,12 @@
         <div class="alert-box">
           <div class="alert-toggle">
             <label class="switch">
-              <input type="checkbox" id="pip-dorsal" />
+              <input type="checkbox" id="want-physio" />
               <span class="switch-slider"></span>
             </label>
             <div class="alert-content">
-              <p class="alert-title" data-i18n="pain.pipDorsalTitle">Douleur DORSALE sur articulation PIP ?</p>
-              <p class="alert-explain" data-i18n="pain.pipDorsalExplain">Douleur sur le DESSUS de l'articulation entre la 1re et la 2e phalange (pas la pulpe). Signal d'arrêt impératif.</p>
+              <p class="alert-title" data-i18n="pain.physioRequestTitle">Je veux voir le physio aujourd'hui</p>
+              <p class="alert-explain" data-i18n="pain.physioRequestExplain">Coche si tu as un inconfort que tu veux faire évaluer. Le coach sera averti. Vois le physio avant ta séance.</p>
             </div>
           </div>
         </div>
@@ -512,6 +517,10 @@
           <span class="hero-score-value" id="readiness-value">—</span>
           <span class="hero-score-suffix">/ 100</span>
           <span class="track-pill" id="hero-track-label" data-i18n="result.trackA">TRACK A</span>
+          <div class="physio-banner" id="physio-banner" hidden>
+            <span class="physio-banner-icon" aria-hidden="true">🩹</span>
+            <span class="physio-banner-text" data-i18n="result.physioBanner">Tu as demandé à voir le physio. Vois-le avant de grimper.</span>
+          </div>
         </div>
 
         <div class="hero-text visible" id="hero-text-block">

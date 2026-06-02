@@ -41,7 +41,8 @@ export const translations = {
       profileNotCompeting: 'Ne compétitionne pas',
       profileNotCompetingHint: "Camp d'entraînement",
       start: 'Commencer le check-in',
-      disclaimer: 'Tes réponses ne quittent ton téléphone que si tu choisis de les envoyer au coach.',
+      disclosureTitle: 'Envoyé au coach',
+      disclaimer: 'Ce formulaire est envoyé directement à ton coach. Pour un signalement urgent, utilise WhatsApp.',
       missingName: 'Indique ton prénom pour démarrer.',
       missingDiscipline: 'Choisis une discipline.',
       missingProfile: 'Choisis ton profil Arco.'
@@ -67,7 +68,6 @@ export const translations = {
       pushHard: 'Tu es prêt. On pousse fort comme prévu.',
       cautious: 'On démarre prudemment. Réévalue après le warm-up.',
       lighter: 'On allège la journée. Volume et intensité réduits.',
-      medical: 'STOP. Évaluation médicale avant toute charge.',
       offDay: 'Journée off. Récupération active uniquement.'
     },
     sections: {
@@ -131,8 +131,8 @@ export const translations = {
     },
     pain: {
       fingers: 'Doigts et articulations',
-      pipDorsalTitle: 'Douleur DORSALE sur articulation PIP ?',
-      pipDorsalExplain: "Douleur sur le DESSUS de l'articulation entre la 1re et la 2e phalange (pas la pulpe). Signal d'arrêt impératif.",
+      physioRequestTitle: "Je veux voir le physio aujourd'hui",
+      physioRequestExplain: 'Coche si tu as un inconfort que tu veux faire évaluer. Le coach sera averti. Vois le physio avant ta séance.',
       forearm: 'Avant-bras (zone fléchisseurs)',
       shoulders: 'Épaules / lats',
       elbow: 'Coude médial',
@@ -155,7 +155,7 @@ export const translations = {
     },
     form: {
       submit: 'Calculer mon Track du jour',
-      disclaimer: "Tes réponses ne sont envoyées qu'à ton coach via WhatsApp, et seulement si tu décides de les partager."
+      disclaimer: "Tes réponses sont envoyées directement à ton coach. WhatsApp est réservé aux signalements urgents."
     },
     validation: {
       missingName: 'Indique ton prénom avant de continuer.',
@@ -198,9 +198,8 @@ export const translations = {
       kindnessYellowHard: "C'est OK de ralentir aujourd'hui. La récup fait partie de la prépa.",
       messageRed: "Journée de récupération. Volume réduit, technique à l'aise.",
       kindnessRed: "Écouter son corps, c'est aussi un acte de performance. On reviendra plus fort demain.",
-      messageMedical: "STOP. Évaluation médicale requise avant toute charge.",
-      kindnessMedical: "Préviens immédiatement le coach et l'équipe médicale. Ne grimpe pas aujourd'hui.",
-      flagPipDorsal: 'PIP dorsale signalée — arrêt impératif',
+      messageLowScore: "Tes signaux sont corrects mais ta réserve du jour est basse. Journée prudente.",
+      physioBanner: "Tu as demandé à voir le physio. Vois-le avant de grimper.",
       flagSleepShort: 'Sommeil très court (< 6h)',
       flagSleepBorderline: 'Sommeil court & qualité faible (< 7h)',
       flagLowEnergy: 'Énergie basse',
@@ -274,9 +273,9 @@ export const translations = {
       recovery: 'Récup PRS',
       prevIntensity: 'Intensité veille',
       fuel: 'Nutrition / hydratation',
-      pip: 'PIP dorsale',
-      pipYes: 'OUI',
-      pipNo: 'non'
+      physio: 'Demande physio',
+      physioYes: 'OUI',
+      physioNo: 'non'
     }
   },
   en: {
@@ -316,7 +315,8 @@ export const translations = {
       profileNotCompeting: 'Not competing',
       profileNotCompetingHint: 'Training camp only',
       start: 'Start check-in',
-      disclaimer: 'Your answers stay on your phone until you choose to send them to coach.',
+      disclosureTitle: 'Sent to coach',
+      disclaimer: 'This form is sent directly to your coach. For an urgent alert, use WhatsApp.',
       missingName: 'Enter your first name to start.',
       missingDiscipline: 'Pick a discipline.',
       missingProfile: 'Pick your Arco profile.'
@@ -342,7 +342,6 @@ export const translations = {
       pushHard: 'You\'re ready. Push hard as planned.',
       cautious: 'Start cautiously. Reassess after warm-up.',
       lighter: 'Lighter day today. Reduced volume and intensity.',
-      medical: 'STOP. Medical evaluation before any load.',
       offDay: 'Off day. Active recovery only.'
     },
     sections: {
@@ -406,8 +405,8 @@ export const translations = {
     },
     pain: {
       fingers: 'Fingers and joints',
-      pipDorsalTitle: 'DORSAL pain on PIP joint?',
-      pipDorsalExplain: 'Pain on the TOP of the joint between the 1st and 2nd phalanx (not the pad). Mandatory stop signal.',
+      physioRequestTitle: 'I want to see the physio today',
+      physioRequestExplain: 'Check this if you have a discomfort you want checked. Your coach will be notified. See the physio before your session.',
       forearm: 'Forearm (flexor area)',
       shoulders: 'Shoulders / lats',
       elbow: 'Medial elbow',
@@ -430,7 +429,7 @@ export const translations = {
     },
     form: {
       submit: "Calculate today's Track",
-      disclaimer: 'Your answers are only sent to your coach via WhatsApp, and only if you choose to share them.'
+      disclaimer: 'Your answers are sent directly to your coach. WhatsApp is reserved for urgent alerts.'
     },
     validation: {
       missingName: 'Enter your first name before continuing.',
@@ -473,9 +472,8 @@ export const translations = {
       kindnessYellowHard: "It's OK to slow down today. Recovery is part of the prep.",
       messageRed: 'Recovery day. Reduced volume, easy technique work.',
       kindnessRed: "Listening to your body is also a performance act. We'll come back stronger tomorrow.",
-      messageMedical: 'STOP. Medical evaluation required before any load.',
-      kindnessMedical: 'Notify the coach and medical team immediately. Do not climb today.',
-      flagPipDorsal: 'Dorsal PIP reported — mandatory stop',
+      messageLowScore: "Your signals are fine but your reserve today is low. Easy day.",
+      physioBanner: "You asked to see the physio. See them before climbing.",
       flagSleepShort: 'Very short sleep (< 6h)',
       flagSleepBorderline: 'Short sleep & poor quality (< 7h)',
       flagLowEnergy: 'Low energy',
@@ -549,9 +547,9 @@ export const translations = {
       recovery: 'PRS recovery',
       prevIntensity: 'Yesterday intensity',
       fuel: 'Nutrition / hydration',
-      pip: 'Dorsal PIP',
-      pipYes: 'YES',
-      pipNo: 'no'
+      physio: 'Physio request',
+      physioYes: 'YES',
+      physioNo: 'no'
     }
   }
 };

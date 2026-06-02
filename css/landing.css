@@ -549,12 +549,37 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
 .btn-arrow { transition: transform 0.25s ease; }
 .btn-cinematic:hover .btn-arrow { transform: translateX(4px); }
 
-.landing-disclaimer {
-  margin: 16px 0 0;
-  font-size: 11.5px;
+.landing-disclosure {
+  display: flex;
+  gap: 12px;
+  margin: 18px 0 22px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: rgba(20, 33, 26, 0.04);
+  border: 1px solid rgba(20, 33, 26, 0.16);
+  border-left: 3px solid var(--cec-red);
+}
+
+.landing-disclosure-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.landing-disclosure-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
+}
+
+.landing-disclosure-text {
+  margin: 0;
+  font-size: 12.5px;
   line-height: 1.5;
-  color: var(--text-tertiary);
-  text-align: center;
+  color: var(--text-secondary);
 }
 
 /* Transition states */

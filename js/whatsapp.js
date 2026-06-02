@@ -42,7 +42,7 @@ export function buildMessage(evalResult) {
     `• ${tt('whatsapp.recovery')} : ${state.wellbeing.recoveryPrs}/10`,
     `• ${tt('whatsapp.prevIntensity')} : ${state.wellbeing.prevSessionIntensity}/5`,
     `• ${tt('whatsapp.fuel')} : ${nullDash(state.hydration.fuelScore)}/5`,
-    `• ${tt('whatsapp.pip')} : ${state.pain.pipDorsal ? tt('whatsapp.pipYes') : tt('whatsapp.pipNo')}`
+    `• ${tt('whatsapp.physio')} : ${state.pain.wantsPhysio ? tt('whatsapp.physioYes') : tt('whatsapp.physioNo')}`
   ].join('\n');
 
   const disciplineLine = state.discipline
