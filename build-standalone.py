@@ -23,7 +23,6 @@ JS_ORDER = [
     'js/animations.js',
     'js/form-logic.js',
     'js/evaluation.js',
-    'js/whatsapp.js',
     'js/result-screen.js',
     'js/main.js',
 ]

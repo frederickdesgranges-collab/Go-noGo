@@ -3,7 +3,7 @@
  * Boot, landing → form → result flow, global events.
  */
 
-import { state, loadPreferences, saveLang, saveCoachGroupUrl, saveCoachSheetUrl, saveDiscipline, saveProfile, resetForm, saveAthleteName } from './state.js';
+import { state, loadPreferences, saveLang, saveCoachSheetUrl, saveDiscipline, saveProfile, resetForm, saveAthleteName } from './state.js';
 import { applyTranslations, t } from './translations.js';
 import {
   buildLikertScales,
@@ -15,7 +15,6 @@ import {
 } from './form-logic.js';
 import { evaluate } from './evaluation.js';
 import { renderResult, sendToCoachSheet } from './result-screen.js';
-import { sendToCoach } from './whatsapp.js';
 
 let lastEvaluation = null;
 
@@ -44,7 +43,7 @@ function wireGlobalEvents() {
   document.getElementById('settings-backdrop').addEventListener('click', closeSettings);
   document.getElementById('settings-save').addEventListener('click', saveSettings);
   document.getElementById('submit-btn').addEventListener('click', onSubmit);
-  document.getElementById('whatsapp-btn').addEventListener('click', onSendToCoach);
+  document.getElementById('confirm-btn').addEventListener('click', onSendToCoach);
   document.getElementById('edit-btn').addEventListener('click', goToFormScreen);
   document.getElementById('restart-btn').addEventListener('click', restart);
 
@@ -284,7 +283,6 @@ function refreshHeaderDate() {
    ============================================ */
 function openSettings() {
   const modal = document.getElementById('settings-modal');
-  document.getElementById('coach-group-url').value = state.coachGroupUrl || '';
   const sheetEl = document.getElementById('coach-sheet-url');
   if (sheetEl) sheetEl.value = state.coachSheetUrl || '';
   document.querySelectorAll('input[name="lang-pref"]').forEach((r) => {
@@ -298,7 +296,6 @@ function closeSettings() {
 }
 
 function saveSettings() {
-  saveCoachGroupUrl(document.getElementById('coach-group-url').value);
   const sheetEl = document.getElementById('coach-sheet-url');
   saveCoachSheetUrl(sheetEl ? sheetEl.value : '');
   const langInput = document.querySelector('input[name="lang-pref"]:checked');
@@ -330,23 +327,17 @@ function onSubmit() {
   renderResult(lastEvaluation);
 }
 
-async function onSendToCoach() {
+function onSendToCoach() {
   if (!lastEvaluation) return;
-  // Two destinations in one explicit, athlete-driven action:
-  // 1) POST the full check-in to the shared coach Google Sheet (silent,
-  //    best-effort — the team dashboard updates immediately).
-  // 2) Copy the message to clipboard and open the shared coach WhatsApp
-  //    group so the rule-of-three thread receives the paste.
-  if (state.coachSheetUrl) {
-    sendToCoachSheet(lastEvaluation);
-  }
-  const ok = await sendToCoach(lastEvaluation);
-  if (!ok) {
-    showToast(t(state.lang, 'whatsapp.noGroup'), 'error');
+  // One athlete-driven action: POST the full check-in to the staff
+  // dashboard Google Sheet. No private athlete↔coach channel.
+  if (!state.coachSheetUrl) {
+    showToast(t(state.lang, 'result.noConfig'), 'error');
     openSettings();
     return;
   }
-  showToast(t(state.lang, 'whatsapp.sent'), 'success');
+  sendToCoachSheet(lastEvaluation);
+  showToast(t(state.lang, 'result.sentToast'), 'success');
 }
 
 function goToFormScreen() {

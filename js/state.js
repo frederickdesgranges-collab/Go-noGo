@@ -5,7 +5,6 @@
 
 const STORAGE_KEYS = {
   lang: 'cec_lang',
-  coachGroupUrl: 'cec_coach_group_url',
   coachSheetUrl: 'cec_coach_sheet_url',
   athleteName: 'cec_athlete_name',
   discipline: 'cec_discipline',
@@ -13,11 +12,6 @@ const STORAGE_KEYS = {
   history: 'cec_history',
   progressionZoom: 'cec_progression_zoom'
 };
-
-// Shared WhatsApp group for the Innsbruck 2026 camp coach team.
-// Hardcoded so every athlete gets it pre-wired. Each athlete can still
-// override it in Settings if the coach rotates the invite link.
-const DEFAULT_COACH_GROUP_URL = 'https://chat.whatsapp.com/EVUD45QNns35bQeacCJPSD';
 
 // Default Google Apps Script endpoint for the Innsbruck 2026 camp.
 // Hardcoded so every athlete who installs the app gets it pre-wired —
@@ -27,7 +21,6 @@ const DEFAULT_COACH_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwgiDub
 
 const initial = {
   lang: 'fr',
-  coachGroupUrl: DEFAULT_COACH_GROUP_URL,
   coachSheetUrl: DEFAULT_COACH_SHEET_URL,
   athleteName: '',
   discipline: null,
@@ -72,10 +65,9 @@ export const state = structuredClone(initial);
  * Reset the in-memory state but keep user preferences.
  */
 export function resetForm() {
-  const { lang, coachGroupUrl, coachSheetUrl, athleteName, discipline, profile } = state;
+  const { lang, coachSheetUrl, athleteName, discipline, profile } = state;
   Object.assign(state, structuredClone(initial));
   state.lang = lang;
-  state.coachGroupUrl = coachGroupUrl;
   state.coachSheetUrl = coachSheetUrl;
   state.athleteName = athleteName;
   state.discipline = discipline;
@@ -86,8 +78,6 @@ export function loadPreferences() {
   try {
     const lang = localStorage.getItem(STORAGE_KEYS.lang);
     if (lang === 'fr' || lang === 'en') state.lang = lang;
-    const groupUrl = localStorage.getItem(STORAGE_KEYS.coachGroupUrl);
-    if (groupUrl) state.coachGroupUrl = groupUrl;
     const sheetUrl = localStorage.getItem(STORAGE_KEYS.coachSheetUrl);
     if (sheetUrl) state.coachSheetUrl = sheetUrl;
     const name = localStorage.getItem(STORAGE_KEYS.athleteName);
@@ -172,17 +162,6 @@ export function saveProgressionZoom(zoom) {
 export function saveLang(lang) {
   state.lang = lang;
   try { localStorage.setItem(STORAGE_KEYS.lang, lang); } catch (_) {}
-}
-
-export function saveCoachGroupUrl(url) {
-  state.coachGroupUrl = (url || '').trim();
-  try {
-    if (state.coachGroupUrl) {
-      localStorage.setItem(STORAGE_KEYS.coachGroupUrl, state.coachGroupUrl);
-    } else {
-      localStorage.removeItem(STORAGE_KEYS.coachGroupUrl);
-    }
-  } catch (_) {}
 }
 
 export function saveCoachSheetUrl(url) {

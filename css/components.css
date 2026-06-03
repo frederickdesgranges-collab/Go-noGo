@@ -610,7 +610,7 @@
   border-color: rgba(20, 33, 26, 0.1);
 }
 
-.btn-whatsapp {
+.btn-confirm {
   position: relative;
   width: 100%;
   padding: 20px;
@@ -629,7 +629,7 @@
   transition: transform 0.15s ease, box-shadow 0.25s ease;
 }
 
-.btn-whatsapp::before {
+.btn-confirm::before {
   content: '';
   position: absolute;
   top: 0;
@@ -640,9 +640,9 @@
   transition: left 0.7s ease;
 }
 
-.btn-whatsapp:hover::before { left: 130%; }
+.btn-confirm:hover::before { left: 130%; }
 
-.btn-whatsapp:hover {
+.btn-confirm:hover {
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.32) inset,
     0 -2px 6px rgba(0, 0, 0, 0.15) inset,

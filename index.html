@@ -196,7 +196,7 @@
           <div class="landing-disclosure">
             <div class="landing-disclosure-content">
               <p class="landing-disclosure-title" data-i18n="landing.disclosureTitle">Tu décides quand envoyer</p>
-              <p class="landing-disclosure-text" data-i18n="landing.disclaimer">Rien n'est envoyé tant que tu n'as pas cliqué sur Confirmer. Le message arrive dans le groupe WhatsApp partagé des coachs et dans le tableau du staff.</p>
+              <p class="landing-disclosure-text" data-i18n="landing.disclaimer">Rien n'est envoyé tant que tu n'as pas cliqué sur Confirmer. Ton check-in arrive dans le tableau privé de l'équipe coachs.</p>
             </div>
           </div>
 
@@ -583,11 +583,11 @@
       </div>
 
       <!-- Actions -->
-      <button class="btn btn-whatsapp" id="whatsapp-btn" type="button">
-        <svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true">
-          <path d="M16 .5C7.44.5.5 7.44.5 16c0 2.83.74 5.49 2.04 7.79L.5 31.5l7.92-2c2.21 1.21 4.74 1.91 7.45 1.92h.13c8.56 0 15.5-6.94 15.5-15.5S24.56.5 16 .5zm0 28.31h-.11a13.05 13.05 0 0 1-6.65-1.82l-.48-.28-4.7 1.19 1.25-4.59-.31-.48a12.84 12.84 0 0 1-1.97-6.84C3.03 8.66 8.86 2.84 16 2.84c3.49 0 6.77 1.36 9.24 3.83a12.99 12.99 0 0 1 3.83 9.25c0 7.16-5.83 12.98-13.07 12.99zm7.13-9.74c-.39-.2-2.31-1.14-2.67-1.27-.36-.13-.62-.2-.88.2-.26.39-1.01 1.27-1.24 1.53-.23.26-.46.29-.85.1-.39-.2-1.65-.61-3.14-1.94a11.83 11.83 0 0 1-2.18-2.71c-.23-.39-.02-.6.17-.79.18-.18.39-.46.59-.69.2-.23.26-.39.39-.65.13-.26.07-.49-.03-.69-.1-.2-.88-2.12-1.21-2.9-.32-.77-.64-.66-.88-.67-.23-.01-.49-.01-.75-.01s-.69.1-1.05.49c-.36.39-1.37 1.34-1.37 3.27s1.41 3.79 1.6 4.05c.2.26 2.77 4.23 6.71 5.93 2.34 1.01 3.26 1.1 4.43.92.71-.11 2.31-.94 2.64-1.86.32-.91.32-1.7.23-1.86-.1-.16-.36-.26-.75-.46z"/>
+      <button class="btn btn-confirm" id="confirm-btn" type="button">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 12.5l5 5 11-11"/>
         </svg>
-        <span data-i18n="result.sendWhatsapp">Envoyer au coach via WhatsApp</span>
+        <span data-i18n="result.confirm">Confirmer</span>
       </button>
 
       <div class="result-actions">
@@ -615,12 +615,6 @@
       </header>
 
       <div class="modal-body">
-        <div class="field">
-          <label class="field-label" for="coach-group-url" data-i18n="settings.coachGroupUrl">Lien du groupe WhatsApp de l'équipe coachs</label>
-          <input class="text-input" id="coach-group-url" type="url" inputmode="url" autocomplete="off" placeholder="https://chat.whatsapp.com/..." />
-          <p class="field-hint" data-i18n="settings.coachGroupUrlHint">Canal partagé par plusieurs coachs (règle de trois). Colle le lien d'invitation du groupe — il commence par https://chat.whatsapp.com/</p>
-        </div>
-
         <div class="field">
           <label class="field-label" for="coach-sheet-url" data-i18n="settings.coachSheetUrl">URL Google Sheet du coach</label>
           <input class="text-input" id="coach-sheet-url" type="url" inputmode="url" autocomplete="off" placeholder="https://script.google.com/macros/s/.../exec" />
