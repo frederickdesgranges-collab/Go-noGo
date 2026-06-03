@@ -649,6 +649,70 @@
     0 12px 30px rgba(37, 211, 102, 0.5);
 }
 
+.btn-confirm:disabled,
+.btn-confirm[disabled] {
+  background: rgba(20, 33, 26, 0.18);
+  color: rgba(255, 255, 255, 0.78);
+  cursor: not-allowed;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.btn-confirm:disabled::before,
+.btn-confirm[disabled]::before {
+  display: none;
+}
+
+/* Refuse: discreet text-button. Same width-ish footprint, lower visual
+   weight than the primary confirm. */
+.btn-refuse {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: none;
+  border: 0;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.btn-refuse:hover {
+  color: var(--cec-red);
+}
+
+.btn-refuse:disabled,
+.btn-refuse[disabled] {
+  color: var(--text-tertiary);
+  text-decoration-color: var(--text-tertiary);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.result-sent-hint {
+  margin: 12px 0 0;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(42, 111, 71, 0.08);
+  border: 1px solid rgba(42, 111, 71, 0.22);
+  color: var(--green-dark);
+  font-size: 12.5px;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.result-sent-hint[hidden] {
+  display: none;
+}
+
 .result-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;

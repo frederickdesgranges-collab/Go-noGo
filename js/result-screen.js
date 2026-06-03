@@ -629,6 +629,31 @@ export function sendToCoachSheet(evalResult) {
   } catch (_) { /* silent */ }
 }
 
+/**
+ * Send an anonymous refusal marker: only date, timestamp and the word
+ * "refusé". The coach team sees that someone declined to share their
+ * check-in today; the athlete identity is intentionally omitted.
+ */
+export function sendRefusalToSheet() {
+  const url = state.coachSheetUrl;
+  if (!url) return;
+  const today = new Date();
+  const payload = {
+    timestamp: today.toISOString(),
+    date: todayDateKey(today),
+    status: 'refusé'
+  };
+  try {
+    fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+      keepalive: true
+    }).catch(() => { /* silent */ });
+  } catch (_) { /* silent */ }
+}
+
 function daysBetween(a, b) {
   const ms = b - a;
   return Math.round(ms / (24 * 60 * 60 * 1000));

@@ -582,13 +582,15 @@
         </ul>
       </div>
 
-      <!-- Actions -->
+      <!-- Send actions: confirm (full payload) or refuse (anonymous marker) -->
       <button class="btn btn-confirm" id="confirm-btn" type="button">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M4 12.5l5 5 11-11"/>
         </svg>
-        <span data-i18n="result.confirm">Confirmer</span>
+        <span data-i18n="result.confirm">Envoyer aux coachs</span>
       </button>
+      <p class="result-sent-hint" id="sent-hint" hidden data-i18n="result.sentHint">Envoyé. Modifie une réponse pour pouvoir renvoyer.</p>
+      <button class="btn-refuse" id="refuse-btn" type="button" data-i18n="result.refuse">Refuser l'envoi</button>
 
       <div class="result-actions">
         <button class="btn btn-secondary" id="edit-btn" type="button" data-i18n="result.edit">Modifier</button>

@@ -14,7 +14,7 @@ import {
   onAnyChange
 } from './form-logic.js';
 import { evaluate } from './evaluation.js';
-import { renderResult, sendToCoachSheet } from './result-screen.js';
+import { renderResult, sendToCoachSheet, sendRefusalToSheet } from './result-screen.js';
 
 let lastEvaluation = null;
 
@@ -23,7 +23,13 @@ function boot() {
 
   buildLikertScales();
   wireFormControls();
-  onAnyChange(() => updateProgressBar());
+  onAnyChange(() => {
+    updateProgressBar();
+    // Any tweak to the form invalidates the previous send/refuse, so the
+    // buttons must come back online — that is the user's "modification"
+    // gate for resubmitting.
+    unlockSendButtons();
+  });
 
   applyTranslations(state.lang);
   syncFormFromState();
@@ -44,6 +50,7 @@ function wireGlobalEvents() {
   document.getElementById('settings-save').addEventListener('click', saveSettings);
   document.getElementById('submit-btn').addEventListener('click', onSubmit);
   document.getElementById('confirm-btn').addEventListener('click', onSendToCoach);
+  document.getElementById('refuse-btn').addEventListener('click', onRefuseSend);
   document.getElementById('edit-btn').addEventListener('click', goToFormScreen);
   document.getElementById('restart-btn').addEventListener('click', restart);
 
@@ -327,8 +334,11 @@ function onSubmit() {
   renderResult(lastEvaluation);
 }
 
+let formSentForThisCheckin = false;
+
 function onSendToCoach() {
   if (!lastEvaluation) return;
+  if (formSentForThisCheckin) return;
   // One athlete-driven action: POST the full check-in to the staff
   // dashboard Google Sheet. No private athlete↔coach channel.
   if (!state.coachSheetUrl) {
@@ -337,7 +347,40 @@ function onSendToCoach() {
     return;
   }
   sendToCoachSheet(lastEvaluation);
+  lockSendButtons();
   showToast(t(state.lang, 'result.sentToast'), 'success');
+}
+
+function onRefuseSend() {
+  if (formSentForThisCheckin) return;
+  if (!state.coachSheetUrl) {
+    showToast(t(state.lang, 'result.noConfig'), 'error');
+    openSettings();
+    return;
+  }
+  sendRefusalToSheet();
+  lockSendButtons();
+  showToast(t(state.lang, 'result.refusedToast'), 'success');
+}
+
+function lockSendButtons() {
+  formSentForThisCheckin = true;
+  const confirmBtn = document.getElementById('confirm-btn');
+  const refuseBtn = document.getElementById('refuse-btn');
+  const hint = document.getElementById('sent-hint');
+  if (confirmBtn) confirmBtn.disabled = true;
+  if (refuseBtn) refuseBtn.disabled = true;
+  if (hint) hint.hidden = false;
+}
+
+function unlockSendButtons() {
+  formSentForThisCheckin = false;
+  const confirmBtn = document.getElementById('confirm-btn');
+  const refuseBtn = document.getElementById('refuse-btn');
+  const hint = document.getElementById('sent-hint');
+  if (confirmBtn) confirmBtn.disabled = false;
+  if (refuseBtn) refuseBtn.disabled = false;
+  if (hint) hint.hidden = true;
 }
 
 function goToFormScreen() {
@@ -361,6 +404,7 @@ function restart() {
   });
   syncFormFromState();
   updateProgressBar();
+  unlockSendButtons();
   backToLanding();
 }
 

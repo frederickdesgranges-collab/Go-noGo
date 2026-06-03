@@ -968,6 +968,70 @@ a { color: inherit; text-decoration: none; }
     0 12px 30px rgba(37, 211, 102, 0.5);
 }
 
+.btn-confirm:disabled,
+.btn-confirm[disabled] {
+  background: rgba(20, 33, 26, 0.18);
+  color: rgba(255, 255, 255, 0.78);
+  cursor: not-allowed;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.btn-confirm:disabled::before,
+.btn-confirm[disabled]::before {
+  display: none;
+}
+
+/* Refuse: discreet text-button. Same width-ish footprint, lower visual
+   weight than the primary confirm. */
+.btn-refuse {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: none;
+  border: 0;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.btn-refuse:hover {
+  color: var(--cec-red);
+}
+
+.btn-refuse:disabled,
+.btn-refuse[disabled] {
+  color: var(--text-tertiary);
+  text-decoration-color: var(--text-tertiary);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.result-sent-hint {
+  margin: 12px 0 0;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(42, 111, 71, 0.08);
+  border: 1px solid rgba(42, 111, 71, 0.22);
+  color: var(--green-dark);
+  font-size: 12.5px;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.result-sent-hint[hidden] {
+  display: none;
+}
+
 .result-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -4078,13 +4142,15 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
         </ul>
       </div>
 
-      <!-- Actions -->
+      <!-- Send actions: confirm (full payload) or refuse (anonymous marker) -->
       <button class="btn btn-confirm" id="confirm-btn" type="button">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M4 12.5l5 5 11-11"/>
         </svg>
-        <span data-i18n="result.confirm">Confirmer</span>
+        <span data-i18n="result.confirm">Envoyer aux coachs</span>
       </button>
+      <p class="result-sent-hint" id="sent-hint" hidden data-i18n="result.sentHint">Envoyé. Modifie une réponse pour pouvoir renvoyer.</p>
+      <button class="btn-refuse" id="refuse-btn" type="button" data-i18n="result.refuse">Refuser l'envoi</button>
 
       <div class="result-actions">
         <button class="btn btn-secondary" id="edit-btn" type="button" data-i18n="result.edit">Modifier</button>
@@ -4335,8 +4401,11 @@ const translations = {
       indicators: 'Indicateurs',
       noFlags: "Aucun signal d'alerte. Belle nuit, beau profil.",
       scrollHint: 'Voir les détails',
-      confirm: 'Confirmer',
+      confirm: 'Envoyer aux coachs',
+      refuse: "Refuser l'envoi",
+      sentHint: 'Envoyé. Modifie une réponse pour pouvoir renvoyer.',
       sentToast: "Envoyé au tableau de l'équipe coachs.",
+      refusedToast: 'Refus enregistré. Aucune réponse partagée.',
       noConfig: "Configure d'abord l'URL du tableau dans les Paramètres.",
       edit: 'Modifier',
       restart: 'Recommencer',
@@ -4583,8 +4652,11 @@ const translations = {
       indicators: 'Indicators',
       noFlags: 'No alert signals. Solid night, solid profile.',
       scrollHint: 'See details',
-      confirm: 'Confirm',
+      confirm: 'Send to coaches',
+      refuse: 'Decline sending',
+      sentHint: 'Sent. Update an answer to send again.',
       sentToast: 'Sent to the coach team dashboard.',
+      refusedToast: 'Refusal logged. No answers shared.',
       noConfig: 'First, set the dashboard URL in Settings.',
       edit: 'Edit',
       restart: 'Restart',
@@ -6457,6 +6529,31 @@ function sendToCoachSheet(evalResult) {
   } catch (_) { /* silent */ }
 }
 
+/**
+ * Send an anonymous refusal marker: only date, timestamp and the word
+ * "refusé". The coach team sees that someone declined to share their
+ * check-in today; the athlete identity is intentionally omitted.
+ */
+function sendRefusalToSheet() {
+  const url = state.coachSheetUrl;
+  if (!url) return;
+  const today = new Date();
+  const payload = {
+    timestamp: today.toISOString(),
+    date: todayDateKey(today),
+    status: 'refusé'
+  };
+  try {
+    fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+      keepalive: true
+    }).catch(() => { /* silent */ });
+  } catch (_) { /* silent */ }
+}
+
 function daysBetween(a, b) {
   const ms = b - a;
   return Math.round(ms / (24 * 60 * 60 * 1000));
@@ -6642,7 +6739,13 @@ function boot() {
 
   buildLikertScales();
   wireFormControls();
-  onAnyChange(() => updateProgressBar());
+  onAnyChange(() => {
+    updateProgressBar();
+    // Any tweak to the form invalidates the previous send/refuse, so the
+    // buttons must come back online — that is the user's "modification"
+    // gate for resubmitting.
+    unlockSendButtons();
+  });
 
   applyTranslations(state.lang);
   syncFormFromState();
@@ -6663,6 +6766,7 @@ function wireGlobalEvents() {
   document.getElementById('settings-save').addEventListener('click', saveSettings);
   document.getElementById('submit-btn').addEventListener('click', onSubmit);
   document.getElementById('confirm-btn').addEventListener('click', onSendToCoach);
+  document.getElementById('refuse-btn').addEventListener('click', onRefuseSend);
   document.getElementById('edit-btn').addEventListener('click', goToFormScreen);
   document.getElementById('restart-btn').addEventListener('click', restart);
 
@@ -6946,8 +7050,11 @@ function onSubmit() {
   renderResult(lastEvaluation);
 }
 
+let formSentForThisCheckin = false;
+
 function onSendToCoach() {
   if (!lastEvaluation) return;
+  if (formSentForThisCheckin) return;
   // One athlete-driven action: POST the full check-in to the staff
   // dashboard Google Sheet. No private athlete↔coach channel.
   if (!state.coachSheetUrl) {
@@ -6956,7 +7063,40 @@ function onSendToCoach() {
     return;
   }
   sendToCoachSheet(lastEvaluation);
+  lockSendButtons();
   showToast(t(state.lang, 'result.sentToast'), 'success');
+}
+
+function onRefuseSend() {
+  if (formSentForThisCheckin) return;
+  if (!state.coachSheetUrl) {
+    showToast(t(state.lang, 'result.noConfig'), 'error');
+    openSettings();
+    return;
+  }
+  sendRefusalToSheet();
+  lockSendButtons();
+  showToast(t(state.lang, 'result.refusedToast'), 'success');
+}
+
+function lockSendButtons() {
+  formSentForThisCheckin = true;
+  const confirmBtn = document.getElementById('confirm-btn');
+  const refuseBtn = document.getElementById('refuse-btn');
+  const hint = document.getElementById('sent-hint');
+  if (confirmBtn) confirmBtn.disabled = true;
+  if (refuseBtn) refuseBtn.disabled = true;
+  if (hint) hint.hidden = false;
+}
+
+function unlockSendButtons() {
+  formSentForThisCheckin = false;
+  const confirmBtn = document.getElementById('confirm-btn');
+  const refuseBtn = document.getElementById('refuse-btn');
+  const hint = document.getElementById('sent-hint');
+  if (confirmBtn) confirmBtn.disabled = false;
+  if (refuseBtn) refuseBtn.disabled = false;
+  if (hint) hint.hidden = true;
 }
 
 function goToFormScreen() {
@@ -6980,6 +7120,7 @@ function restart() {
   });
   syncFormFromState();
   updateProgressBar();
+  unlockSendButtons();
   backToLanding();
 }
 
