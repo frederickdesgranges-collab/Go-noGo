@@ -47,12 +47,6 @@ export function renderResult(evalResult) {
     });
   }
 
-  // If the coach configured a Google Sheet endpoint in Settings, fire a
-  // best-effort POST so the daily check-in appears in their dashboard.
-  if (state.coachSheetUrl) {
-    sendToCoachSheet(evalResult);
-  }
-
   // Today's plan card + 10-day tracker + form progression chart
   renderPlanCard(evalResult);
   renderTracker(evalResult);
@@ -67,14 +61,6 @@ export function renderResult(evalResult) {
   // Physio request banner — shown in parallel with the verdict, never replaces it.
   const banner = document.getElementById('physio-banner');
   if (banner) banner.hidden = !evalResult.physioRequest;
-
-  // WhatsApp button — surface only for urgent cases (red verdict or physio request).
-  // The full check-in already reaches the coach via the Google Sheet POST.
-  const waBtn = document.getElementById('whatsapp-btn');
-  if (waBtn) {
-    const showWa = evalResult.color === 'red' || evalResult.physioRequest === true;
-    waBtn.hidden = !showWa;
-  }
 
   // Reset scroll position so user starts on the photo full-screen
   window.scrollTo({ top: 0, behavior: 'instant' });
@@ -590,7 +576,7 @@ function wireProgressionDotTooltips(chartHost) {
  * everything is fire-and-forget so a network blip never blocks the
  * athlete's UX.
  */
-function sendToCoachSheet(evalResult) {
+export function sendToCoachSheet(evalResult) {
   const url = state.coachSheetUrl;
   if (!url) return;
   const today = new Date();

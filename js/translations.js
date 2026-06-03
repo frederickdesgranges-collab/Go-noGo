@@ -41,8 +41,8 @@ export const translations = {
       profileNotCompeting: 'Ne compétitionne pas',
       profileNotCompetingHint: "Camp d'entraînement",
       start: 'Commencer le check-in',
-      disclosureTitle: 'Envoyé au coach',
-      disclaimer: 'Ce formulaire est envoyé directement à ton coach. Pour un signalement urgent, utilise WhatsApp.',
+      disclosureTitle: 'Tu décides quand envoyer',
+      disclaimer: "Rien n'est envoyé tant que tu ne cliques pas sur Envoyer au coach. Le message arrive à l'équipe de coachs (WhatsApp partagé + tableau du staff).",
       missingName: 'Indique ton prénom pour démarrer.',
       missingDiscipline: 'Choisis une discipline.',
       missingProfile: 'Choisis ton profil Arco.'
@@ -155,7 +155,7 @@ export const translations = {
     },
     form: {
       submit: 'Calculer mon Track du jour',
-      disclaimer: "Tes réponses sont envoyées directement à ton coach. WhatsApp est réservé aux signalements urgents."
+      disclaimer: "Tes réponses partent à l'équipe de coachs uniquement quand tu cliques sur Envoyer au coach."
     },
     validation: {
       missingName: 'Indique ton prénom avant de continuer.',
@@ -187,7 +187,7 @@ export const translations = {
       indicators: 'Indicateurs',
       noFlags: "Aucun signal d'alerte. Belle nuit, beau profil.",
       scrollHint: 'Voir les détails',
-      sendWhatsapp: 'Envoyer au coach via WhatsApp',
+      sendWhatsapp: "Envoyer au coach",
       edit: 'Modifier',
       restart: 'Recommencer',
       messageGreen: "Tu es prêt(e) ! Charge complète.",
@@ -241,8 +241,8 @@ export const translations = {
     },
     settings: {
       title: 'Paramètres',
-      coachPhone: 'Numéro WhatsApp du coach',
-      coachPhoneHint: 'Format international sans + ni espace. Exemple Canada : 14186095751.',
+      coachPhone: "Numéro WhatsApp de l'équipe coachs",
+      coachPhoneHint: "Canal partagé par plusieurs coachs (règle de trois). Format international sans + ni espace. Exemple Canada : 14186095751.",
       coachSheetUrl: 'URL Google Sheet du coach',
       coachSheetUrlHint: 'Optionnel. Si renseigné, chaque check-in sera envoyé au tableau du coach automatiquement.',
       langLabel: 'Langue',
@@ -253,7 +253,8 @@ export const translations = {
     },
     whatsapp: {
       title: '🇨🇦 CEC · Check-in matinal',
-      noPhone: "Configure d'abord le numéro du coach dans les Paramètres.",
+      noPhone: "Configure d'abord le numéro de l'équipe coachs dans les Paramètres.",
+      sent: "Envoyé à l'équipe coachs.",
       labelAthlete: 'Athlète',
       labelDate: 'Date',
       labelDiscipline: 'Discipline',
@@ -315,8 +316,8 @@ export const translations = {
       profileNotCompeting: 'Not competing',
       profileNotCompetingHint: 'Training camp only',
       start: 'Start check-in',
-      disclosureTitle: 'Sent to coach',
-      disclaimer: 'This form is sent directly to your coach. For an urgent alert, use WhatsApp.',
+      disclosureTitle: 'You decide when to send',
+      disclaimer: 'Nothing is sent until you tap Send to coach. The message reaches the coach team (shared WhatsApp + staff dashboard).',
       missingName: 'Enter your first name to start.',
       missingDiscipline: 'Pick a discipline.',
       missingProfile: 'Pick your Arco profile.'
@@ -429,7 +430,7 @@ export const translations = {
     },
     form: {
       submit: "Calculate today's Track",
-      disclaimer: 'Your answers are sent directly to your coach. WhatsApp is reserved for urgent alerts.'
+      disclaimer: 'Your answers reach the coach team only when you tap Send to coach.'
     },
     validation: {
       missingName: 'Enter your first name before continuing.',
@@ -461,7 +462,7 @@ export const translations = {
       indicators: 'Indicators',
       noFlags: 'No alert signals. Solid night, solid profile.',
       scrollHint: 'See details',
-      sendWhatsapp: 'Send to coach via WhatsApp',
+      sendWhatsapp: 'Send to coach',
       edit: 'Edit',
       restart: 'Restart',
       messageGreen: "You're ready! Full load.",
@@ -515,8 +516,8 @@ export const translations = {
     },
     settings: {
       title: 'Settings',
-      coachPhone: "Coach's WhatsApp number",
-      coachPhoneHint: 'International format without + or spaces. Canada example: 14186095751.',
+      coachPhone: 'Coach team WhatsApp number',
+      coachPhoneHint: 'Shared channel monitored by multiple coaches (rule of three). International format without + or spaces. Canada example: 14186095751.',
       coachSheetUrl: "Coach's Google Sheet URL",
       coachSheetUrlHint: 'Optional. When set, every check-in is automatically sent to the coach dashboard.',
       langLabel: 'Language',
@@ -527,7 +528,8 @@ export const translations = {
     },
     whatsapp: {
       title: '🇨🇦 CEC · Morning check-in',
-      noPhone: "First, set the coach's number in Settings.",
+      noPhone: 'First, set the coach team number in Settings.',
+      sent: 'Sent to the coach team.',
       labelAthlete: 'Athlete',
       labelDate: 'Date',
       labelDiscipline: 'Discipline',

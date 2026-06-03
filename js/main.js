@@ -14,7 +14,7 @@ import {
   onAnyChange
 } from './form-logic.js';
 import { evaluate } from './evaluation.js';
-import { renderResult } from './result-screen.js';
+import { renderResult, sendToCoachSheet } from './result-screen.js';
 import { sendToCoach } from './whatsapp.js';
 
 let lastEvaluation = null;
@@ -44,7 +44,7 @@ function wireGlobalEvents() {
   document.getElementById('settings-backdrop').addEventListener('click', closeSettings);
   document.getElementById('settings-save').addEventListener('click', saveSettings);
   document.getElementById('submit-btn').addEventListener('click', onSubmit);
-  document.getElementById('whatsapp-btn').addEventListener('click', onSendWhatsapp);
+  document.getElementById('whatsapp-btn').addEventListener('click', onSendToCoach);
   document.getElementById('edit-btn').addEventListener('click', goToFormScreen);
   document.getElementById('restart-btn').addEventListener('click', restart);
 
@@ -331,13 +331,23 @@ function onSubmit() {
   renderResult(lastEvaluation);
 }
 
-function onSendWhatsapp() {
+function onSendToCoach() {
   if (!lastEvaluation) return;
+  // Two destinations in one explicit, athlete-driven action:
+  // 1) POST the full check-in to the shared coach Google Sheet (silent,
+  //    best-effort — the team dashboard updates immediately).
+  // 2) Open WhatsApp on the shared coach team number with the message
+  //    pre-filled, so the rule-of-three group thread receives it too.
+  if (state.coachSheetUrl) {
+    sendToCoachSheet(lastEvaluation);
+  }
   const ok = sendToCoach(lastEvaluation);
   if (!ok) {
     showToast(t(state.lang, 'whatsapp.noPhone'), 'error');
     openSettings();
+    return;
   }
+  showToast(t(state.lang, 'whatsapp.sent'), 'success');
 }
 
 function goToFormScreen() {
