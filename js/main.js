@@ -44,7 +44,6 @@ function boot() {
 
 function wireGlobalEvents() {
   document.getElementById('lang-toggle').addEventListener('click', toggleLanguage);
-  document.getElementById('settings-open').addEventListener('click', openSettings);
   document.getElementById('settings-close').addEventListener('click', closeSettings);
   document.getElementById('settings-backdrop').addEventListener('click', closeSettings);
   document.getElementById('settings-save').addEventListener('click', saveSettings);
