@@ -3,7 +3,7 @@
  * Boot, landing → form → result flow, global events.
  */
 
-import { state, loadPreferences, saveLang, saveCoachPhone, saveCoachSheetUrl, saveDiscipline, saveProfile, resetForm, saveAthleteName } from './state.js';
+import { state, loadPreferences, saveLang, saveCoachGroupUrl, saveCoachSheetUrl, saveDiscipline, saveProfile, resetForm, saveAthleteName } from './state.js';
 import { applyTranslations, t } from './translations.js';
 import {
   buildLikertScales,
@@ -284,7 +284,7 @@ function refreshHeaderDate() {
    ============================================ */
 function openSettings() {
   const modal = document.getElementById('settings-modal');
-  document.getElementById('coach-phone').value = state.coachPhone || '';
+  document.getElementById('coach-group-url').value = state.coachGroupUrl || '';
   const sheetEl = document.getElementById('coach-sheet-url');
   if (sheetEl) sheetEl.value = state.coachSheetUrl || '';
   document.querySelectorAll('input[name="lang-pref"]').forEach((r) => {
@@ -298,8 +298,7 @@ function closeSettings() {
 }
 
 function saveSettings() {
-  const phoneInput = document.getElementById('coach-phone').value.replace(/\D+/g, '');
-  saveCoachPhone(phoneInput);
+  saveCoachGroupUrl(document.getElementById('coach-group-url').value);
   const sheetEl = document.getElementById('coach-sheet-url');
   saveCoachSheetUrl(sheetEl ? sheetEl.value : '');
   const langInput = document.querySelector('input[name="lang-pref"]:checked');
@@ -331,19 +330,19 @@ function onSubmit() {
   renderResult(lastEvaluation);
 }
 
-function onSendToCoach() {
+async function onSendToCoach() {
   if (!lastEvaluation) return;
   // Two destinations in one explicit, athlete-driven action:
   // 1) POST the full check-in to the shared coach Google Sheet (silent,
   //    best-effort — the team dashboard updates immediately).
-  // 2) Open WhatsApp on the shared coach team number with the message
-  //    pre-filled, so the rule-of-three group thread receives it too.
+  // 2) Copy the message to clipboard and open the shared coach WhatsApp
+  //    group so the rule-of-three thread receives the paste.
   if (state.coachSheetUrl) {
     sendToCoachSheet(lastEvaluation);
   }
-  const ok = sendToCoach(lastEvaluation);
+  const ok = await sendToCoach(lastEvaluation);
   if (!ok) {
-    showToast(t(state.lang, 'whatsapp.noPhone'), 'error');
+    showToast(t(state.lang, 'whatsapp.noGroup'), 'error');
     openSettings();
     return;
   }

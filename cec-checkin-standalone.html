@@ -3691,8 +3691,8 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
 
           <div class="landing-disclosure">
             <div class="landing-disclosure-content">
-              <p class="landing-disclosure-title" data-i18n="landing.disclosureTitle">Envoyé au coach</p>
-              <p class="landing-disclosure-text" data-i18n="landing.disclaimer">Ce formulaire est envoyé directement à ton coach. Pour un signalement urgent, utilise WhatsApp.</p>
+              <p class="landing-disclosure-title" data-i18n="landing.disclosureTitle">Tu décides quand envoyer</p>
+              <p class="landing-disclosure-text" data-i18n="landing.disclaimer">Rien n'est envoyé tant que tu n'as pas cliqué sur Confirmer. Le message arrive dans le groupe WhatsApp partagé des coachs et dans le tableau du staff.</p>
             </div>
           </div>
 
@@ -4112,9 +4112,9 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
 
       <div class="modal-body">
         <div class="field">
-          <label class="field-label" for="coach-phone" data-i18n="settings.coachPhone">Numéro WhatsApp du coach</label>
-          <input class="text-input" id="coach-phone" type="tel" inputmode="tel" placeholder="14186095751" />
-          <p class="field-hint" data-i18n="settings.coachPhoneHint">Format international sans + ni espace. Exemple Canada : 14186095751.</p>
+          <label class="field-label" for="coach-group-url" data-i18n="settings.coachGroupUrl">Lien du groupe WhatsApp de l'équipe coachs</label>
+          <input class="text-input" id="coach-group-url" type="url" inputmode="url" autocomplete="off" placeholder="https://chat.whatsapp.com/..." />
+          <p class="field-hint" data-i18n="settings.coachGroupUrlHint">Canal partagé par plusieurs coachs (règle de trois). Colle le lien d'invitation du groupe — il commence par https://chat.whatsapp.com/</p>
         </div>
 
         <div class="field">
@@ -4196,7 +4196,7 @@ const translations = {
       profileNotCompetingHint: "Camp d'entraînement",
       start: 'Commencer le check-in',
       disclosureTitle: 'Tu décides quand envoyer',
-      disclaimer: "Rien n'est envoyé tant que tu ne cliques pas sur Envoyer au coach. Le message arrive à l'équipe de coachs (WhatsApp partagé + tableau du staff).",
+      disclaimer: "Rien n'est envoyé tant que tu n'as pas cliqué sur Confirmer. Le message arrive dans le groupe WhatsApp partagé des coachs et dans le tableau du staff.",
       missingName: 'Indique ton prénom pour démarrer.',
       missingDiscipline: 'Choisis une discipline.',
       missingProfile: 'Choisis ton profil Arco.'
@@ -4309,7 +4309,7 @@ const translations = {
     },
     form: {
       submit: 'Calculer mon Track du jour',
-      disclaimer: "Tes réponses partent à l'équipe de coachs uniquement quand tu cliques sur Envoyer au coach."
+      disclaimer: "Tes réponses partent à l'équipe de coachs uniquement quand tu cliques sur Confirmer."
     },
     validation: {
       missingName: 'Indique ton prénom avant de continuer.',
@@ -4341,7 +4341,7 @@ const translations = {
       indicators: 'Indicateurs',
       noFlags: "Aucun signal d'alerte. Belle nuit, beau profil.",
       scrollHint: 'Voir les détails',
-      sendWhatsapp: "Envoyer au coach",
+      sendWhatsapp: "Confirmer",
       edit: 'Modifier',
       restart: 'Recommencer',
       messageGreen: "Tu es prêt(e) ! Charge complète.",
@@ -4395,8 +4395,8 @@ const translations = {
     },
     settings: {
       title: 'Paramètres',
-      coachPhone: "Numéro WhatsApp de l'équipe coachs",
-      coachPhoneHint: "Canal partagé par plusieurs coachs (règle de trois). Format international sans + ni espace. Exemple Canada : 14186095751.",
+      coachGroupUrl: "Lien du groupe WhatsApp de l'équipe coachs",
+      coachGroupUrlHint: "Canal partagé par plusieurs coachs (règle de trois). Colle le lien d'invitation du groupe — il commence par https://chat.whatsapp.com/",
       coachSheetUrl: 'URL Google Sheet du coach',
       coachSheetUrlHint: 'Optionnel. Si renseigné, chaque check-in sera envoyé au tableau du coach automatiquement.',
       langLabel: 'Langue',
@@ -4407,8 +4407,8 @@ const translations = {
     },
     whatsapp: {
       title: '🇨🇦 CEC · Check-in matinal',
-      noPhone: "Configure d'abord le numéro de l'équipe coachs dans les Paramètres.",
-      sent: "Envoyé à l'équipe coachs.",
+      noGroup: "Configure d'abord le lien du groupe coachs dans les Paramètres.",
+      sent: "Message copié. Colle-le dans le groupe coachs.",
       labelAthlete: 'Athlète',
       labelDate: 'Date',
       labelDiscipline: 'Discipline',
@@ -4471,7 +4471,7 @@ const translations = {
       profileNotCompetingHint: 'Training camp only',
       start: 'Start check-in',
       disclosureTitle: 'You decide when to send',
-      disclaimer: 'Nothing is sent until you tap Send to coach. The message reaches the coach team (shared WhatsApp + staff dashboard).',
+      disclaimer: 'Nothing is sent until you tap Confirm. The message reaches the shared coach WhatsApp group and the staff dashboard.',
       missingName: 'Enter your first name to start.',
       missingDiscipline: 'Pick a discipline.',
       missingProfile: 'Pick your Arco profile.'
@@ -4584,7 +4584,7 @@ const translations = {
     },
     form: {
       submit: "Calculate today's Track",
-      disclaimer: 'Your answers reach the coach team only when you tap Send to coach.'
+      disclaimer: 'Your answers reach the coach team only when you tap Confirm.'
     },
     validation: {
       missingName: 'Enter your first name before continuing.',
@@ -4616,7 +4616,7 @@ const translations = {
       indicators: 'Indicators',
       noFlags: 'No alert signals. Solid night, solid profile.',
       scrollHint: 'See details',
-      sendWhatsapp: 'Send to coach',
+      sendWhatsapp: 'Confirm',
       edit: 'Edit',
       restart: 'Restart',
       messageGreen: "You're ready! Full load.",
@@ -4670,8 +4670,8 @@ const translations = {
     },
     settings: {
       title: 'Settings',
-      coachPhone: 'Coach team WhatsApp number',
-      coachPhoneHint: 'Shared channel monitored by multiple coaches (rule of three). International format without + or spaces. Canada example: 14186095751.',
+      coachGroupUrl: 'Coach team WhatsApp group link',
+      coachGroupUrlHint: 'Shared channel monitored by multiple coaches (rule of three). Paste the group invite link — it starts with https://chat.whatsapp.com/',
       coachSheetUrl: "Coach's Google Sheet URL",
       coachSheetUrlHint: 'Optional. When set, every check-in is automatically sent to the coach dashboard.',
       langLabel: 'Language',
@@ -4682,8 +4682,8 @@ const translations = {
     },
     whatsapp: {
       title: '🇨🇦 CEC · Morning check-in',
-      noPhone: 'First, set the coach team number in Settings.',
-      sent: 'Sent to the coach team.',
+      noGroup: 'First, set the coach group link in Settings.',
+      sent: 'Message copied. Paste it in the coach group.',
       labelAthlete: 'Athlete',
       labelDate: 'Date',
       labelDiscipline: 'Discipline',
@@ -4765,7 +4765,7 @@ function applyTranslations(lang) {
 
 const STORAGE_KEYS = {
   lang: 'cec_lang',
-  coachPhone: 'cec_coach_phone',
+  coachGroupUrl: 'cec_coach_group_url',
   coachSheetUrl: 'cec_coach_sheet_url',
   athleteName: 'cec_athlete_name',
   discipline: 'cec_discipline',
@@ -4774,7 +4774,10 @@ const STORAGE_KEYS = {
   progressionZoom: 'cec_progression_zoom'
 };
 
-const DEFAULT_COACH_PHONE = '14186095751';
+// Shared WhatsApp group for the Innsbruck 2026 camp coach team.
+// Hardcoded so every athlete gets it pre-wired. Each athlete can still
+// override it in Settings if the coach rotates the invite link.
+const DEFAULT_COACH_GROUP_URL = 'https://chat.whatsapp.com/EVUD45QNns35bQeacCJPSD';
 
 // Default Google Apps Script endpoint for the Innsbruck 2026 camp.
 // Hardcoded so every athlete who installs the app gets it pre-wired —
@@ -4784,7 +4787,7 @@ const DEFAULT_COACH_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwgiDub
 
 const initial = {
   lang: 'fr',
-  coachPhone: DEFAULT_COACH_PHONE,
+  coachGroupUrl: DEFAULT_COACH_GROUP_URL,
   coachSheetUrl: DEFAULT_COACH_SHEET_URL,
   athleteName: '',
   discipline: null,
@@ -4829,10 +4832,10 @@ const state = structuredClone(initial);
  * Reset the in-memory state but keep user preferences.
  */
 function resetForm() {
-  const { lang, coachPhone, coachSheetUrl, athleteName, discipline, profile } = state;
+  const { lang, coachGroupUrl, coachSheetUrl, athleteName, discipline, profile } = state;
   Object.assign(state, structuredClone(initial));
   state.lang = lang;
-  state.coachPhone = coachPhone;
+  state.coachGroupUrl = coachGroupUrl;
   state.coachSheetUrl = coachSheetUrl;
   state.athleteName = athleteName;
   state.discipline = discipline;
@@ -4843,8 +4846,8 @@ function loadPreferences() {
   try {
     const lang = localStorage.getItem(STORAGE_KEYS.lang);
     if (lang === 'fr' || lang === 'en') state.lang = lang;
-    const phone = localStorage.getItem(STORAGE_KEYS.coachPhone);
-    if (phone) state.coachPhone = phone;
+    const groupUrl = localStorage.getItem(STORAGE_KEYS.coachGroupUrl);
+    if (groupUrl) state.coachGroupUrl = groupUrl;
     const sheetUrl = localStorage.getItem(STORAGE_KEYS.coachSheetUrl);
     if (sheetUrl) state.coachSheetUrl = sheetUrl;
     const name = localStorage.getItem(STORAGE_KEYS.athleteName);
@@ -4931,9 +4934,15 @@ function saveLang(lang) {
   try { localStorage.setItem(STORAGE_KEYS.lang, lang); } catch (_) {}
 }
 
-function saveCoachPhone(phone) {
-  state.coachPhone = phone;
-  try { localStorage.setItem(STORAGE_KEYS.coachPhone, phone); } catch (_) {}
+function saveCoachGroupUrl(url) {
+  state.coachGroupUrl = (url || '').trim();
+  try {
+    if (state.coachGroupUrl) {
+      localStorage.setItem(STORAGE_KEYS.coachGroupUrl, state.coachGroupUrl);
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.coachGroupUrl);
+    }
+  } catch (_) {}
 }
 
 function saveCoachSheetUrl(url) {
@@ -5902,7 +5911,10 @@ function computeReadinessScore() {
 
 /**
  * CEC Check-in - whatsapp.js
- * Build a formatted check-in message and open wa.me with it pre-filled.
+ * Build a formatted check-in message, copy it to the clipboard, and
+ * open the shared coach team WhatsApp group so the athlete can paste it.
+ * Going through a group invite link (not a phone number) keeps the
+ * exchange visible to every coach — règle de trois.
  */
 
 
@@ -5977,16 +5989,46 @@ function buildMessage(evalResult) {
 }
 
 /**
- * Open the WhatsApp web/app deep-link with the pre-filled message.
- * Returns true on success, false if the coach phone number is missing.
+ * Copy the message to the clipboard and open the shared coach group.
+ * Returns true if the group was opened, false if the group URL is missing.
+ * The clipboard step is best-effort; a failure there does not block the
+ * group open, since the athlete can still type a short notice manually.
  */
-function sendToCoach(evalResult) {
-  const phone = (state.coachPhone || '').replace(/\D+/g, '');
-  if (!phone) return false;
+async function sendToCoach(evalResult) {
+  const url = (state.coachGroupUrl || '').trim();
+  if (!url) return false;
   const text = buildMessage(evalResult);
-  const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+  await copyToClipboard(text);
   window.open(url, '_blank', 'noopener');
   return true;
+}
+
+async function copyToClipboard(text) {
+  // Modern path — requires a user-initiated event (we are inside one).
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (_) { /* fall through */ }
+  }
+  // Legacy fallback for older WebViews / non-secure contexts.
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '0';
+    ta.style.left = '0';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch (_) {
+    return false;
+  }
 }
 
 function nullDash(v) {
@@ -7079,7 +7121,7 @@ function refreshHeaderDate() {
    ============================================ */
 function openSettings() {
   const modal = document.getElementById('settings-modal');
-  document.getElementById('coach-phone').value = state.coachPhone || '';
+  document.getElementById('coach-group-url').value = state.coachGroupUrl || '';
   const sheetEl = document.getElementById('coach-sheet-url');
   if (sheetEl) sheetEl.value = state.coachSheetUrl || '';
   document.querySelectorAll('input[name="lang-pref"]').forEach((r) => {
@@ -7093,8 +7135,7 @@ function closeSettings() {
 }
 
 function saveSettings() {
-  const phoneInput = document.getElementById('coach-phone').value.replace(/\D+/g, '');
-  saveCoachPhone(phoneInput);
+  saveCoachGroupUrl(document.getElementById('coach-group-url').value);
   const sheetEl = document.getElementById('coach-sheet-url');
   saveCoachSheetUrl(sheetEl ? sheetEl.value : '');
   const langInput = document.querySelector('input[name="lang-pref"]:checked');
@@ -7126,19 +7167,19 @@ function onSubmit() {
   renderResult(lastEvaluation);
 }
 
-function onSendToCoach() {
+async function onSendToCoach() {
   if (!lastEvaluation) return;
   // Two destinations in one explicit, athlete-driven action:
   // 1) POST the full check-in to the shared coach Google Sheet (silent,
   //    best-effort — the team dashboard updates immediately).
-  // 2) Open WhatsApp on the shared coach team number with the message
-  //    pre-filled, so the rule-of-three group thread receives it too.
+  // 2) Copy the message to clipboard and open the shared coach WhatsApp
+  //    group so the rule-of-three thread receives the paste.
   if (state.coachSheetUrl) {
     sendToCoachSheet(lastEvaluation);
   }
-  const ok = sendToCoach(lastEvaluation);
+  const ok = await sendToCoach(lastEvaluation);
   if (!ok) {
-    showToast(t(state.lang, 'whatsapp.noPhone'), 'error');
+    showToast(t(state.lang, 'whatsapp.noGroup'), 'error');
     openSettings();
     return;
   }

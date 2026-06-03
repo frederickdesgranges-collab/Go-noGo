@@ -1,6 +1,9 @@
 /**
  * CEC Check-in - whatsapp.js
- * Build a formatted check-in message and open wa.me with it pre-filled.
+ * Build a formatted check-in message, copy it to the clipboard, and
+ * open the shared coach team WhatsApp group so the athlete can paste it.
+ * Going through a group invite link (not a phone number) keeps the
+ * exchange visible to every coach — règle de trois.
  */
 
 import { state } from './state.js';
@@ -77,16 +80,46 @@ export function buildMessage(evalResult) {
 }
 
 /**
- * Open the WhatsApp web/app deep-link with the pre-filled message.
- * Returns true on success, false if the coach phone number is missing.
+ * Copy the message to the clipboard and open the shared coach group.
+ * Returns true if the group was opened, false if the group URL is missing.
+ * The clipboard step is best-effort; a failure there does not block the
+ * group open, since the athlete can still type a short notice manually.
  */
-export function sendToCoach(evalResult) {
-  const phone = (state.coachPhone || '').replace(/\D+/g, '');
-  if (!phone) return false;
+export async function sendToCoach(evalResult) {
+  const url = (state.coachGroupUrl || '').trim();
+  if (!url) return false;
   const text = buildMessage(evalResult);
-  const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+  await copyToClipboard(text);
   window.open(url, '_blank', 'noopener');
   return true;
+}
+
+async function copyToClipboard(text) {
+  // Modern path — requires a user-initiated event (we are inside one).
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (_) { /* fall through */ }
+  }
+  // Legacy fallback for older WebViews / non-secure contexts.
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '0';
+    ta.style.left = '0';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch (_) {
+    return false;
+  }
 }
 
 function nullDash(v) {
