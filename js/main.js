@@ -367,20 +367,16 @@ function lockSendButtons() {
   formSentForThisCheckin = true;
   const confirmBtn = document.getElementById('confirm-btn');
   const refuseBtn = document.getElementById('refuse-btn');
-  const hint = document.getElementById('sent-hint');
   if (confirmBtn) confirmBtn.disabled = true;
   if (refuseBtn) refuseBtn.disabled = true;
-  if (hint) hint.hidden = false;
 }
 
 function unlockSendButtons() {
   formSentForThisCheckin = false;
   const confirmBtn = document.getElementById('confirm-btn');
   const refuseBtn = document.getElementById('refuse-btn');
-  const hint = document.getElementById('sent-hint');
   if (confirmBtn) confirmBtn.disabled = false;
   if (refuseBtn) refuseBtn.disabled = false;
-  if (hint) hint.hidden = true;
 }
 
 function goToFormScreen() {

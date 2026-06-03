@@ -982,53 +982,65 @@ a { color: inherit; text-decoration: none; }
   display: none;
 }
 
-/* Refuse: discreet text-button. Same width-ish footprint, lower visual
-   weight than the primary confirm. */
+/* Refuse: same footprint as confirm, neutral gray palette. */
 .btn-refuse {
-  display: block;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   width: 100%;
-  margin-top: 10px;
-  padding: 10px 14px;
-  background: none;
-  border: 0;
+  margin-top: 12px;
+  padding: 20px;
   font-family: inherit;
-  font-size: 13.5px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  color: var(--text-secondary);
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 4px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  background:
+    linear-gradient(135deg, #8a958f 0%, #6e7873 50%, #4a5a52 100%);
+  color: white;
+  border: 0;
+  border-radius: var(--radius-pill);
   cursor: pointer;
-  transition: color 0.15s ease;
+  overflow: hidden;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.28) inset,
+    0 -2px 6px rgba(0, 0, 0, 0.15) inset,
+    0 8px 22px rgba(74, 90, 82, 0.32);
+  transition: transform 0.15s ease, box-shadow 0.25s ease;
 }
 
+.btn-refuse::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.28) 50%, transparent 100%);
+  transition: left 0.7s ease;
+}
+
+.btn-refuse:hover::before { left: 130%; }
+
 .btn-refuse:hover {
-  color: var(--cec-red);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.28) inset,
+    0 -2px 6px rgba(0, 0, 0, 0.15) inset,
+    0 12px 30px rgba(74, 90, 82, 0.45);
 }
 
 .btn-refuse:disabled,
 .btn-refuse[disabled] {
-  color: var(--text-tertiary);
-  text-decoration-color: var(--text-tertiary);
+  background: rgba(20, 33, 26, 0.18);
+  color: rgba(255, 255, 255, 0.78);
   cursor: not-allowed;
+  box-shadow: none;
   pointer-events: none;
 }
 
-.result-sent-hint {
-  margin: 12px 0 0;
-  padding: 8px 14px;
-  border-radius: var(--radius-md);
-  background: rgba(42, 111, 71, 0.08);
-  border: 1px solid rgba(42, 111, 71, 0.22);
-  color: var(--green-dark);
-  font-size: 12.5px;
-  font-weight: 500;
-  text-align: center;
-  line-height: 1.4;
-}
-
-.result-sent-hint[hidden] {
+.btn-refuse:disabled::before,
+.btn-refuse[disabled]::before {
   display: none;
 }
 
@@ -4149,8 +4161,13 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
         </svg>
         <span data-i18n="result.confirm">Envoyer aux coachs</span>
       </button>
-      <p class="result-sent-hint" id="sent-hint" hidden data-i18n="result.sentHint">Envoyé. Modifie une réponse pour pouvoir renvoyer.</p>
-      <button class="btn-refuse" id="refuse-btn" type="button" data-i18n="result.refuse">Refuser l'envoi</button>
+      <button class="btn-refuse" id="refuse-btn" type="button">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="6" y1="6" x2="18" y2="18"/>
+          <line x1="18" y1="6" x2="6" y2="18"/>
+        </svg>
+        <span data-i18n="result.refuse">Refuser l'envoi</span>
+      </button>
 
       <div class="result-actions">
         <button class="btn btn-secondary" id="edit-btn" type="button" data-i18n="result.edit">Modifier</button>
@@ -4403,7 +4420,6 @@ const translations = {
       scrollHint: 'Voir les détails',
       confirm: 'Envoyer aux coachs',
       refuse: "Refuser l'envoi",
-      sentHint: 'Envoyé. Modifie une réponse pour pouvoir renvoyer.',
       sentToast: "Envoyé au tableau de l'équipe coachs.",
       refusedToast: 'Refus enregistré. Aucune réponse partagée.',
       noConfig: "Configure d'abord l'URL du tableau dans les Paramètres.",
@@ -4654,7 +4670,6 @@ const translations = {
       scrollHint: 'See details',
       confirm: 'Send to coaches',
       refuse: 'Decline sending',
-      sentHint: 'Sent. Update an answer to send again.',
       sentToast: 'Sent to the coach team dashboard.',
       refusedToast: 'Refusal logged. No answers shared.',
       noConfig: 'First, set the dashboard URL in Settings.',
@@ -7083,20 +7098,16 @@ function lockSendButtons() {
   formSentForThisCheckin = true;
   const confirmBtn = document.getElementById('confirm-btn');
   const refuseBtn = document.getElementById('refuse-btn');
-  const hint = document.getElementById('sent-hint');
   if (confirmBtn) confirmBtn.disabled = true;
   if (refuseBtn) refuseBtn.disabled = true;
-  if (hint) hint.hidden = false;
 }
 
 function unlockSendButtons() {
   formSentForThisCheckin = false;
   const confirmBtn = document.getElementById('confirm-btn');
   const refuseBtn = document.getElementById('refuse-btn');
-  const hint = document.getElementById('sent-hint');
   if (confirmBtn) confirmBtn.disabled = false;
   if (refuseBtn) refuseBtn.disabled = false;
-  if (hint) hint.hidden = true;
 }
 
 function goToFormScreen() {
