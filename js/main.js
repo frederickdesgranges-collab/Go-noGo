@@ -3,7 +3,7 @@
  * Boot, landing → form → result flow, global events.
  */
 
-import { state, loadPreferences, saveLang, saveCoachSheetUrl, saveDiscipline, saveProfile, resetForm, saveAthleteName } from './state.js';
+import { state, loadPreferences, saveLang, saveCoachSheetUrl, saveDiscipline, saveProfile, resetForm, saveAthleteName, todayDateKey, normalizeText, getSubmitRecord, setSubmitRecord } from './state.js';
 import { applyTranslations, t } from './translations.js';
 import {
   buildLikertScales,
@@ -27,8 +27,9 @@ function boot() {
     updateProgressBar();
     // Any tweak to the form invalidates the previous send/refuse, so the
     // buttons must come back online — that is the user's "modification"
-    // gate for resubmitting.
+    // gate for resubmitting. A stale status line is cleared too.
     unlockSendButtons();
+    clearSendStatus();
   });
 
   applyTranslations(state.lang);
@@ -329,11 +330,21 @@ function onSubmit() {
     return;
   }
   lastEvaluation = evaluate();
+  // Fresh result view: buttons enabled, no stale status line. The
+  // persistent 10-min lock still applies when the athlete taps send.
+  unlockSendButtons();
+  clearSendStatus();
   goToResultScreen();
   renderResult(lastEvaluation);
 }
 
 let formSentForThisCheckin = false;
+
+// TUNABLE: how long (minutes) before the same athlete may resend on the
+// same day. Deters "re-answer until green". Device-clock based, so it is
+// a deterrent, not tamper-proof — and it will also block a legitimate
+// correction inside the window. Accepted trade-off for a safety tool.
+const RESUBMIT_LOCK_MINUTES = 10;
 
 function onSendToCoach() {
   if (!lastEvaluation) return;
@@ -345,9 +356,40 @@ function onSendToCoach() {
     openSettings();
     return;
   }
-  sendToCoachSheet(lastEvaluation);
+
+  const now = Date.now();
+  const dayKey = todayDateKey();
+  const athleteKey = normalizeText(state.athleteName || '');
+
+  // Default meta = first submission. Only refined when we have an athlete
+  // key AND a working storage record (fail open otherwise).
+  let submitMeta = { count: 1, isResubmit: false };
+
+  if (athleteKey) {
+    const rec = getSubmitRecord(dayKey, athleteKey); // { count, lastTs } | null
+    if (rec && rec.lastTs && (now - rec.lastTs) < RESUBMIT_LOCK_MINUTES * 60 * 1000) {
+      // Inside the lock window: block the network send entirely.
+      const minLeft = Math.ceil((RESUBMIT_LOCK_MINUTES * 60000 - (now - rec.lastTs)) / 60000);
+      const msg = t(state.lang, 'result.resubmitLocked').replace('{min}', String(minLeft));
+      unlockSendButtons(); // keep the button usable for a later legit retry
+      showSendStatus(msg, 'error');
+      return;
+    }
+    const prevCount = (rec && rec.count) || 0;
+    submitMeta = { count: prevCount + 1, isResubmit: prevCount >= 1 };
+    setSubmitRecord(dayKey, athleteKey, { count: submitMeta.count, lastTs: now });
+  }
+
+  sendToCoachSheet(lastEvaluation, submitMeta);
   lockSendButtons();
-  showToast(t(state.lang, 'result.sentToast'), 'success');
+  if (submitMeta.isResubmit) {
+    showSendStatus(
+      t(state.lang, 'result.resubmitRecorded').replace('{n}', String(submitMeta.count)),
+      'success'
+    );
+  } else {
+    showToast(t(state.lang, 'result.sentToast'), 'success');
+  }
 }
 
 function onRefuseSend() {
@@ -378,6 +420,29 @@ function unlockSendButtons() {
   if (refuseBtn) refuseBtn.disabled = false;
 }
 
+/**
+ * Inline, persistent status line under the send buttons (role=status,
+ * aria-live=polite). Used for the resubmit-lock notice and the
+ * resubmission-recorded confirmation. Non-blocking — never alert().
+ */
+function showSendStatus(message, kind) {
+  const el = document.getElementById('send-status');
+  if (!el) return;
+  el.textContent = message;
+  el.classList.remove('is-error', 'is-success');
+  if (kind === 'error') el.classList.add('is-error');
+  else if (kind === 'success') el.classList.add('is-success');
+  el.hidden = false;
+}
+
+function clearSendStatus() {
+  const el = document.getElementById('send-status');
+  if (!el) return;
+  el.textContent = '';
+  el.classList.remove('is-error', 'is-success');
+  el.hidden = true;
+}
+
 function goToFormScreen() {
   document.getElementById('screen-result').hidden = true;
   document.getElementById('screen-form').hidden = false;
@@ -400,6 +465,7 @@ function restart() {
   syncFormFromState();
   updateProgressBar();
   unlockSendButtons();
+  clearSendStatus();
   backToLanding();
 }
 

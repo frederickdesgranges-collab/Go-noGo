@@ -576,10 +576,19 @@ function wireProgressionDotTooltips(chartHost) {
  * everything is fire-and-forget so a network blip never blocks the
  * athlete's UX.
  */
-export function sendToCoachSheet(evalResult) {
+export function sendToCoachSheet(evalResult, submitMeta) {
   const url = state.coachSheetUrl;
   if (!url) return;
   const today = new Date();
+  // A legitimate resubmission (after the 10-min lock) is marked inline in
+  // the note column with a [REPRISE n°X] prefix, because the Apps Script
+  // backend can't be changed. submissionCount / isResubmit are also sent
+  // for forward-compat, but they only land in dedicated columns once the
+  // script is updated to map them — until then the note prefix carries it.
+  const baseNote = state.hydration?.note || '';
+  const sentNote = (submitMeta && submitMeta.isResubmit)
+    ? `[REPRISE n°${submitMeta.count}] ${baseNote}`.trim()
+    : baseNote;
   const payload = {
     timestamp: today.toISOString(),
     date: todayDateKey(today),
@@ -613,7 +622,9 @@ export function sendToCoachSheet(evalResult) {
     painOther: state.pain?.other ?? '',
     wantsPhysio: !!state.pain?.wantsPhysio,
     fuelScore: state.hydration?.fuelScore ?? '',
-    note: state.hydration?.note ?? '',
+    note: sentNote,
+    submissionCount: submitMeta?.count ?? 1,
+    isResubmit: !!submitMeta?.isResubmit,
     flagsRed: (evalResult.flags?.red || []).map((f) => f.key).join('|'),
     flagsYellow: (evalResult.flags?.yellow || []).map((f) => f.key).join('|')
   };

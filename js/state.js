@@ -10,7 +10,8 @@ const STORAGE_KEYS = {
   discipline: 'cec_discipline',
   profile: 'cec_profile',
   history: 'cec_history',
-  progressionZoom: 'cec_progression_zoom'
+  progressionZoom: 'cec_progression_zoom',
+  submitLog: 'cec_submit_log'
 };
 
 // Default Google Apps Script endpoint for the Innsbruck 2026 camp.
@@ -181,6 +182,50 @@ export function saveAthleteName(name) {
     if (name) localStorage.setItem(STORAGE_KEYS.athleteName, name);
     else localStorage.removeItem(STORAGE_KEYS.athleteName);
   } catch (_) {}
+}
+
+/**
+ * Lowercase + strip diacritics (NFD) + trim. Used both for free-text
+ * keyword matching in evaluate() and for building the per-athlete
+ * submit-log key. ASCII-folded so word-boundary regexes behave.
+ */
+export function normalizeText(s) {
+  return (s == null ? '' : String(s))
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+}
+
+/**
+ * Per-day, per-athlete submit log used by the 10-minute resubmit lock.
+ * Shape: { `${dayKey}__${athleteKey}`: { count, lastTs } }.
+ * Every access is wrapped in try/catch and FAILS OPEN — if localStorage
+ * is unavailable we return null / no-op so a real check-in is never
+ * blocked by a storage error.
+ */
+export function getSubmitRecord(dayKey, athleteKey) {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.submitLog);
+    if (!raw) return null;
+    const log = JSON.parse(raw);
+    if (!log || typeof log !== 'object') return null;
+    return log[`${dayKey}__${athleteKey}`] || null;
+  } catch (_) {
+    return null;
+  }
+}
+
+export function setSubmitRecord(dayKey, athleteKey, record) {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.submitLog);
+    const log = raw && typeof raw === 'string' ? JSON.parse(raw) : {};
+    const safe = log && typeof log === 'object' ? log : {};
+    safe[`${dayKey}__${athleteKey}`] = record;
+    localStorage.setItem(STORAGE_KEYS.submitLog, JSON.stringify(safe));
+  } catch (_) {
+    /* fail open — do not block the send */
+  }
 }
 
 export const STORAGE = STORAGE_KEYS;

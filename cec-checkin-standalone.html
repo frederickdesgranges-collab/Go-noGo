@@ -1044,6 +1044,33 @@ a { color: inherit; text-decoration: none; }
   display: none;
 }
 
+/* Inline status line under the send buttons (resubmit lock / recorded). */
+.send-status {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.send-status[hidden] {
+  display: none;
+}
+
+.send-status.is-error {
+  background: var(--red-light);
+  border: 1px solid rgba(185, 28, 28, 0.28);
+  color: var(--red-dark);
+}
+
+.send-status.is-success {
+  background: rgba(42, 111, 71, 0.08);
+  border: 1px solid rgba(42, 111, 71, 0.22);
+  color: var(--green-dark);
+}
+
 .result-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -4162,6 +4189,7 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
         </svg>
         <span data-i18n="result.refuse">Refuser l'envoi</span>
       </button>
+      <p class="send-status" id="send-status" role="status" aria-live="polite" hidden></p>
 
       <div class="result-actions">
         <button class="btn btn-secondary" id="edit-btn" type="button" data-i18n="result.edit">Modifier</button>
@@ -4416,6 +4444,8 @@ const translations = {
       refuse: "Refuser l'envoi",
       sentToast: "Envoyé au tableau de l'équipe coachs.",
       refusedToast: 'Refus enregistré. Aucune réponse partagée.',
+      resubmitLocked: 'Tu as deja envoye ton check-in. Attends {min} min avant de renvoyer, ou parle a ton coach.',
+      resubmitRecorded: "Reprise n°{n} enregistree. Le coach verra que c'est une nouvelle reponse.",
       noConfig: "Configure d'abord l'URL du tableau dans les Paramètres.",
       edit: 'Modifier',
       restart: 'Recommencer',
@@ -4428,7 +4458,11 @@ const translations = {
       messageRed: "Journée de récupération. Volume réduit, technique à l'aise.",
       kindnessRed: "Écouter son corps, c'est aussi un acte de performance. On reviendra plus fort demain.",
       messageLowScore: "Tes signaux sont corrects mais ta réserve du jour est basse. Journée prudente.",
+      messageHeadInjury: 'Arrete. Possible blessure a la tete. Ne grimpe pas avant un avis physio ou medecin.',
+      kindnessHeadInjury: 'La tete passe avant tout. Previens un coach maintenant.',
       physioBanner: "Tu as demandé à voir le physio. Vois-le avant de grimper.",
+      flagHeadInjury: 'Possible blessure a la tete',
+      flagFreeTextReview: 'Note a lire par le coach',
       flagSleepShort: 'Sommeil très court (< 6h)',
       flagSleepBorderline: 'Sommeil court & qualité faible (< 7h)',
       flagLowEnergy: 'Énergie basse',
@@ -4666,6 +4700,8 @@ const translations = {
       refuse: 'Decline sending',
       sentToast: 'Sent to the coach team dashboard.',
       refusedToast: 'Refusal logged. No answers shared.',
+      resubmitLocked: 'You already sent your check-in. Wait {min} min before resending, or talk to your coach.',
+      resubmitRecorded: 'Resubmission n°{n} recorded. Your coach will see this is a new answer.',
       noConfig: 'First, set the dashboard URL in Settings.',
       edit: 'Edit',
       restart: 'Restart',
@@ -4678,7 +4714,11 @@ const translations = {
       messageRed: 'Recovery day. Reduced volume, easy technique work.',
       kindnessRed: "Listening to your body is also a performance act. We'll come back stronger tomorrow.",
       messageLowScore: "Your signals are fine but your reserve today is low. Easy day.",
+      messageHeadInjury: 'Stop. Possible head injury. Do not climb before a physio or doctor clears you.',
+      kindnessHeadInjury: 'Your head comes first. Tell a coach right now.',
       physioBanner: "You asked to see the physio. See them before climbing.",
+      flagHeadInjury: 'Possible head injury',
+      flagFreeTextReview: 'Note flagged for coach review',
       flagSleepShort: 'Very short sleep (< 6h)',
       flagSleepBorderline: 'Short sleep & poor quality (< 7h)',
       flagLowEnergy: 'Low energy',
@@ -4791,7 +4831,8 @@ const STORAGE_KEYS = {
   discipline: 'cec_discipline',
   profile: 'cec_profile',
   history: 'cec_history',
-  progressionZoom: 'cec_progression_zoom'
+  progressionZoom: 'cec_progression_zoom',
+  submitLog: 'cec_submit_log'
 };
 
 // Default Google Apps Script endpoint for the Innsbruck 2026 camp.
@@ -4962,6 +5003,50 @@ function saveAthleteName(name) {
     if (name) localStorage.setItem(STORAGE_KEYS.athleteName, name);
     else localStorage.removeItem(STORAGE_KEYS.athleteName);
   } catch (_) {}
+}
+
+/**
+ * Lowercase + strip diacritics (NFD) + trim. Used both for free-text
+ * keyword matching in evaluate() and for building the per-athlete
+ * submit-log key. ASCII-folded so word-boundary regexes behave.
+ */
+function normalizeText(s) {
+  return (s == null ? '' : String(s))
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+}
+
+/**
+ * Per-day, per-athlete submit log used by the 10-minute resubmit lock.
+ * Shape: { `${dayKey}__${athleteKey}`: { count, lastTs } }.
+ * Every access is wrapped in try/catch and FAILS OPEN — if localStorage
+ * is unavailable we return null / no-op so a real check-in is never
+ * blocked by a storage error.
+ */
+function getSubmitRecord(dayKey, athleteKey) {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.submitLog);
+    if (!raw) return null;
+    const log = JSON.parse(raw);
+    if (!log || typeof log !== 'object') return null;
+    return log[`${dayKey}__${athleteKey}`] || null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function setSubmitRecord(dayKey, athleteKey, record) {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.submitLog);
+    const log = raw && typeof raw === 'string' ? JSON.parse(raw) : {};
+    const safe = log && typeof log === 'object' ? log : {};
+    safe[`${dayKey}__${athleteKey}`] = record;
+    localStorage.setItem(STORAGE_KEYS.submitLog, JSON.stringify(safe));
+  } catch (_) {
+    /* fail open — do not block the send */
+  }
 }
 
 const STORAGE = STORAGE_KEYS;
@@ -5612,6 +5697,54 @@ function formatHours(hours, lang) {
  */
 
 /* ============================================
+   TUNABLE CONSTANTS — safety/decision knobs grouped for easy review.
+   (RESUBMIT_LOCK_MINUTES lives in main.js, next to the send handler.)
+   ============================================ */
+
+// When true, ANY non-empty free-text note (pain.other / hydration.note)
+// that does not already trigger a head-injury red flag is surfaced as a
+// soft yellow so a coach actually reads it. Set to false to keep free
+// text purely informational (no colour impact).
+const FREE_TEXT_FORCES_YELLOW = true;
+
+// Whole-word triggers for a possible head / neuro / loss-of-consciousness
+// event in the free-text fields. Written lowercase and accent-free because
+// the text is normalised before matching. Matched on WORD BOUNDARIES, not
+// substrings, so "head" never fires on "headphones".
+//
+// ⚠️ MEDICAL REVIEW REQUIRED (Fred): this list is intentionally broad and
+// errs toward false positives — a false red only asks a coach to look,
+// while a missed head injury in a minor is unacceptable. The single
+// body-part words ('tete', 'head', 'crane') will also catch ordinary
+// headaches ("mal de tete"); that is the accepted trade-off until a
+// clinician refines the list.
+const HEAD_INJURY_TERMS = [
+  'commotion', 'concussion',
+  'tete', 'head', 'crane',
+  'evanoui', 'evanouissement', 'syncope',
+  'inconscient', 'unconscious', 'perte de conscience', 'blackout',
+  'vertige', 'etourdi', 'dizzy',
+  'vision trouble', 'voir double', 'double vision',
+  'nausee', 'nausea',
+  'confusion', 'desoriente'
+];
+
+/**
+ * Whole-word search of the (already normalised) free text for any
+ * head-injury term. Multi-word terms tolerate variable whitespace.
+ * \b boundaries avoid substring false positives (headphones, etc.).
+ */
+function freeTextHasHeadInjury(normText) {
+  if (!normText) return false;
+  return HEAD_INJURY_TERMS.some((term) => {
+    const escaped = term
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      .replace(/\s+/g, '\\s+');
+    return new RegExp(`\\b${escaped}\\b`).test(normText);
+  });
+}
+
+/* ============================================
    10-day Innsbruck camp plan (July 4 → July 13, 2026)
    Intensity is % of max load planned by the coach.
    "Overreaching" labels appear ONLY on days 5-6 per coach's note.
@@ -5772,6 +5905,18 @@ function evaluate() {
   const prevIntensity = state.wellbeing.prevSessionIntensity;
   if (prevIntensity >= 5) flags.yellow.push({ key: 'flagPrevSessionHard' });
 
+  // Free-text safety net. We read the ORIGINAL state text (never a
+  // [REPRISE n°X]-prefixed version — that prefix is only applied at send
+  // time). A head/neuro keyword forces a hard red; otherwise any non-empty
+  // note is surfaced as a soft yellow so a coach reads it.
+  const freeText = `${state.pain.other || ''} ${state.hydration.note || ''}`;
+  const normFreeText = normalizeText(freeText);
+  if (freeTextHasHeadInjury(normFreeText)) {
+    flags.red.push({ key: 'flagHeadInjury' });
+  } else if (FREE_TEXT_FORCES_YELLOW && freeText.trim() !== '') {
+    flags.yellow.push({ key: 'flagFreeTextReview' });
+  }
+
   // Score must be computed BEFORE the colour decision so a "no-flag but
   // low reserve" day cannot show green while the plan says "go easy".
   const score = computeReadinessScore();
@@ -5803,6 +5948,14 @@ function evaluate() {
     color = 'yellow';
     messageKey = 'result.messageLowScore';
     kindnessKey = 'result.kindnessYellowSoft';
+  }
+
+  // Head-injury keyword overrides the message. The flag already put us in
+  // red / Track B via the flags.red branch above; here we only swap the
+  // copy to an explicit STOP-see-medical message.
+  if (flags.red.some((f) => f.key === 'flagHeadInjury')) {
+    messageKey = 'result.messageHeadInjury';
+    kindnessKey = 'result.kindnessHeadInjury';
   }
 
   // Ring fill ratio: 1 for green, 0.6 for yellow, 0.3 for red
@@ -6485,10 +6638,19 @@ function wireProgressionDotTooltips(chartHost) {
  * everything is fire-and-forget so a network blip never blocks the
  * athlete's UX.
  */
-function sendToCoachSheet(evalResult) {
+function sendToCoachSheet(evalResult, submitMeta) {
   const url = state.coachSheetUrl;
   if (!url) return;
   const today = new Date();
+  // A legitimate resubmission (after the 10-min lock) is marked inline in
+  // the note column with a [REPRISE n°X] prefix, because the Apps Script
+  // backend can't be changed. submissionCount / isResubmit are also sent
+  // for forward-compat, but they only land in dedicated columns once the
+  // script is updated to map them — until then the note prefix carries it.
+  const baseNote = state.hydration?.note || '';
+  const sentNote = (submitMeta && submitMeta.isResubmit)
+    ? `[REPRISE n°${submitMeta.count}] ${baseNote}`.trim()
+    : baseNote;
   const payload = {
     timestamp: today.toISOString(),
     date: todayDateKey(today),
@@ -6522,7 +6684,9 @@ function sendToCoachSheet(evalResult) {
     painOther: state.pain?.other ?? '',
     wantsPhysio: !!state.pain?.wantsPhysio,
     fuelScore: state.hydration?.fuelScore ?? '',
-    note: state.hydration?.note ?? '',
+    note: sentNote,
+    submissionCount: submitMeta?.count ?? 1,
+    isResubmit: !!submitMeta?.isResubmit,
     flagsRed: (evalResult.flags?.red || []).map((f) => f.key).join('|'),
     flagsYellow: (evalResult.flags?.yellow || []).map((f) => f.key).join('|')
   };
@@ -6752,8 +6916,9 @@ function boot() {
     updateProgressBar();
     // Any tweak to the form invalidates the previous send/refuse, so the
     // buttons must come back online — that is the user's "modification"
-    // gate for resubmitting.
+    // gate for resubmitting. A stale status line is cleared too.
     unlockSendButtons();
+    clearSendStatus();
   });
 
   applyTranslations(state.lang);
@@ -7054,11 +7219,21 @@ function onSubmit() {
     return;
   }
   lastEvaluation = evaluate();
+  // Fresh result view: buttons enabled, no stale status line. The
+  // persistent 10-min lock still applies when the athlete taps send.
+  unlockSendButtons();
+  clearSendStatus();
   goToResultScreen();
   renderResult(lastEvaluation);
 }
 
 let formSentForThisCheckin = false;
+
+// TUNABLE: how long (minutes) before the same athlete may resend on the
+// same day. Deters "re-answer until green". Device-clock based, so it is
+// a deterrent, not tamper-proof — and it will also block a legitimate
+// correction inside the window. Accepted trade-off for a safety tool.
+const RESUBMIT_LOCK_MINUTES = 10;
 
 function onSendToCoach() {
   if (!lastEvaluation) return;
@@ -7070,9 +7245,40 @@ function onSendToCoach() {
     openSettings();
     return;
   }
-  sendToCoachSheet(lastEvaluation);
+
+  const now = Date.now();
+  const dayKey = todayDateKey();
+  const athleteKey = normalizeText(state.athleteName || '');
+
+  // Default meta = first submission. Only refined when we have an athlete
+  // key AND a working storage record (fail open otherwise).
+  let submitMeta = { count: 1, isResubmit: false };
+
+  if (athleteKey) {
+    const rec = getSubmitRecord(dayKey, athleteKey); // { count, lastTs } | null
+    if (rec && rec.lastTs && (now - rec.lastTs) < RESUBMIT_LOCK_MINUTES * 60 * 1000) {
+      // Inside the lock window: block the network send entirely.
+      const minLeft = Math.ceil((RESUBMIT_LOCK_MINUTES * 60000 - (now - rec.lastTs)) / 60000);
+      const msg = t(state.lang, 'result.resubmitLocked').replace('{min}', String(minLeft));
+      unlockSendButtons(); // keep the button usable for a later legit retry
+      showSendStatus(msg, 'error');
+      return;
+    }
+    const prevCount = (rec && rec.count) || 0;
+    submitMeta = { count: prevCount + 1, isResubmit: prevCount >= 1 };
+    setSubmitRecord(dayKey, athleteKey, { count: submitMeta.count, lastTs: now });
+  }
+
+  sendToCoachSheet(lastEvaluation, submitMeta);
   lockSendButtons();
-  showToast(t(state.lang, 'result.sentToast'), 'success');
+  if (submitMeta.isResubmit) {
+    showSendStatus(
+      t(state.lang, 'result.resubmitRecorded').replace('{n}', String(submitMeta.count)),
+      'success'
+    );
+  } else {
+    showToast(t(state.lang, 'result.sentToast'), 'success');
+  }
 }
 
 function onRefuseSend() {
@@ -7103,6 +7309,29 @@ function unlockSendButtons() {
   if (refuseBtn) refuseBtn.disabled = false;
 }
 
+/**
+ * Inline, persistent status line under the send buttons (role=status,
+ * aria-live=polite). Used for the resubmit-lock notice and the
+ * resubmission-recorded confirmation. Non-blocking — never alert().
+ */
+function showSendStatus(message, kind) {
+  const el = document.getElementById('send-status');
+  if (!el) return;
+  el.textContent = message;
+  el.classList.remove('is-error', 'is-success');
+  if (kind === 'error') el.classList.add('is-error');
+  else if (kind === 'success') el.classList.add('is-success');
+  el.hidden = false;
+}
+
+function clearSendStatus() {
+  const el = document.getElementById('send-status');
+  if (!el) return;
+  el.textContent = '';
+  el.classList.remove('is-error', 'is-success');
+  el.hidden = true;
+}
+
 function goToFormScreen() {
   document.getElementById('screen-result').hidden = true;
   document.getElementById('screen-form').hidden = false;
@@ -7125,6 +7354,7 @@ function restart() {
   syncFormFromState();
   updateProgressBar();
   unlockSendButtons();
+  clearSendStatus();
   backToLanding();
 }
 

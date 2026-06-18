@@ -4,7 +4,55 @@
  * Plus: 10-day camp plan and per-day intensity recommendation.
  */
 
-import { state } from './state.js';
+import { state, normalizeText } from './state.js';
+
+/* ============================================
+   TUNABLE CONSTANTS — safety/decision knobs grouped for easy review.
+   (RESUBMIT_LOCK_MINUTES lives in main.js, next to the send handler.)
+   ============================================ */
+
+// When true, ANY non-empty free-text note (pain.other / hydration.note)
+// that does not already trigger a head-injury red flag is surfaced as a
+// soft yellow so a coach actually reads it. Set to false to keep free
+// text purely informational (no colour impact).
+const FREE_TEXT_FORCES_YELLOW = true;
+
+// Whole-word triggers for a possible head / neuro / loss-of-consciousness
+// event in the free-text fields. Written lowercase and accent-free because
+// the text is normalised before matching. Matched on WORD BOUNDARIES, not
+// substrings, so "head" never fires on "headphones".
+//
+// ⚠️ MEDICAL REVIEW REQUIRED (Fred): this list is intentionally broad and
+// errs toward false positives — a false red only asks a coach to look,
+// while a missed head injury in a minor is unacceptable. The single
+// body-part words ('tete', 'head', 'crane') will also catch ordinary
+// headaches ("mal de tete"); that is the accepted trade-off until a
+// clinician refines the list.
+const HEAD_INJURY_TERMS = [
+  'commotion', 'concussion',
+  'tete', 'head', 'crane',
+  'evanoui', 'evanouissement', 'syncope',
+  'inconscient', 'unconscious', 'perte de conscience', 'blackout',
+  'vertige', 'etourdi', 'dizzy',
+  'vision trouble', 'voir double', 'double vision',
+  'nausee', 'nausea',
+  'confusion', 'desoriente'
+];
+
+/**
+ * Whole-word search of the (already normalised) free text for any
+ * head-injury term. Multi-word terms tolerate variable whitespace.
+ * \b boundaries avoid substring false positives (headphones, etc.).
+ */
+function freeTextHasHeadInjury(normText) {
+  if (!normText) return false;
+  return HEAD_INJURY_TERMS.some((term) => {
+    const escaped = term
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      .replace(/\s+/g, '\\s+');
+    return new RegExp(`\\b${escaped}\\b`).test(normText);
+  });
+}
 
 /* ============================================
    10-day Innsbruck camp plan (July 4 → July 13, 2026)
@@ -167,6 +215,18 @@ export function evaluate() {
   const prevIntensity = state.wellbeing.prevSessionIntensity;
   if (prevIntensity >= 5) flags.yellow.push({ key: 'flagPrevSessionHard' });
 
+  // Free-text safety net. We read the ORIGINAL state text (never a
+  // [REPRISE n°X]-prefixed version — that prefix is only applied at send
+  // time). A head/neuro keyword forces a hard red; otherwise any non-empty
+  // note is surfaced as a soft yellow so a coach reads it.
+  const freeText = `${state.pain.other || ''} ${state.hydration.note || ''}`;
+  const normFreeText = normalizeText(freeText);
+  if (freeTextHasHeadInjury(normFreeText)) {
+    flags.red.push({ key: 'flagHeadInjury' });
+  } else if (FREE_TEXT_FORCES_YELLOW && freeText.trim() !== '') {
+    flags.yellow.push({ key: 'flagFreeTextReview' });
+  }
+
   // Score must be computed BEFORE the colour decision so a "no-flag but
   // low reserve" day cannot show green while the plan says "go easy".
   const score = computeReadinessScore();
@@ -198,6 +258,14 @@ export function evaluate() {
     color = 'yellow';
     messageKey = 'result.messageLowScore';
     kindnessKey = 'result.kindnessYellowSoft';
+  }
+
+  // Head-injury keyword overrides the message. The flag already put us in
+  // red / Track B via the flags.red branch above; here we only swap the
+  // copy to an explicit STOP-see-medical message.
+  if (flags.red.some((f) => f.key === 'flagHeadInjury')) {
+    messageKey = 'result.messageHeadInjury';
+    kindnessKey = 'result.kindnessHeadInjury';
   }
 
   // Ring fill ratio: 1 for green, 0.6 for yellow, 0.3 for red

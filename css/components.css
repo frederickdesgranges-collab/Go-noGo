@@ -725,6 +725,33 @@
   display: none;
 }
 
+/* Inline status line under the send buttons (resubmit lock / recorded). */
+.send-status {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.send-status[hidden] {
+  display: none;
+}
+
+.send-status.is-error {
+  background: var(--red-light);
+  border: 1px solid rgba(185, 28, 28, 0.28);
+  color: var(--red-dark);
+}
+
+.send-status.is-success {
+  background: rgba(42, 111, 71, 0.08);
+  border: 1px solid rgba(42, 111, 71, 0.22);
+  color: var(--green-dark);
+}
+
 .result-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
