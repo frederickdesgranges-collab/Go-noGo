@@ -386,6 +386,31 @@
   flex: 1 1 auto;
 }
 
+/* Hero send block — primary CTA + refuse + status, all inside the
+   readiness card so the action sits right under the score the athlete
+   just read. Width is constrained so the buttons feel intentional in
+   the hero rather than edge-to-edge like in a generic form footer. */
+.hero-send {
+  width: 100%;
+  max-width: 360px;
+  margin: 22px auto 0;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.hero-send .btn-confirm,
+.hero-send .btn-refuse {
+  width: 100%;
+  margin-top: 0;
+}
+
+.hero-send .send-status {
+  margin-top: 4px;
+}
+
 /* Hero text below the score stage (always visible — no scroll reveal needed) */
 .hero-text {
   position: relative;
