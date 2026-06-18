@@ -4462,6 +4462,7 @@ const translations = {
       kindnessHeadInjury: 'La tete passe avant tout. Previens un coach maintenant.',
       physioBanner: "Tu as demandé à voir le physio. Vois-le avant de grimper.",
       flagHeadInjury: 'Possible blessure a la tete',
+      flagFreeTextPain: 'Douleur signalee dans la note',
       flagFreeTextReview: 'Note a lire par le coach',
       flagSleepShort: 'Sommeil très court (< 6h)',
       flagSleepBorderline: 'Sommeil court & qualité faible (< 7h)',
@@ -4718,6 +4719,7 @@ const translations = {
       kindnessHeadInjury: 'Your head comes first. Tell a coach right now.',
       physioBanner: "You asked to see the physio. See them before climbing.",
       flagHeadInjury: 'Possible head injury',
+      flagFreeTextPain: 'Pain mentioned in note',
       flagFreeTextReview: 'Note flagged for coach review',
       flagSleepShort: 'Very short sleep (< 6h)',
       flagSleepBorderline: 'Short sleep & poor quality (< 7h)',
@@ -5729,14 +5731,23 @@ const HEAD_INJURY_TERMS = [
   'confusion', 'desoriente'
 ];
 
+// Pain / finger words written in the free-text comment. These are NOT a
+// head injury, so they raise a soft YELLOW (note surfaced to the coach,
+// cautious day) — never the red head-injury STOP. Head injury keeps
+// priority when both match.
+const PAIN_TERMS = [
+  'doigts', 'doigt', 'finger', 'fingers',
+  'douleur', 'pain'
+];
+
 /**
- * Whole-word search of the (already normalised) free text for any
- * head-injury term. Multi-word terms tolerate variable whitespace.
- * \b boundaries avoid substring false positives (headphones, etc.).
+ * Whole-word search of the (already normalised) free text for any of the
+ * given terms. Multi-word terms tolerate variable whitespace. \b
+ * boundaries avoid substring false positives (head ≠ headphones).
  */
-function freeTextHasHeadInjury(normText) {
+function freeTextHasTerm(normText, terms) {
   if (!normText) return false;
-  return HEAD_INJURY_TERMS.some((term) => {
+  return terms.some((term) => {
     const escaped = term
       .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
       .replace(/\s+/g, '\\s+');
@@ -5911,8 +5922,11 @@ function evaluate() {
   // note is surfaced as a soft yellow so a coach reads it.
   const freeText = `${state.pain.other || ''} ${state.hydration.note || ''}`;
   const normFreeText = normalizeText(freeText);
-  if (freeTextHasHeadInjury(normFreeText)) {
+  if (freeTextHasTerm(normFreeText, HEAD_INJURY_TERMS)) {
     flags.red.push({ key: 'flagHeadInjury' });
+  } else if (freeTextHasTerm(normFreeText, PAIN_TERMS)) {
+    // Pain / finger mentioned in writing → yellow, coach reads the note.
+    flags.yellow.push({ key: 'flagFreeTextPain' });
   } else if (FREE_TEXT_FORCES_YELLOW && freeText.trim() !== '') {
     flags.yellow.push({ key: 'flagFreeTextReview' });
   }

@@ -39,14 +39,23 @@ const HEAD_INJURY_TERMS = [
   'confusion', 'desoriente'
 ];
 
+// Pain / finger words written in the free-text comment. These are NOT a
+// head injury, so they raise a soft YELLOW (note surfaced to the coach,
+// cautious day) — never the red head-injury STOP. Head injury keeps
+// priority when both match.
+const PAIN_TERMS = [
+  'doigts', 'doigt', 'finger', 'fingers',
+  'douleur', 'pain'
+];
+
 /**
- * Whole-word search of the (already normalised) free text for any
- * head-injury term. Multi-word terms tolerate variable whitespace.
- * \b boundaries avoid substring false positives (headphones, etc.).
+ * Whole-word search of the (already normalised) free text for any of the
+ * given terms. Multi-word terms tolerate variable whitespace. \b
+ * boundaries avoid substring false positives (head ≠ headphones).
  */
-function freeTextHasHeadInjury(normText) {
+function freeTextHasTerm(normText, terms) {
   if (!normText) return false;
-  return HEAD_INJURY_TERMS.some((term) => {
+  return terms.some((term) => {
     const escaped = term
       .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
       .replace(/\s+/g, '\\s+');
@@ -221,8 +230,11 @@ export function evaluate() {
   // note is surfaced as a soft yellow so a coach reads it.
   const freeText = `${state.pain.other || ''} ${state.hydration.note || ''}`;
   const normFreeText = normalizeText(freeText);
-  if (freeTextHasHeadInjury(normFreeText)) {
+  if (freeTextHasTerm(normFreeText, HEAD_INJURY_TERMS)) {
     flags.red.push({ key: 'flagHeadInjury' });
+  } else if (freeTextHasTerm(normFreeText, PAIN_TERMS)) {
+    // Pain / finger mentioned in writing → yellow, coach reads the note.
+    flags.yellow.push({ key: 'flagFreeTextPain' });
   } else if (FREE_TEXT_FORCES_YELLOW && freeText.trim() !== '') {
     flags.yellow.push({ key: 'flagFreeTextReview' });
   }
