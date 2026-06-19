@@ -40,18 +40,17 @@ const initial = {
     forearms: null,
     calm: null,
     mood: null,
+    skin: null,
     willingness: 7,
     recoveryPrs: 7,
     prevSessionIntensity: 0
   },
   pain: {
     fingers: 0,
-    wantsPhysio: false,
     forearm: 0,
     shoulders: 0,
     elbow: 0,
     back: 0,
-    skin: 0,
     other: ''
   },
   hydration: {

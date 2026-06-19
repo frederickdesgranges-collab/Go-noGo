@@ -155,11 +155,6 @@ export function getPlan(planKey) {
 export function evaluate() {
   const flags = { red: [], yellow: [] };
 
-  // Physio request — non-blocking. The athlete asks to be checked by the
-  // physio today; the coach is notified, but it does NOT push to Track B,
-  // does NOT change the colour, and does NOT zero the score.
-  const physioRequest = !!state.pain.wantsPhysio;
-
   // Sleep duration — only flag when the deficit is real.
   // < 6h is a clear red zone regardless of quality.
   // 6–7h is only yellow if the athlete also rates the quality poorly (≤3).
@@ -176,14 +171,15 @@ export function evaluate() {
 
   // Likerts (1-5; lower = worse)
   // For energy/muscles/calm/mood, "3" means "moyen / correct" — not a deficit —
-  // so we no longer flag it. Only forearms (priority axis) keeps the yellow
-  // at 3 since fingers/forearms drive injury risk.
+  // so we no longer flag it. Forearms AND skin (paumes/doigts) keep the
+  // yellow at 3 since fingers / forearms / skin drive injury risk.
   const likertChecks = [
     ['energy', 'flagLowEnergy', null],
     ['muscles', 'flagLowMuscles', null],
     ['forearms', 'flagLowForearms', 'flagMidForearms'],
     ['calm', 'flagLowCalm', null],
-    ['mood', 'flagLowMood', null]
+    ['mood', 'flagLowMood', null],
+    ['skin', 'flagLowSkin', 'flagMidSkin']
   ];
   likertChecks.forEach(([field, lowKey, midKey]) => {
     const v = state.wellbeing[field];
@@ -310,7 +306,6 @@ export function evaluate() {
   return {
     track,
     color,
-    physioRequest,
     flags,
     messageKey,
     kindnessKey,
@@ -340,8 +335,8 @@ function computeReadinessScore() {
   }
   max += 25;
 
-  // Likert wellbeing fields (5 fields × 7 pts = 35 pts)
-  const likertFields = ['energy', 'muscles', 'forearms', 'calm', 'mood'];
+  // Likert wellbeing fields (6 fields × 7 pts = 42 pts)
+  const likertFields = ['energy', 'muscles', 'forearms', 'calm', 'mood', 'skin'];
   likertFields.forEach((f) => {
     const v = state.wellbeing[f];
     if (v !== null && v !== undefined) {
@@ -363,7 +358,6 @@ function computeReadinessScore() {
   painPenalty += state.pain.elbow * 1.0;       // 0-10
   painPenalty += state.pain.shoulders * 0.6;
   painPenalty += state.pain.back * 0.6;
-  painPenalty += state.pain.skin * 0.3;
   // Cap penalty at 30 points total
   painPenalty = Math.min(30, painPenalty);
   score -= painPenalty;

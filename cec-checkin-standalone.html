@@ -1913,40 +1913,6 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 0 0 10px rgba(185, 28, 28, 0.5);
 }
 
-/* Physio request banner — shown alongside the verdict, never replaces it */
-.physio-banner {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 14px;
-  padding: 10px 16px;
-  border-radius: var(--radius-pill);
-  background: var(--yellow-light);
-  color: var(--yellow-dark);
-  border: 1px solid rgba(180, 83, 9, 0.32);
-  font-size: 12.5px;
-  font-weight: 600;
-  line-height: 1.35;
-  letter-spacing: 0.01em;
-  max-width: min(420px, 92%);
-  text-align: left;
-  box-shadow: 0 4px 14px rgba(180, 83, 9, 0.12);
-}
-
-.physio-banner[hidden] {
-  display: none;
-}
-
-.physio-banner-icon {
-  flex: 0 0 auto;
-  font-size: 16px;
-  line-height: 1;
-}
-
-.physio-banner-text {
-  flex: 1 1 auto;
-}
-
 /* Hero send block — primary CTA + refuse + status, all inside the
    readiness card so the action sits right under the score the athlete
    just read. Width is constrained so the buttons feel intentional in
@@ -3947,6 +3913,17 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
         </div>
 
         <div class="field">
+          <label class="field-label" data-i18n="wellbeing.skin">État de la peau (paumes / doigts)</label>
+          <div class="likert" data-likert="skin" data-required="true">
+            <div class="likert-anchors">
+              <span class="likert-anchor anchor-low" data-i18n="wellbeing.skinLow">Abîmée</span>
+              <span class="likert-anchor anchor-high" data-i18n="wellbeing.skinHigh">Au top</span>
+            </div>
+            <div class="likert-buttons" role="radiogroup" aria-label="Skin"></div>
+          </div>
+        </div>
+
+        <div class="field">
           <div class="slider-header">
             <label class="field-label" for="willingness" data-i18n="wellbeing.willingness">Disposition à grimper aujourd'hui</label>
             <span class="slider-value" id="willingness-value">7</span>
@@ -4002,19 +3979,6 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
           <input class="slider slider-pain" id="pain-fingers" type="range" min="0" max="10" step="1" value="0" />
         </div>
 
-        <div class="alert-box">
-          <div class="alert-toggle">
-            <label class="switch">
-              <input type="checkbox" id="want-physio" />
-              <span class="switch-slider"></span>
-            </label>
-            <div class="alert-content">
-              <p class="alert-title" data-i18n="pain.physioRequestTitle">Je veux voir le physio aujourd'hui</p>
-              <p class="alert-explain" data-i18n="pain.physioRequestExplain">Coche si tu as un inconfort que tu veux faire évaluer. Le coach sera averti. Vois le physio avant ta séance.</p>
-            </div>
-          </div>
-        </div>
-
         <div class="field">
           <div class="slider-header">
             <label class="field-label" for="pain-forearm" data-i18n="pain.forearm">Avant-bras (zone fléchisseurs)</label>
@@ -4045,14 +4009,6 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
             <span class="slider-value" id="pain-back-value">0</span>
           </div>
           <input class="slider slider-pain" id="pain-back" type="range" min="0" max="10" step="1" value="0" />
-        </div>
-
-        <div class="field">
-          <div class="slider-header">
-            <label class="field-label" for="pain-skin" data-i18n="pain.skin">Peau (paumes / doigts)</label>
-            <span class="slider-value" id="pain-skin-value">0</span>
-          </div>
-          <input class="slider slider-pain" id="pain-skin" type="range" min="0" max="10" step="1" value="0" />
         </div>
 
         <div class="field">
@@ -4135,10 +4091,6 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
           <span class="hero-score-value" id="readiness-value">—</span>
           <span class="hero-score-suffix">/ 100</span>
           <span class="track-pill" id="hero-track-label" data-i18n="result.trackA">TRACK A</span>
-          <div class="physio-banner" id="physio-banner" hidden>
-            <span class="physio-banner-icon" aria-hidden="true">🩹</span>
-            <span class="physio-banner-text" data-i18n="result.physioBanner">Tu as demandé à voir le physio. Vois-le avant de grimper.</span>
-          </div>
         </div>
 
         <div class="hero-text visible" id="hero-text-block">
@@ -4401,6 +4353,9 @@ const translations = {
       mood: 'Humeur',
       moodLow: 'Très basse',
       moodHigh: 'Excellente',
+      skin: 'État de la peau (paumes / doigts)',
+      skinLow: 'Abîmée',
+      skinHigh: 'Au top',
       willingness: "Disposition à grimper aujourd'hui",
       recoveryPrs: 'Récupération PRS',
       recoveryPrsHint: 'Perceived Recovery Status — à quel point tu te sens récupéré de la dernière séance, sur 10.',
@@ -4413,13 +4368,10 @@ const translations = {
     },
     pain: {
       fingers: 'Doigts et articulations',
-      physioRequestTitle: "Je veux voir le physio aujourd'hui",
-      physioRequestExplain: 'Coche si tu as un inconfort que tu veux faire évaluer. Le coach sera averti. Vois le physio avant ta séance.',
       forearm: 'Avant-bras (zone fléchisseurs)',
       shoulders: 'Épaules / lats',
       elbow: 'Coude médial',
       back: 'Bas du dos',
-      skin: 'Peau (paumes / doigts)',
       other: 'Autre douleur (optionnel)',
       otherPlaceholder: 'Décris brièvement…'
     },
@@ -4489,7 +4441,6 @@ const translations = {
       messageLowScore: "Tes signaux sont corrects mais ta réserve du jour est basse. Journée prudente.",
       messageHeadInjury: 'Arrete. Possible blessure a la tete. Ne grimpe pas avant un avis physio ou medecin.',
       kindnessHeadInjury: 'La tete passe avant tout. Previens un coach maintenant.',
-      physioBanner: "Tu as demandé à voir le physio. Vois-le avant de grimper.",
       flagHeadInjury: 'Possible blessure a la tete',
       flagFreeTextPain: 'Douleur signalee dans la note',
       flagFreeTextReview: 'Note a lire par le coach',
@@ -4501,6 +4452,8 @@ const translations = {
       flagMidForearms: 'Avant-bras moyens',
       flagLowCalm: 'Stress élevé',
       flagLowMood: 'Humeur basse',
+      flagLowSkin: 'Peau abîmée',
+      flagMidSkin: 'Peau à surveiller',
       flagLowWilling: 'Disposition très basse',
       flagMidWilling: 'Disposition moyenne',
       flagLowRecovery: 'Récupération PRS basse',
@@ -4658,6 +4611,9 @@ const translations = {
       mood: 'Mood',
       moodLow: 'Very low',
       moodHigh: 'Excellent',
+      skin: 'Skin state (palms / fingers)',
+      skinLow: 'Damaged',
+      skinHigh: 'On point',
       willingness: 'Willingness to climb today',
       recoveryPrs: 'PRS recovery',
       recoveryPrsHint: 'Perceived Recovery Status — how recovered you feel from the last session, out of 10.',
@@ -4670,13 +4626,10 @@ const translations = {
     },
     pain: {
       fingers: 'Fingers and joints',
-      physioRequestTitle: 'I want to see the physio today',
-      physioRequestExplain: 'Check this if you have a discomfort you want checked. Your coach will be notified. See the physio before your session.',
       forearm: 'Forearm (flexor area)',
       shoulders: 'Shoulders / lats',
       elbow: 'Medial elbow',
       back: 'Lower back',
-      skin: 'Skin (palms / fingers)',
       other: 'Other pain (optional)',
       otherPlaceholder: 'Describe briefly…'
     },
@@ -4746,7 +4699,6 @@ const translations = {
       messageLowScore: "Your signals are fine but your reserve today is low. Easy day.",
       messageHeadInjury: 'Stop. Possible head injury. Do not climb before a physio or doctor clears you.',
       kindnessHeadInjury: 'Your head comes first. Tell a coach right now.',
-      physioBanner: "You asked to see the physio. See them before climbing.",
       flagHeadInjury: 'Possible head injury',
       flagFreeTextPain: 'Pain mentioned in note',
       flagFreeTextReview: 'Note flagged for coach review',
@@ -4758,6 +4710,8 @@ const translations = {
       flagMidForearms: 'Mid forearm state',
       flagLowCalm: 'High stress',
       flagLowMood: 'Low mood',
+      flagLowSkin: 'Skin damaged',
+      flagMidSkin: 'Skin to watch',
       flagLowWilling: 'Very low willingness',
       flagMidWilling: 'Mid willingness',
       flagLowRecovery: 'Low PRS recovery',
@@ -4892,18 +4846,17 @@ const initial = {
     forearms: null,
     calm: null,
     mood: null,
+    skin: null,
     willingness: 7,
     recoveryPrs: 7,
     prevSessionIntensity: 0
   },
   pain: {
     fingers: 0,
-    wantsPhysio: false,
     forearm: 0,
     shoulders: 0,
     elbow: 0,
     back: 0,
-    skin: 0,
     other: ''
   },
   hydration: {
@@ -5405,7 +5358,7 @@ function redScene() {
  */
 
 
-const REQUIRED_LIKERTS = ['sleep-quality', 'energy', 'muscles', 'forearms', 'calm', 'mood'];
+const REQUIRED_LIKERTS = ['sleep-quality', 'energy', 'muscles', 'forearms', 'calm', 'mood', 'skin'];
 
 /**
  * Map likert dataset key -> path inside state.
@@ -5416,7 +5369,8 @@ const LIKERT_TO_STATE = {
   'muscles': ['wellbeing', 'muscles'],
   'forearms': ['wellbeing', 'forearms'],
   'calm': ['wellbeing', 'calm'],
-  'mood': ['wellbeing', 'mood']
+  'mood': ['wellbeing', 'mood'],
+  'skin': ['wellbeing', 'skin']
 };
 
 const PAIN_FIELDS = [
@@ -5424,8 +5378,7 @@ const PAIN_FIELDS = [
   ['pain-forearm', 'forearm'],
   ['pain-shoulders', 'shoulders'],
   ['pain-elbow', 'elbow'],
-  ['pain-back', 'back'],
-  ['pain-skin', 'skin']
+  ['pain-back', 'back']
 ];
 
 let onChangeCallback = () => {};
@@ -5543,13 +5496,6 @@ function wireFormControls() {
     bindSlider(id, ['pain', key]);
   });
 
-  // Physio request toggle (non-blocking — coach gets notified)
-  const physio = $('want-physio');
-  physio.addEventListener('change', () => {
-    state.pain.wantsPhysio = physio.checked;
-    onChangeCallback();
-  });
-
   // Pain other text
   const painOther = $('pain-other');
   painOther.addEventListener('input', () => {
@@ -5612,7 +5558,6 @@ function syncFormFromState() {
     document.getElementById(`${id}-value`).textContent = String(state.pain[key]);
   });
 
-  $('want-physio').checked = state.pain.wantsPhysio;
   $('pain-other').value = state.pain.other || '';
   $('fuel-score').value = String(state.hydration.fuelScore);
   $('fuel-score-value').textContent = String(state.hydration.fuelScore);
@@ -5876,11 +5821,6 @@ function getPlan(planKey) {
 function evaluate() {
   const flags = { red: [], yellow: [] };
 
-  // Physio request — non-blocking. The athlete asks to be checked by the
-  // physio today; the coach is notified, but it does NOT push to Track B,
-  // does NOT change the colour, and does NOT zero the score.
-  const physioRequest = !!state.pain.wantsPhysio;
-
   // Sleep duration — only flag when the deficit is real.
   // < 6h is a clear red zone regardless of quality.
   // 6–7h is only yellow if the athlete also rates the quality poorly (≤3).
@@ -5897,14 +5837,15 @@ function evaluate() {
 
   // Likerts (1-5; lower = worse)
   // For energy/muscles/calm/mood, "3" means "moyen / correct" — not a deficit —
-  // so we no longer flag it. Only forearms (priority axis) keeps the yellow
-  // at 3 since fingers/forearms drive injury risk.
+  // so we no longer flag it. Forearms AND skin (paumes/doigts) keep the
+  // yellow at 3 since fingers / forearms / skin drive injury risk.
   const likertChecks = [
     ['energy', 'flagLowEnergy', null],
     ['muscles', 'flagLowMuscles', null],
     ['forearms', 'flagLowForearms', 'flagMidForearms'],
     ['calm', 'flagLowCalm', null],
-    ['mood', 'flagLowMood', null]
+    ['mood', 'flagLowMood', null],
+    ['skin', 'flagLowSkin', 'flagMidSkin']
   ];
   likertChecks.forEach(([field, lowKey, midKey]) => {
     const v = state.wellbeing[field];
@@ -6031,7 +5972,6 @@ function evaluate() {
   return {
     track,
     color,
-    physioRequest,
     flags,
     messageKey,
     kindnessKey,
@@ -6061,8 +6001,8 @@ function computeReadinessScore() {
   }
   max += 25;
 
-  // Likert wellbeing fields (5 fields × 7 pts = 35 pts)
-  const likertFields = ['energy', 'muscles', 'forearms', 'calm', 'mood'];
+  // Likert wellbeing fields (6 fields × 7 pts = 42 pts)
+  const likertFields = ['energy', 'muscles', 'forearms', 'calm', 'mood', 'skin'];
   likertFields.forEach((f) => {
     const v = state.wellbeing[f];
     if (v !== null && v !== undefined) {
@@ -6084,7 +6024,6 @@ function computeReadinessScore() {
   painPenalty += state.pain.elbow * 1.0;       // 0-10
   painPenalty += state.pain.shoulders * 0.6;
   painPenalty += state.pain.back * 0.6;
-  painPenalty += state.pain.skin * 0.3;
   // Cap penalty at 30 points total
   painPenalty = Math.min(30, painPenalty);
   score -= painPenalty;
@@ -6162,10 +6101,6 @@ function renderResult(evalResult) {
 
   // Indicators
   renderIndicators(evalResult.flags);
-
-  // Physio request banner — shown in parallel with the verdict, never replaces it.
-  const banner = document.getElementById('physio-banner');
-  if (banner) banner.hidden = !evalResult.physioRequest;
 
   // Reset scroll position so user starts on the photo full-screen
   window.scrollTo({ top: 0, behavior: 'instant' });
@@ -6703,7 +6638,6 @@ function sendToCoachSheet(evalResult, submitMeta) {
     score: evalResult.score,
     track: evalResult.track,
     color: evalResult.color,
-    physioRequest: !!evalResult.physioRequest,
     dayOfCamp: evalResult.dayIdx ?? '',
     sleepHours: state.sleep?.durationHours ?? '',
     sleepBedtime: state.sleep?.bedtime ?? '',
@@ -6715,6 +6649,7 @@ function sendToCoachSheet(evalResult, submitMeta) {
     forearms: state.wellbeing?.forearms ?? '',
     calm: state.wellbeing?.calm ?? '',
     mood: state.wellbeing?.mood ?? '',
+    skin: state.wellbeing?.skin ?? '',
     willingness: state.wellbeing?.willingness ?? '',
     recoveryPrs: state.wellbeing?.recoveryPrs ?? '',
     prevSessionIntensity: state.wellbeing?.prevSessionIntensity ?? '',
@@ -6723,9 +6658,7 @@ function sendToCoachSheet(evalResult, submitMeta) {
     painElbow: state.pain?.elbow ?? '',
     painShoulders: state.pain?.shoulders ?? '',
     painBack: state.pain?.back ?? '',
-    painSkin: state.pain?.skin ?? '',
     painOther: state.pain?.other ?? '',
-    wantsPhysio: !!state.pain?.wantsPhysio,
     fuelScore: state.hydration?.fuelScore ?? '',
     note: sentNote,
     submissionCount: submitMeta?.count ?? 1,

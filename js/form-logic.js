@@ -6,7 +6,7 @@
 import { state, saveAthleteName } from './state.js';
 import { t } from './translations.js';
 
-const REQUIRED_LIKERTS = ['sleep-quality', 'energy', 'muscles', 'forearms', 'calm', 'mood'];
+const REQUIRED_LIKERTS = ['sleep-quality', 'energy', 'muscles', 'forearms', 'calm', 'mood', 'skin'];
 
 /**
  * Map likert dataset key -> path inside state.
@@ -17,7 +17,8 @@ const LIKERT_TO_STATE = {
   'muscles': ['wellbeing', 'muscles'],
   'forearms': ['wellbeing', 'forearms'],
   'calm': ['wellbeing', 'calm'],
-  'mood': ['wellbeing', 'mood']
+  'mood': ['wellbeing', 'mood'],
+  'skin': ['wellbeing', 'skin']
 };
 
 const PAIN_FIELDS = [
@@ -25,8 +26,7 @@ const PAIN_FIELDS = [
   ['pain-forearm', 'forearm'],
   ['pain-shoulders', 'shoulders'],
   ['pain-elbow', 'elbow'],
-  ['pain-back', 'back'],
-  ['pain-skin', 'skin']
+  ['pain-back', 'back']
 ];
 
 let onChangeCallback = () => {};
@@ -144,13 +144,6 @@ export function wireFormControls() {
     bindSlider(id, ['pain', key]);
   });
 
-  // Physio request toggle (non-blocking — coach gets notified)
-  const physio = $('want-physio');
-  physio.addEventListener('change', () => {
-    state.pain.wantsPhysio = physio.checked;
-    onChangeCallback();
-  });
-
   // Pain other text
   const painOther = $('pain-other');
   painOther.addEventListener('input', () => {
@@ -213,7 +206,6 @@ export function syncFormFromState() {
     document.getElementById(`${id}-value`).textContent = String(state.pain[key]);
   });
 
-  $('want-physio').checked = state.pain.wantsPhysio;
   $('pain-other').value = state.pain.other || '';
   $('fuel-score').value = String(state.hydration.fuelScore);
   $('fuel-score-value').textContent = String(state.hydration.fuelScore);

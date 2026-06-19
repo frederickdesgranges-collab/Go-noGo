@@ -323,6 +323,17 @@
         </div>
 
         <div class="field">
+          <label class="field-label" data-i18n="wellbeing.skin">État de la peau (paumes / doigts)</label>
+          <div class="likert" data-likert="skin" data-required="true">
+            <div class="likert-anchors">
+              <span class="likert-anchor anchor-low" data-i18n="wellbeing.skinLow">Abîmée</span>
+              <span class="likert-anchor anchor-high" data-i18n="wellbeing.skinHigh">Au top</span>
+            </div>
+            <div class="likert-buttons" role="radiogroup" aria-label="Skin"></div>
+          </div>
+        </div>
+
+        <div class="field">
           <div class="slider-header">
             <label class="field-label" for="willingness" data-i18n="wellbeing.willingness">Disposition à grimper aujourd'hui</label>
             <span class="slider-value" id="willingness-value">7</span>
@@ -378,19 +389,6 @@
           <input class="slider slider-pain" id="pain-fingers" type="range" min="0" max="10" step="1" value="0" />
         </div>
 
-        <div class="alert-box">
-          <div class="alert-toggle">
-            <label class="switch">
-              <input type="checkbox" id="want-physio" />
-              <span class="switch-slider"></span>
-            </label>
-            <div class="alert-content">
-              <p class="alert-title" data-i18n="pain.physioRequestTitle">Je veux voir le physio aujourd'hui</p>
-              <p class="alert-explain" data-i18n="pain.physioRequestExplain">Coche si tu as un inconfort que tu veux faire évaluer. Le coach sera averti. Vois le physio avant ta séance.</p>
-            </div>
-          </div>
-        </div>
-
         <div class="field">
           <div class="slider-header">
             <label class="field-label" for="pain-forearm" data-i18n="pain.forearm">Avant-bras (zone fléchisseurs)</label>
@@ -421,14 +419,6 @@
             <span class="slider-value" id="pain-back-value">0</span>
           </div>
           <input class="slider slider-pain" id="pain-back" type="range" min="0" max="10" step="1" value="0" />
-        </div>
-
-        <div class="field">
-          <div class="slider-header">
-            <label class="field-label" for="pain-skin" data-i18n="pain.skin">Peau (paumes / doigts)</label>
-            <span class="slider-value" id="pain-skin-value">0</span>
-          </div>
-          <input class="slider slider-pain" id="pain-skin" type="range" min="0" max="10" step="1" value="0" />
         </div>
 
         <div class="field">
@@ -511,10 +501,6 @@
           <span class="hero-score-value" id="readiness-value">—</span>
           <span class="hero-score-suffix">/ 100</span>
           <span class="track-pill" id="hero-track-label" data-i18n="result.trackA">TRACK A</span>
-          <div class="physio-banner" id="physio-banner" hidden>
-            <span class="physio-banner-icon" aria-hidden="true">🩹</span>
-            <span class="physio-banner-text" data-i18n="result.physioBanner">Tu as demandé à voir le physio. Vois-le avant de grimper.</span>
-          </div>
         </div>
 
         <div class="hero-text visible" id="hero-text-block">

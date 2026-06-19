@@ -58,10 +58,6 @@ export function renderResult(evalResult) {
   // Indicators
   renderIndicators(evalResult.flags);
 
-  // Physio request banner — shown in parallel with the verdict, never replaces it.
-  const banner = document.getElementById('physio-banner');
-  if (banner) banner.hidden = !evalResult.physioRequest;
-
   // Reset scroll position so user starts on the photo full-screen
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
@@ -598,7 +594,6 @@ export function sendToCoachSheet(evalResult, submitMeta) {
     score: evalResult.score,
     track: evalResult.track,
     color: evalResult.color,
-    physioRequest: !!evalResult.physioRequest,
     dayOfCamp: evalResult.dayIdx ?? '',
     sleepHours: state.sleep?.durationHours ?? '',
     sleepBedtime: state.sleep?.bedtime ?? '',
@@ -610,6 +605,7 @@ export function sendToCoachSheet(evalResult, submitMeta) {
     forearms: state.wellbeing?.forearms ?? '',
     calm: state.wellbeing?.calm ?? '',
     mood: state.wellbeing?.mood ?? '',
+    skin: state.wellbeing?.skin ?? '',
     willingness: state.wellbeing?.willingness ?? '',
     recoveryPrs: state.wellbeing?.recoveryPrs ?? '',
     prevSessionIntensity: state.wellbeing?.prevSessionIntensity ?? '',
@@ -618,9 +614,7 @@ export function sendToCoachSheet(evalResult, submitMeta) {
     painElbow: state.pain?.elbow ?? '',
     painShoulders: state.pain?.shoulders ?? '',
     painBack: state.pain?.back ?? '',
-    painSkin: state.pain?.skin ?? '',
     painOther: state.pain?.other ?? '',
-    wantsPhysio: !!state.pain?.wantsPhysio,
     fuelScore: state.hydration?.fuelScore ?? '',
     note: sentNote,
     submissionCount: submitMeta?.count ?? 1,
