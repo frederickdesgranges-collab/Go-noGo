@@ -668,10 +668,11 @@ export function sendToCoachSheet(evalResult, submitMeta) {
 }
 
 /**
- * Send a named refusal marker: identifies the athlete (name, discipline,
- * profile), stamps the score column with the word "Refus", and leaves the
- * individual signal columns empty. The coach team now sees WHO declined
- * today and on which discipline, rather than an anonymous row.
+ * Send a named refusal marker. Goal: the coach team knows WHO uses the
+ * app today (name, discipline, profile) while the actual check-in result
+ * stays private. The word "Refus" goes in the `track` column (which is
+ * normally A/B) so it sits alongside the existing track filter; the
+ * `score` column stays empty so no number ever leaks for a refusal.
  */
 export function sendRefusalToSheet() {
   const url = state.coachSheetUrl;
@@ -683,7 +684,8 @@ export function sendRefusalToSheet() {
     athlete: state.athleteName || '',
     discipline: state.discipline || '',
     profile: state.profile || '',
-    score: 'Refus',
+    score: '',
+    track: 'Refus',
     status: 'refusé'
   };
   try {
