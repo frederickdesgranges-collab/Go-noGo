@@ -40,12 +40,19 @@ export const translations = {
       profileCompetingHint: 'YWCH 2026',
       profileNotCompeting: 'Ne compétitionne pas',
       profileNotCompetingHint: "Camp d'entraînement",
+      consentLabel: 'Envoi des résultats aux coachs ?',
+      consentYes: 'Oui, envoyer aux coachs',
+      consentYesHint: "Mon check-in part dans le tableau de l'équipe à la fin.",
+      consentNo: 'Non, juste pour moi',
+      consentNoHint: "Je pourrai changer d'avis à la fin ou plus tard.",
       start: 'Commencer le check-in',
-      disclosureTitle: 'Tu décides quand envoyer',
-      disclaimer: "Rien n'est envoyé tant que tu n'as pas cliqué sur Confirmer. Ton check-in arrive dans le tableau privé de l'équipe coachs.",
+      historyNav: "Voir l'historique",
+      disclosureTitle: 'Tu décides au sign-in',
+      disclaimer: "Ton check-in n'est partagé que si tu choisis Oui, envoyer aux coachs. Tu peux aussi envoyer après coup depuis l'historique.",
       missingName: 'Indique ton prénom pour démarrer.',
       missingDiscipline: 'Choisis une discipline.',
-      missingProfile: 'Choisis ton profil Arco.'
+      missingProfile: 'Choisis ton profil Arco.',
+      missingConsent: "Indique si tu veux envoyer ton check-in aux coachs."
     },
     athlete: {
       label: 'Athlète',
@@ -196,7 +203,7 @@ export const translations = {
       evalLocked: 'Resultat verrouille. Tu ne peux pas changer ton score pendant {min} min. Parle a ton coach si tu dois corriger.',
       resubmitRecorded: "Reprise n°{n} enregistree. Le coach verra que c'est une nouvelle reponse.",
       noConfig: "Configure d'abord l'URL du tableau dans les Paramètres.",
-      restart: 'Recommencer',
+      home: 'Accueil',
       messageGreen: "Tu es prêt(e) ! Charge complète.",
       kindnessGreen: "On y va à fond, mais on reste à l'écoute du corps. Si quelque chose change, parle au coach immédiatement.",
       messageYellowSoft: "Tu n'es pas à 100%. On réévalue sur le terrain.",
@@ -266,7 +273,8 @@ export const translations = {
       confirmSub: 'Le check-in du {date} sera transmis maintenant. Tu ne pourras pas revenir en arrière.',
       confirm: "Confirmer l'envoi",
       cancel: 'Annuler',
-      backfilledToast: 'Check-in envoyé en différé.'
+      backfilledToast: 'Check-in envoyé en différé.',
+      back: "Retour"
     },
     settings: {
       title: 'Paramètres',
@@ -315,12 +323,19 @@ export const translations = {
       profileCompetingHint: 'YWCH 2026',
       profileNotCompeting: 'Not competing',
       profileNotCompetingHint: 'Training camp only',
+      consentLabel: 'Share results with the coaches?',
+      consentYes: 'Yes, send to coaches',
+      consentYesHint: 'My check-in lands in the team dashboard at the end.',
+      consentNo: 'No, just for me',
+      consentNoHint: 'I can change my mind at the end or later.',
       start: 'Start check-in',
-      disclosureTitle: 'You decide when to send',
-      disclaimer: 'Nothing is sent until you tap Confirm. Your check-in lands in the private coach team dashboard.',
+      historyNav: 'View history',
+      disclosureTitle: 'You decide at sign-in',
+      disclaimer: 'Your check-in is shared only if you pick Yes, send to coaches. You can also send later from history.',
       missingName: 'Enter your first name to start.',
       missingDiscipline: 'Pick a discipline.',
-      missingProfile: 'Pick your Arco profile.'
+      missingProfile: 'Pick your Arco profile.',
+      missingConsent: 'Tell us if you want to send your check-in to the coaches.'
     },
     athlete: {
       label: 'Athlete',
@@ -471,7 +486,7 @@ export const translations = {
       evalLocked: 'Result locked. You cannot change your score for {min} min. Talk to your coach if you need a correction.',
       resubmitRecorded: 'Resubmission n°{n} recorded. Your coach will see this is a new answer.',
       noConfig: 'First, set the dashboard URL in Settings.',
-      restart: 'Restart',
+      home: 'Home',
       messageGreen: "You're ready! Full load.",
       kindnessGreen: "Push hard, but stay tuned to your body. If anything changes, talk to coach immediately.",
       messageYellowSoft: "You're not at 100%. We'll reassess on the wall.",
@@ -541,7 +556,8 @@ export const translations = {
       confirmSub: 'The check-in from {date} will be transmitted now. This cannot be undone.',
       confirm: 'Confirm sending',
       cancel: 'Cancel',
-      backfilledToast: 'Check-in sent (delayed).'
+      backfilledToast: 'Check-in sent (delayed).',
+      back: 'Back'
     },
     settings: {
       title: 'Settings',

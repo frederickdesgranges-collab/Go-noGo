@@ -3103,6 +3103,70 @@ a { color: inherit; text-decoration: none; }
   border-color: rgba(180, 83, 9, 0.26);
 }
 
+/* ============================================
+   Dedicated history screen — reachable from landing
+   ============================================ */
+.screen-history {
+  padding: 24px 18px 60px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.history-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid var(--border-card);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.history-back:hover {
+  background: var(--bg-cream);
+  color: var(--text-primary);
+}
+
+.history-header-titles {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.history-screen-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-deep-green);
+}
+
+.history-screen-sub {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.history-list-screen {
+  max-height: none; /* full-screen view, scroll happens at the page level */
+}
+
 /* Inline "Envoyer" trigger on unsent rows — small pill, low ceremony. */
 .history-send-btn {
   font-family: inherit;
@@ -3719,6 +3783,93 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
   color: var(--text-secondary);
 }
 
+/* Consent picker — same visual contract as the profile picker, so the
+   athlete reads it as a peer-level decision (not a settings checkbox).
+   Asymmetric colours when active: green for yes, neutral red-tinted for no. */
+.consent-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.consent-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--bg-paper);
+  border: 1px solid var(--border-card);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: transform 0.18s ease, background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  text-align: left;
+}
+
+.consent-card:hover {
+  background: var(--bg-cream);
+  transform: translateY(-1px);
+}
+
+.consent-card[data-consent="yes"].active {
+  background: var(--green-light);
+  border-color: rgba(42, 111, 71, 0.5);
+  box-shadow: 0 6px 16px rgba(42, 111, 71, 0.15);
+}
+
+.consent-card[data-consent="no"].active {
+  background: var(--cec-red-soft);
+  border-color: rgba(216, 6, 33, 0.4);
+  box-shadow: 0 6px 16px rgba(216, 6, 33, 0.12);
+}
+
+.consent-name {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  color: var(--text-deep-green);
+}
+
+.consent-card[data-consent="yes"].active .consent-name { color: var(--green-dark); }
+.consent-card[data-consent="no"].active .consent-name { color: var(--cec-red-dark); }
+
+.consent-hint {
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--text-secondary);
+}
+
+/* "Voir l'historique" entry point under the main CTA on the landing. */
+.btn-history-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 14px 18px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-pill);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-history-nav:hover {
+  background: var(--bg-cream);
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+}
+
 /* CTA */
 .btn-cinematic {
   position: relative;
@@ -3984,10 +4135,24 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
             </div>
           </div>
 
+          <div class="landing-consent">
+            <p class="landing-label" data-i18n="landing.consentLabel">Envoi des résultats aux coachs ?</p>
+            <div class="consent-grid" role="radiogroup" aria-label="Consent">
+              <button type="button" class="consent-card" data-consent="yes" role="radio" aria-checked="false">
+                <span class="consent-name" data-i18n="landing.consentYes">Oui, envoyer aux coachs</span>
+                <span class="consent-hint" data-i18n="landing.consentYesHint">Mon check-in part dans le tableau de l'équipe à la fin.</span>
+              </button>
+              <button type="button" class="consent-card" data-consent="no" role="radio" aria-checked="false">
+                <span class="consent-name" data-i18n="landing.consentNo">Non, juste pour moi</span>
+                <span class="consent-hint" data-i18n="landing.consentNoHint">Je pourrai changer d'avis à la fin ou plus tard.</span>
+              </button>
+            </div>
+          </div>
+
           <div class="landing-disclosure">
             <div class="landing-disclosure-content">
-              <p class="landing-disclosure-title" data-i18n="landing.disclosureTitle">Tu décides quand envoyer</p>
-              <p class="landing-disclosure-text" data-i18n="landing.disclaimer">Rien n'est envoyé tant que tu n'as pas cliqué sur Confirmer. Ton check-in arrive dans le tableau privé de l'équipe coachs.</p>
+              <p class="landing-disclosure-title" data-i18n="landing.disclosureTitle">Tu décides au sign-in</p>
+              <p class="landing-disclosure-text" data-i18n="landing.disclaimer">Ton check-in n'est partagé que si tu choisis "Oui, envoyer aux coachs". Tu peux aussi envoyer après coup depuis l'historique.</p>
             </div>
           </div>
 
@@ -3996,6 +4161,14 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
             <svg class="btn-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M5 12h14M13 6l6 6-6 6"/>
             </svg>
+          </button>
+
+          <button class="btn btn-history-nav" id="landing-history-btn" type="button">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/>
+              <polyline points="12 7 12 12 15 14"/>
+            </svg>
+            <span data-i18n="landing.historyNav">Voir l'historique</span>
           </button>
         </form>
       </div>
@@ -4386,15 +4559,37 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
           <span class="card-title-count" id="history-count">0</span>
         </h3>
         <p class="card-sub" data-i18n="history.sub">Tes derniers check-ins.</p>
-        <ul class="history-list" id="history-list">
+        <ul class="history-list" id="history-list" data-count-target="history-count">
           <li class="history-empty" data-i18n="history.empty">Pas encore d'historique.</li>
         </ul>
       </div>
 
       <div class="result-actions">
-        <button class="btn btn-tertiary" id="restart-btn" type="button" data-i18n="result.restart">Recommencer</button>
+        <button class="btn btn-tertiary" id="home-btn" type="button" data-i18n="result.home">Accueil</button>
       </div>
       </div><!-- /result-details -->
+    </section>
+
+    <!-- ============================================ -->
+    <!-- HISTORY SCREEN: dedicated view, reachable from landing -->
+    <!-- ============================================ -->
+    <section class="screen screen-history" id="screen-history" hidden>
+      <header class="history-header">
+        <button class="icon-button history-back" id="history-back-btn" type="button" aria-label="Back">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          <span data-i18n="history.back">Retour</span>
+        </button>
+        <div class="history-header-titles">
+          <h2 class="history-screen-title" data-i18n="history.title">Historique</h2>
+          <p class="history-screen-sub" data-i18n="history.sub">Tes derniers check-ins.</p>
+        </div>
+        <span class="card-title-count" id="history-count-screen">0</span>
+      </header>
+      <ul class="history-list history-list-screen" id="history-list-screen" data-count-target="history-count-screen">
+        <li class="history-empty" data-i18n="history.empty">Pas encore d'historique.</li>
+      </ul>
     </section>
   </main>
 
@@ -4492,12 +4687,19 @@ const translations = {
       profileCompetingHint: 'YWCH 2026',
       profileNotCompeting: 'Ne compétitionne pas',
       profileNotCompetingHint: "Camp d'entraînement",
+      consentLabel: 'Envoi des résultats aux coachs ?',
+      consentYes: 'Oui, envoyer aux coachs',
+      consentYesHint: "Mon check-in part dans le tableau de l'équipe à la fin.",
+      consentNo: 'Non, juste pour moi',
+      consentNoHint: "Je pourrai changer d'avis à la fin ou plus tard.",
       start: 'Commencer le check-in',
-      disclosureTitle: 'Tu décides quand envoyer',
-      disclaimer: "Rien n'est envoyé tant que tu n'as pas cliqué sur Confirmer. Ton check-in arrive dans le tableau privé de l'équipe coachs.",
+      historyNav: "Voir l'historique",
+      disclosureTitle: 'Tu décides au sign-in',
+      disclaimer: "Ton check-in n'est partagé que si tu choisis Oui, envoyer aux coachs. Tu peux aussi envoyer après coup depuis l'historique.",
       missingName: 'Indique ton prénom pour démarrer.',
       missingDiscipline: 'Choisis une discipline.',
-      missingProfile: 'Choisis ton profil Arco.'
+      missingProfile: 'Choisis ton profil Arco.',
+      missingConsent: "Indique si tu veux envoyer ton check-in aux coachs."
     },
     athlete: {
       label: 'Athlète',
@@ -4648,7 +4850,7 @@ const translations = {
       evalLocked: 'Resultat verrouille. Tu ne peux pas changer ton score pendant {min} min. Parle a ton coach si tu dois corriger.',
       resubmitRecorded: "Reprise n°{n} enregistree. Le coach verra que c'est une nouvelle reponse.",
       noConfig: "Configure d'abord l'URL du tableau dans les Paramètres.",
-      restart: 'Recommencer',
+      home: 'Accueil',
       messageGreen: "Tu es prêt(e) ! Charge complète.",
       kindnessGreen: "On y va à fond, mais on reste à l'écoute du corps. Si quelque chose change, parle au coach immédiatement.",
       messageYellowSoft: "Tu n'es pas à 100%. On réévalue sur le terrain.",
@@ -4718,7 +4920,8 @@ const translations = {
       confirmSub: 'Le check-in du {date} sera transmis maintenant. Tu ne pourras pas revenir en arrière.',
       confirm: "Confirmer l'envoi",
       cancel: 'Annuler',
-      backfilledToast: 'Check-in envoyé en différé.'
+      backfilledToast: 'Check-in envoyé en différé.',
+      back: "Retour"
     },
     settings: {
       title: 'Paramètres',
@@ -4767,12 +4970,19 @@ const translations = {
       profileCompetingHint: 'YWCH 2026',
       profileNotCompeting: 'Not competing',
       profileNotCompetingHint: 'Training camp only',
+      consentLabel: 'Share results with the coaches?',
+      consentYes: 'Yes, send to coaches',
+      consentYesHint: 'My check-in lands in the team dashboard at the end.',
+      consentNo: 'No, just for me',
+      consentNoHint: 'I can change my mind at the end or later.',
       start: 'Start check-in',
-      disclosureTitle: 'You decide when to send',
-      disclaimer: 'Nothing is sent until you tap Confirm. Your check-in lands in the private coach team dashboard.',
+      historyNav: 'View history',
+      disclosureTitle: 'You decide at sign-in',
+      disclaimer: 'Your check-in is shared only if you pick Yes, send to coaches. You can also send later from history.',
       missingName: 'Enter your first name to start.',
       missingDiscipline: 'Pick a discipline.',
-      missingProfile: 'Pick your Arco profile.'
+      missingProfile: 'Pick your Arco profile.',
+      missingConsent: 'Tell us if you want to send your check-in to the coaches.'
     },
     athlete: {
       label: 'Athlete',
@@ -4923,7 +5133,7 @@ const translations = {
       evalLocked: 'Result locked. You cannot change your score for {min} min. Talk to your coach if you need a correction.',
       resubmitRecorded: 'Resubmission n°{n} recorded. Your coach will see this is a new answer.',
       noConfig: 'First, set the dashboard URL in Settings.',
-      restart: 'Restart',
+      home: 'Home',
       messageGreen: "You're ready! Full load.",
       kindnessGreen: "Push hard, but stay tuned to your body. If anything changes, talk to coach immediately.",
       messageYellowSoft: "You're not at 100%. We'll reassess on the wall.",
@@ -4993,7 +5203,8 @@ const translations = {
       confirmSub: 'The check-in from {date} will be transmitted now. This cannot be undone.',
       confirm: 'Confirm sending',
       cancel: 'Cancel',
-      backfilledToast: 'Check-in sent (delayed).'
+      backfilledToast: 'Check-in sent (delayed).',
+      back: 'Back'
     },
     settings: {
       title: 'Settings',
@@ -5084,6 +5295,11 @@ const initial = {
   athleteName: '',
   discipline: null,
   profile: null,
+  // Per-check-in consent picked at sign-in. 'yes' triggers auto-send when
+  // the result page first loads; 'no' leaves the send to the athlete's
+  // discretion (Confirmer button on result, or backfill from history).
+  // Never persisted to localStorage — must be re-confirmed each visit.
+  consentToSend: null,
 
   sleep: {
     bedtime: '23:00',
@@ -5130,6 +5346,7 @@ function resetForm() {
   state.athleteName = athleteName;
   state.discipline = discipline;
   state.profile = profile;
+  // consentToSend intentionally NOT preserved — must be re-confirmed at every sign-in.
 }
 
 function loadPreferences() {
@@ -6378,7 +6595,22 @@ function renderResult(evalResult) {
   // Indicators
   renderIndicators(evalResult.flags);
 
-  // Past check-ins list
+  // Send-action visibility is driven by the consent picked at sign-in:
+  // - 'yes' → auto-send happens on first render; both buttons stay hidden.
+  // - 'no'  → no auto-send; only the Confirmer button is shown so the
+  //           athlete can change their mind. Refuser is hidden because
+  //           the refusal already happened upstream.
+  const confirmBtn = document.getElementById('confirm-btn');
+  const refuseBtn = document.getElementById('refuse-btn');
+  if (state.consentToSend === 'yes') {
+    if (confirmBtn) confirmBtn.hidden = true;
+    if (refuseBtn) refuseBtn.hidden = true;
+  } else {
+    if (confirmBtn) confirmBtn.hidden = false;
+    if (refuseBtn) refuseBtn.hidden = true; // refused upstream
+  }
+
+  // Past check-ins list (today's row is in there because saveScore just ran).
   renderHistory();
 
   // Reset scroll position so user starts on the photo full-screen
@@ -7171,12 +7403,21 @@ function renderStatsList() {
  * Render the past-check-ins list (up to 30 days, most recent first).
  * Pulls from localStorage history; each row shows date, score, track
  * colour dot, and the per-day status (submitted / refused / unsent).
+ *
+ * Paints into EVERY .history-list node in the document so the card on
+ * the result screen AND the dedicated history screen stay in sync after
+ * a backfill. Count badges read via [data-count-target].
  */
 function renderHistory() {
+  const lists = document.querySelectorAll('.history-list');
+  if (!lists.length) return;
+  lists.forEach((list) => renderHistoryIntoList(list));
+}
+
+function renderHistoryIntoList(list) {
   const lang = state.lang;
-  const list = document.getElementById('history-list');
-  const countBadge = document.getElementById('history-count');
-  if (!list) return;
+  const countTargetId = list.dataset.countTarget;
+  const countBadge = countTargetId ? document.getElementById(countTargetId) : null;
 
   const history = loadHistory();
   const entries = Object.entries(history)
@@ -7402,7 +7643,7 @@ function wireGlobalEvents() {
   document.getElementById('submit-btn').addEventListener('click', onSubmit);
   document.getElementById('confirm-btn').addEventListener('click', onSendToCoach);
   document.getElementById('refuse-btn').addEventListener('click', onRefuseSend);
-  document.getElementById('restart-btn').addEventListener('click', restart);
+  document.getElementById('home-btn').addEventListener('click', goHome);
 
   const scrollCue = document.getElementById('scroll-cue');
   if (scrollCue) {
@@ -7468,10 +7709,28 @@ function wireLandingScreen() {
     });
   });
 
+  // Consent picker — chosen up front, NOT persisted. 'yes' = auto-send on
+  // result, 'no' = mind-change path stays open on the result page.
+  document.querySelectorAll('.consent-card').forEach((card) => {
+    card.addEventListener('click', () => {
+      const c = card.dataset.consent; // 'yes' | 'no'
+      setActiveConsent(c);
+      state.consentToSend = c;
+    });
+  });
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     onLandingStart();
   });
+
+  // Direct entry to history view, no questionnaire needed.
+  const historyBtn = document.getElementById('landing-history-btn');
+  if (historyBtn) historyBtn.addEventListener('click', goToHistoryScreen);
+
+  // Back from the history screen to the landing.
+  const historyBack = document.getElementById('history-back-btn');
+  if (historyBack) historyBack.addEventListener('click', backToLandingFromHistory);
 
   const landingLang = document.getElementById('landing-lang-toggle');
   if (landingLang) landingLang.addEventListener('click', toggleLanguage);
@@ -7504,6 +7763,21 @@ function setActiveProfile(p) {
     const isActive = card.dataset.profile === p;
     card.classList.toggle('active', isActive);
     card.setAttribute('aria-checked', isActive ? 'true' : 'false');
+  });
+}
+
+function setActiveConsent(c) {
+  document.querySelectorAll('.consent-card').forEach((card) => {
+    const isActive = card.dataset.consent === c;
+    card.classList.toggle('active', isActive);
+    card.setAttribute('aria-checked', isActive ? 'true' : 'false');
+  });
+}
+
+function clearConsentSelection() {
+  document.querySelectorAll('.consent-card').forEach((card) => {
+    card.classList.remove('active');
+    card.setAttribute('aria-checked', 'false');
   });
 }
 
@@ -7556,6 +7830,10 @@ function onLandingStart() {
     showToast(t(state.lang, 'landing.missingProfile'), 'error');
     return;
   }
+  if (state.consentToSend !== 'yes' && state.consentToSend !== 'no') {
+    showToast(t(state.lang, 'landing.missingConsent'), 'error');
+    return;
+  }
   saveAthleteName(name);
   const hiddenName = document.getElementById('athlete-name');
   if (hiddenName) hiddenName.value = name;
@@ -7567,9 +7845,32 @@ function showLanding() {
   const landing = document.getElementById('screen-landing');
   const form = document.getElementById('screen-form');
   const result = document.getElementById('screen-result');
+  const history = document.getElementById('screen-history');
   if (landing) landing.hidden = false;
   if (form) form.hidden = true;
   if (result) result.hidden = true;
+  if (history) history.hidden = true;
+  // Consent must be explicit each sign-in — clear any prior selection.
+  state.consentToSend = null;
+  clearConsentSelection();
+}
+
+function goToHistoryScreen() {
+  const landing = document.getElementById('screen-landing');
+  const history = document.getElementById('screen-history');
+  if (landing) landing.hidden = true;
+  if (history) history.hidden = false;
+  // Single renderer paints both the result-card list and the screen list.
+  renderHistory();
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function backToLandingFromHistory() {
+  const landing = document.getElementById('screen-landing');
+  const history = document.getElementById('screen-history');
+  if (history) history.hidden = true;
+  if (landing) landing.hidden = false;
+  window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
 function transitionLandingToForm() {
@@ -7720,12 +8021,20 @@ function onSubmit() {
     });
   }
 
-  // Fresh result view: buttons enabled, no stale status line. The 10-min
+  // Fresh result view: buttons enabled, no stale status line. The 30-min
   // lock also applies when the athlete taps send (see onSendToCoach).
   unlockSendButtons();
   clearSendStatus();
   goToResultScreen();
   renderResult(lastEvaluation);
+
+  // Consent picked at sign-in drives whether the result is sent now or
+  // left for the athlete's discretion. 'yes' fires the same handler the
+  // tap would have fired so we get the same lock check, history update,
+  // toast, and (importantly) [REPRISE n°X] semantics if applicable.
+  if (state.consentToSend === 'yes') {
+    onSendToCoach();
+  }
 }
 
 let formSentForThisCheckin = false;
@@ -7737,7 +8046,7 @@ let formRefusedForThisCheckin = false;
 // same day. Deters "re-answer until green". Device-clock based, so it is
 // a deterrent, not tamper-proof — and it will also block a legitimate
 // correction inside the window. Accepted trade-off for a safety tool.
-const RESUBMIT_LOCK_MINUTES = 10;
+const RESUBMIT_LOCK_MINUTES = 30;
 
 function onSendToCoach() {
   if (!lastEvaluation) return;
@@ -7868,15 +8177,11 @@ function goToResultScreen() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function restart() {
-  resetForm();
-  document.querySelectorAll('.likert .likert-btn.active').forEach((b) => {
-    b.classList.remove('active');
-    b.setAttribute('aria-checked', 'false');
-  });
-  syncFormFromState();
-  updateProgressBar();
-  unlockSendButtons();
+// Navigate back to the landing without resetting the form. The eval lock
+// (now 30 min) still applies if the athlete tries to re-submit — that is
+// the whole point of removing the old Restart button which used to wipe
+// state and let a second check-in slip past the lock.
+function goHome() {
   clearSendStatus();
   backToLanding();
 }

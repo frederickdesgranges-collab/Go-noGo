@@ -72,7 +72,22 @@ export function renderResult(evalResult) {
   // Indicators
   renderIndicators(evalResult.flags);
 
-  // Past check-ins list
+  // Send-action visibility is driven by the consent picked at sign-in:
+  // - 'yes' → auto-send happens on first render; both buttons stay hidden.
+  // - 'no'  → no auto-send; only the Confirmer button is shown so the
+  //           athlete can change their mind. Refuser is hidden because
+  //           the refusal already happened upstream.
+  const confirmBtn = document.getElementById('confirm-btn');
+  const refuseBtn = document.getElementById('refuse-btn');
+  if (state.consentToSend === 'yes') {
+    if (confirmBtn) confirmBtn.hidden = true;
+    if (refuseBtn) refuseBtn.hidden = true;
+  } else {
+    if (confirmBtn) confirmBtn.hidden = false;
+    if (refuseBtn) refuseBtn.hidden = true; // refused upstream
+  }
+
+  // Past check-ins list (today's row is in there because saveScore just ran).
   renderHistory();
 
   // Reset scroll position so user starts on the photo full-screen
@@ -865,12 +880,21 @@ function renderStatsList() {
  * Render the past-check-ins list (up to 30 days, most recent first).
  * Pulls from localStorage history; each row shows date, score, track
  * colour dot, and the per-day status (submitted / refused / unsent).
+ *
+ * Paints into EVERY .history-list node in the document so the card on
+ * the result screen AND the dedicated history screen stay in sync after
+ * a backfill. Count badges read via [data-count-target].
  */
-function renderHistory() {
+export function renderHistory() {
+  const lists = document.querySelectorAll('.history-list');
+  if (!lists.length) return;
+  lists.forEach((list) => renderHistoryIntoList(list));
+}
+
+function renderHistoryIntoList(list) {
   const lang = state.lang;
-  const list = document.getElementById('history-list');
-  const countBadge = document.getElementById('history-count');
-  if (!list) return;
+  const countTargetId = list.dataset.countTarget;
+  const countBadge = countTargetId ? document.getElementById(countTargetId) : null;
 
   const history = loadHistory();
   const entries = Object.entries(history)

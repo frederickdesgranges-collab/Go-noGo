@@ -3,7 +3,7 @@
  * Boot, landing → form → result flow, global events.
  */
 
-import { state, loadPreferences, saveLang, saveCoachSheetUrl, saveDiscipline, saveProfile, resetForm, saveAthleteName, todayDateKey, normalizeText, getSubmitRecord, setSubmitRecord, saveScore } from './state.js';
+import { state, loadPreferences, saveLang, saveCoachSheetUrl, saveDiscipline, saveProfile, saveAthleteName, todayDateKey, normalizeText, getSubmitRecord, setSubmitRecord, saveScore } from './state.js';
 import { applyTranslations, t } from './translations.js';
 import {
   buildLikertScales,
@@ -14,7 +14,7 @@ import {
   onAnyChange
 } from './form-logic.js';
 import { evaluate } from './evaluation.js';
-import { renderResult, sendToCoachSheet, sendRefusalToSheet } from './result-screen.js';
+import { renderResult, sendToCoachSheet, sendRefusalToSheet, renderHistory } from './result-screen.js';
 
 let lastEvaluation = null;
 
@@ -51,7 +51,7 @@ function wireGlobalEvents() {
   document.getElementById('submit-btn').addEventListener('click', onSubmit);
   document.getElementById('confirm-btn').addEventListener('click', onSendToCoach);
   document.getElementById('refuse-btn').addEventListener('click', onRefuseSend);
-  document.getElementById('restart-btn').addEventListener('click', restart);
+  document.getElementById('home-btn').addEventListener('click', goHome);
 
   const scrollCue = document.getElementById('scroll-cue');
   if (scrollCue) {
@@ -117,10 +117,28 @@ function wireLandingScreen() {
     });
   });
 
+  // Consent picker — chosen up front, NOT persisted. 'yes' = auto-send on
+  // result, 'no' = mind-change path stays open on the result page.
+  document.querySelectorAll('.consent-card').forEach((card) => {
+    card.addEventListener('click', () => {
+      const c = card.dataset.consent; // 'yes' | 'no'
+      setActiveConsent(c);
+      state.consentToSend = c;
+    });
+  });
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     onLandingStart();
   });
+
+  // Direct entry to history view, no questionnaire needed.
+  const historyBtn = document.getElementById('landing-history-btn');
+  if (historyBtn) historyBtn.addEventListener('click', goToHistoryScreen);
+
+  // Back from the history screen to the landing.
+  const historyBack = document.getElementById('history-back-btn');
+  if (historyBack) historyBack.addEventListener('click', backToLandingFromHistory);
 
   const landingLang = document.getElementById('landing-lang-toggle');
   if (landingLang) landingLang.addEventListener('click', toggleLanguage);
@@ -153,6 +171,21 @@ function setActiveProfile(p) {
     const isActive = card.dataset.profile === p;
     card.classList.toggle('active', isActive);
     card.setAttribute('aria-checked', isActive ? 'true' : 'false');
+  });
+}
+
+function setActiveConsent(c) {
+  document.querySelectorAll('.consent-card').forEach((card) => {
+    const isActive = card.dataset.consent === c;
+    card.classList.toggle('active', isActive);
+    card.setAttribute('aria-checked', isActive ? 'true' : 'false');
+  });
+}
+
+function clearConsentSelection() {
+  document.querySelectorAll('.consent-card').forEach((card) => {
+    card.classList.remove('active');
+    card.setAttribute('aria-checked', 'false');
   });
 }
 
@@ -205,6 +238,10 @@ function onLandingStart() {
     showToast(t(state.lang, 'landing.missingProfile'), 'error');
     return;
   }
+  if (state.consentToSend !== 'yes' && state.consentToSend !== 'no') {
+    showToast(t(state.lang, 'landing.missingConsent'), 'error');
+    return;
+  }
   saveAthleteName(name);
   const hiddenName = document.getElementById('athlete-name');
   if (hiddenName) hiddenName.value = name;
@@ -216,9 +253,32 @@ function showLanding() {
   const landing = document.getElementById('screen-landing');
   const form = document.getElementById('screen-form');
   const result = document.getElementById('screen-result');
+  const history = document.getElementById('screen-history');
   if (landing) landing.hidden = false;
   if (form) form.hidden = true;
   if (result) result.hidden = true;
+  if (history) history.hidden = true;
+  // Consent must be explicit each sign-in — clear any prior selection.
+  state.consentToSend = null;
+  clearConsentSelection();
+}
+
+function goToHistoryScreen() {
+  const landing = document.getElementById('screen-landing');
+  const history = document.getElementById('screen-history');
+  if (landing) landing.hidden = true;
+  if (history) history.hidden = false;
+  // Single renderer paints both the result-card list and the screen list.
+  renderHistory();
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function backToLandingFromHistory() {
+  const landing = document.getElementById('screen-landing');
+  const history = document.getElementById('screen-history');
+  if (history) history.hidden = true;
+  if (landing) landing.hidden = false;
+  window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
 function transitionLandingToForm() {
@@ -369,12 +429,20 @@ function onSubmit() {
     });
   }
 
-  // Fresh result view: buttons enabled, no stale status line. The 10-min
+  // Fresh result view: buttons enabled, no stale status line. The 30-min
   // lock also applies when the athlete taps send (see onSendToCoach).
   unlockSendButtons();
   clearSendStatus();
   goToResultScreen();
   renderResult(lastEvaluation);
+
+  // Consent picked at sign-in drives whether the result is sent now or
+  // left for the athlete's discretion. 'yes' fires the same handler the
+  // tap would have fired so we get the same lock check, history update,
+  // toast, and (importantly) [REPRISE n°X] semantics if applicable.
+  if (state.consentToSend === 'yes') {
+    onSendToCoach();
+  }
 }
 
 let formSentForThisCheckin = false;
@@ -386,7 +454,7 @@ let formRefusedForThisCheckin = false;
 // same day. Deters "re-answer until green". Device-clock based, so it is
 // a deterrent, not tamper-proof — and it will also block a legitimate
 // correction inside the window. Accepted trade-off for a safety tool.
-const RESUBMIT_LOCK_MINUTES = 10;
+const RESUBMIT_LOCK_MINUTES = 30;
 
 function onSendToCoach() {
   if (!lastEvaluation) return;
@@ -517,15 +585,11 @@ function goToResultScreen() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function restart() {
-  resetForm();
-  document.querySelectorAll('.likert .likert-btn.active').forEach((b) => {
-    b.classList.remove('active');
-    b.setAttribute('aria-checked', 'false');
-  });
-  syncFormFromState();
-  updateProgressBar();
-  unlockSendButtons();
+// Navigate back to the landing without resetting the form. The eval lock
+// (now 30 min) still applies if the athlete tries to re-submit — that is
+// the whole point of removing the old Restart button which used to wipe
+// state and let a second check-in slip past the lock.
+function goHome() {
   clearSendStatus();
   backToLanding();
 }

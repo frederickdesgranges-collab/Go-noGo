@@ -1542,6 +1542,70 @@
   border-color: rgba(180, 83, 9, 0.26);
 }
 
+/* ============================================
+   Dedicated history screen — reachable from landing
+   ============================================ */
+.screen-history {
+  padding: 24px 18px 60px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.history-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid var(--border-card);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.history-back:hover {
+  background: var(--bg-cream);
+  color: var(--text-primary);
+}
+
+.history-header-titles {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.history-screen-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-deep-green);
+}
+
+.history-screen-sub {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.history-list-screen {
+  max-height: none; /* full-screen view, scroll happens at the page level */
+}
+
 /* Inline "Envoyer" trigger on unsent rows — small pill, low ceremony. */
 .history-send-btn {
   font-family: inherit;

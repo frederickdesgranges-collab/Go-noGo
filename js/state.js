@@ -26,6 +26,11 @@ const initial = {
   athleteName: '',
   discipline: null,
   profile: null,
+  // Per-check-in consent picked at sign-in. 'yes' triggers auto-send when
+  // the result page first loads; 'no' leaves the send to the athlete's
+  // discretion (Confirmer button on result, or backfill from history).
+  // Never persisted to localStorage — must be re-confirmed each visit.
+  consentToSend: null,
 
   sleep: {
     bedtime: '23:00',
@@ -72,6 +77,7 @@ export function resetForm() {
   state.athleteName = athleteName;
   state.discipline = discipline;
   state.profile = profile;
+  // consentToSend intentionally NOT preserved — must be re-confirmed at every sign-in.
 }
 
 export function loadPreferences() {
