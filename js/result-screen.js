@@ -74,9 +74,10 @@ export function renderResult(evalResult) {
 
   // Send-action visibility is driven by the consent picked at sign-in:
   // - 'yes' → auto-send happens on first render; both buttons stay hidden.
-  // - 'no'  → no auto-send; only the Confirmer button is shown so the
-  //           athlete can change their mind. Refuser is hidden because
-  //           the refusal already happened upstream.
+  // - 'no'  → no auto-send; BOTH buttons stay visible. Confirmer lets the
+  //           athlete change their mind, Refuser lets them formally
+  //           decline (anonymous "refusé" row to the Sheet) so the coach
+  //           team sees that someone made a deliberate choice today.
   const confirmBtn = document.getElementById('confirm-btn');
   const refuseBtn = document.getElementById('refuse-btn');
   if (state.consentToSend === 'yes') {
@@ -84,7 +85,7 @@ export function renderResult(evalResult) {
     if (refuseBtn) refuseBtn.hidden = true;
   } else {
     if (confirmBtn) confirmBtn.hidden = false;
-    if (refuseBtn) refuseBtn.hidden = true; // refused upstream
+    if (refuseBtn) refuseBtn.hidden = false;
   }
 
   // Past check-ins list (today's row is in there because saveScore just ran).
@@ -926,12 +927,12 @@ function renderHistoryIntoList(list) {
     const color = entry.color || 'green';
     const status = entry.status || 'unsent';
     const statusLabel = t(lang, `history.status.${status}`);
-    // The Envoyer / Send-now affordance only appears on unsent rows; refused
-    // entries are explicit decisions and submitted entries have nothing to do.
-    // Snapshot is preferred (rich payload) but not required — without it the
-    // backfill still sends score/track/color/athlete, so the coach at least
-    // sees that the athlete checked in.
-    const canBackfill = status === 'unsent' && state.coachSheetUrl;
+    // The Envoyer / Send-now affordance appears on any row the coach team
+    // has NOT yet received: unsent (silent skip) OR refused (anonymous row
+    // exists, but no per-athlete row). A backfill writes a new submitted
+    // row; the original "refusé" row stays in the Sheet as a historical
+    // marker — coach sees both timestamps and can interpret.
+    const canBackfill = (status === 'unsent' || status === 'refused') && state.coachSheetUrl;
     const sendBtn = canBackfill
       ? `<button type="button" class="history-send-btn" data-action="open-confirm" data-date="${escapeHtml(dateKey)}">${escapeHtml(t(lang, 'history.send'))}</button>`
       : '';

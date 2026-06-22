@@ -663,6 +663,13 @@
   display: none;
 }
 
+/* The hidden attribute must trump display:flex on these buttons, otherwise
+   consent='yes' auto-send still leaves a clickable Refuser on the result. */
+.btn-confirm[hidden],
+.btn-refuse[hidden] {
+  display: none;
+}
+
 /* Refuse: same footprint as confirm, neutral gray palette. */
 .btn-refuse {
   position: relative;
