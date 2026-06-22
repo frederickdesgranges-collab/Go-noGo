@@ -668,9 +668,10 @@ export function sendToCoachSheet(evalResult, submitMeta) {
 }
 
 /**
- * Send an anonymous refusal marker: only date, timestamp and the word
- * "refusé". The coach team sees that someone declined to share their
- * check-in today; the athlete identity is intentionally omitted.
+ * Send a named refusal marker: identifies the athlete (name, discipline,
+ * profile), stamps the score column with the word "Refus", and leaves the
+ * individual signal columns empty. The coach team now sees WHO declined
+ * today and on which discipline, rather than an anonymous row.
  */
 export function sendRefusalToSheet() {
   const url = state.coachSheetUrl;
@@ -679,6 +680,10 @@ export function sendRefusalToSheet() {
   const payload = {
     timestamp: today.toISOString(),
     date: todayDateKey(today),
+    athlete: state.athleteName || '',
+    discipline: state.discipline || '',
+    profile: state.profile || '',
+    score: 'Refus',
     status: 'refusé'
   };
   try {
