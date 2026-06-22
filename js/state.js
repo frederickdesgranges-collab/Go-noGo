@@ -129,8 +129,18 @@ export function loadHistory() {
 export function saveScore(dateKey, scoreOrEntry) {
   try {
     const h = loadHistory();
-    // Accept either a plain number (legacy) or a full entry object
-    h[dateKey] = scoreOrEntry;
+    const existing = h[dateKey];
+    const existingObj = existing && typeof existing === 'object' ? existing : (typeof existing === 'number' ? { score: existing } : {});
+    // Accept either a plain number (legacy), or a full / partial entry object.
+    // Behaviour is an UPSERT: missing fields keep their previous value so a
+    // later { status: 'submitted' } write does not wipe { score, track, color }.
+    if (typeof scoreOrEntry === 'number') {
+      h[dateKey] = { ...existingObj, score: scoreOrEntry };
+    } else if (scoreOrEntry && typeof scoreOrEntry === 'object') {
+      h[dateKey] = { ...existingObj, ...scoreOrEntry };
+    } else {
+      h[dateKey] = existingObj;
+    }
     localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(h));
   } catch (_) {}
 }

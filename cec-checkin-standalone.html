@@ -2989,6 +2989,115 @@ a { color: inherit; text-decoration: none; }
   color: var(--green-dark);
 }
 
+/* ============================================
+   History card — past check-ins list
+   ============================================ */
+.history-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-sub {
+  margin: -6px 0 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.history-row {
+  display: grid;
+  grid-template-columns: 14px 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-cream);
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-stack);
+  font-size: 13.5px;
+}
+
+.history-empty {
+  list-style: none;
+  padding: 14px 16px;
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 13.5px;
+  text-align: center;
+}
+
+.history-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--green);
+}
+.history-dot.dot-yellow { background: var(--yellow); }
+.history-dot.dot-red    { background: var(--red); }
+
+.history-date {
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: capitalize;
+  font-variant-numeric: tabular-nums;
+}
+
+.history-score {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-deep-green);
+  font-variant-numeric: tabular-nums;
+}
+
+.history-score-suffix {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  margin-left: 2px;
+}
+
+.history-status {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.history-status.status-submitted {
+  background: rgba(42, 111, 71, 0.12);
+  color: var(--green-dark);
+  border-color: rgba(42, 111, 71, 0.28);
+}
+
+.history-status.status-refused {
+  background: rgba(20, 33, 26, 0.08);
+  color: var(--text-secondary);
+  border-color: rgba(20, 33, 26, 0.18);
+}
+
+.history-status.status-unsent {
+  background: rgba(180, 83, 9, 0.10);
+  color: var(--yellow-dark);
+  border-color: rgba(180, 83, 9, 0.26);
+}
+
 
 /* ============================================
    CEC Check-in - landing.css
@@ -4172,6 +4281,18 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
         </ul>
       </div>
 
+      <!-- Past check-ins (up to 30 days, most recent first) -->
+      <div class="card history-card">
+        <h3 class="card-title">
+          <span data-i18n="history.title">Historique</span>
+          <span class="card-title-count" id="history-count">0</span>
+        </h3>
+        <p class="card-sub" data-i18n="history.sub">Tes derniers check-ins.</p>
+        <ul class="history-list" id="history-list">
+          <li class="history-empty" data-i18n="history.empty">Pas encore d'historique.</li>
+        </ul>
+      </div>
+
       <div class="result-actions">
         <button class="btn btn-tertiary" id="restart-btn" type="button" data-i18n="result.restart">Recommencer</button>
       </div>
@@ -4424,6 +4545,7 @@ const translations = {
       refuse: "Refuser l'envoi",
       sentToast: "Envoyé au tableau de l'équipe coachs.",
       refusedToast: 'Refus enregistré. Aucune réponse partagée.',
+      refusedHint: "Refus envoyé. Tu peux quand même envoyer aux coachs si tu changes d'avis.",
       resubmitLocked: 'Tu as deja envoye ton check-in. Attends {min} min avant de renvoyer, ou parle a ton coach.',
       evalLocked: 'Resultat verrouille. Tu ne peux pas changer ton score pendant {min} min. Parle a ton coach si tu dois corriger.',
       resubmitRecorded: "Reprise n°{n} enregistree. Le coach verra que c'est une nouvelle reponse.",
@@ -4482,6 +4604,16 @@ const translations = {
         unitHours: 'h',
         unitOf5: '/5',
         unitOf10: '/10'
+      }
+    },
+    history: {
+      title: 'Historique',
+      sub: 'Tes derniers check-ins.',
+      empty: "Pas encore d'historique. Reviens demain pour voir tes tendances.",
+      status: {
+        submitted: 'Envoyé',
+        refused: 'Refusé',
+        unsent: 'Non envoyé'
       }
     },
     settings: {
@@ -4682,6 +4814,7 @@ const translations = {
       refuse: 'Decline sending',
       sentToast: 'Sent to the coach team dashboard.',
       refusedToast: 'Refusal logged. No answers shared.',
+      refusedHint: 'Refusal logged. You can still send to coaches if you change your mind.',
       resubmitLocked: 'You already sent your check-in. Wait {min} min before resending, or talk to your coach.',
       evalLocked: 'Result locked. You cannot change your score for {min} min. Talk to your coach if you need a correction.',
       resubmitRecorded: 'Resubmission n°{n} recorded. Your coach will see this is a new answer.',
@@ -4740,6 +4873,16 @@ const translations = {
         unitHours: 'h',
         unitOf5: '/5',
         unitOf10: '/10'
+      }
+    },
+    history: {
+      title: 'History',
+      sub: 'Your recent check-ins.',
+      empty: 'No history yet. Come back tomorrow to see your trends.',
+      status: {
+        submitted: 'Sent',
+        refused: 'Declined',
+        unsent: 'Unsent'
       }
     },
     settings: {
@@ -4934,8 +5077,18 @@ function loadHistory() {
 function saveScore(dateKey, scoreOrEntry) {
   try {
     const h = loadHistory();
-    // Accept either a plain number (legacy) or a full entry object
-    h[dateKey] = scoreOrEntry;
+    const existing = h[dateKey];
+    const existingObj = existing && typeof existing === 'object' ? existing : (typeof existing === 'number' ? { score: existing } : {});
+    // Accept either a plain number (legacy), or a full / partial entry object.
+    // Behaviour is an UPSERT: missing fields keep their previous value so a
+    // later { status: 'submitted' } write does not wipe { score, track, color }.
+    if (typeof scoreOrEntry === 'number') {
+      h[dateKey] = { ...existingObj, score: scoreOrEntry };
+    } else if (scoreOrEntry && typeof scoreOrEntry === 'object') {
+      h[dateKey] = { ...existingObj, ...scoreOrEntry };
+    } else {
+      h[dateKey] = existingObj;
+    }
     localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(h));
   } catch (_) {}
 }
@@ -6101,6 +6254,9 @@ function renderResult(evalResult) {
   // Indicators
   renderIndicators(evalResult.flags);
 
+  // Past check-ins list
+  renderHistory();
+
   // Reset scroll position so user starts on the photo full-screen
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
@@ -6815,6 +6971,58 @@ function renderStatsList() {
   }).join('');
 }
 
+/**
+ * Render the past-check-ins list (up to 30 days, most recent first).
+ * Pulls from localStorage history; each row shows date, score, track
+ * colour dot, and the per-day status (submitted / refused / unsent).
+ */
+function renderHistory() {
+  const lang = state.lang;
+  const list = document.getElementById('history-list');
+  const countBadge = document.getElementById('history-count');
+  if (!list) return;
+
+  const history = loadHistory();
+  const entries = Object.entries(history)
+    .map(([dateKey, raw]) => {
+      // Tolerate legacy number entries (score only).
+      const entry = typeof raw === 'number'
+        ? { score: raw }
+        : (raw && typeof raw === 'object' ? raw : null);
+      return entry ? [dateKey, entry] : null;
+    })
+    .filter((p) => p && typeof p[1].score === 'number')
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .slice(0, 30);
+
+  if (countBadge) countBadge.textContent = String(entries.length);
+
+  if (entries.length === 0) {
+    list.innerHTML = `<li class="history-empty">${escapeHtml(t(lang, 'history.empty'))}</li>`;
+    return;
+  }
+
+  const locale = lang === 'en' ? 'en-CA' : 'fr-CA';
+  list.innerHTML = entries.map(([dateKey, entry]) => {
+    const d = new Date(`${dateKey}T00:00:00`);
+    const dateLabel = d.toLocaleDateString(locale, {
+      weekday: 'short', month: 'short', day: 'numeric'
+    });
+    const score = Math.round(entry.score);
+    const color = entry.color || 'green';
+    const status = entry.status || 'unsent';
+    const statusLabel = t(lang, `history.status.${status}`);
+    return `
+      <li class="history-row">
+        <span class="history-dot dot-${color}" aria-hidden="true"></span>
+        <span class="history-date">${escapeHtml(dateLabel)}</span>
+        <span class="history-score">${escapeHtml(String(score))}<span class="history-score-suffix">/100</span></span>
+        <span class="history-status status-${status}">${escapeHtml(statusLabel)}</span>
+      </li>
+    `;
+  }).join('');
+}
+
 function renderIndicators(flags) {
   const lang = state.lang;
   const list = document.getElementById('indicators-list');
@@ -7242,6 +7450,9 @@ function onSubmit() {
 }
 
 let formSentForThisCheckin = false;
+// Tracked separately so a Refuse can still be followed by an actual Send if
+// the athlete changes their mind. Only Confirm definitively closes both.
+let formRefusedForThisCheckin = false;
 
 // TUNABLE: how long (minutes) before the same athlete may resend on the
 // same day. Deters "re-answer until green". Device-clock based, so it is
@@ -7289,6 +7500,8 @@ function onSendToCoach() {
   }
 
   sendToCoachSheet(lastEvaluation, submitMeta);
+  // Mark today's history row as submitted (merge upsert: keeps score/track/color).
+  saveScore(dayKey, { status: 'submitted', sentAt: now });
   lockSendButtons();
   if (submitMeta.isResubmit) {
     showSendStatus(
@@ -7301,27 +7514,45 @@ function onSendToCoach() {
 }
 
 function onRefuseSend() {
+  // A definitive send overrides everything; do not let refuse run after send.
   if (formSentForThisCheckin) return;
+  // Don't allow double-refuse (would just spam anonymous rows).
+  if (formRefusedForThisCheckin) return;
   if (!state.coachSheetUrl) {
     showToast(t(state.lang, 'result.noConfig'), 'error');
     openSettings();
     return;
   }
   sendRefusalToSheet();
-  lockSendButtons();
+  saveScore(todayDateKey(), { status: 'refused', refusedAt: Date.now() });
+  // ONLY the refuse button locks. The athlete can still change their mind
+  // and tap "Envoyer aux coachs" afterwards — the inline status line nudges
+  // them that the option is still on the table.
+  lockRefuseButtonOnly();
+  showSendStatus(t(state.lang, 'result.refusedHint'), 'success');
   showToast(t(state.lang, 'result.refusedToast'), 'success');
 }
 
+// Sent is definitive — both buttons go offline.
 function lockSendButtons() {
   formSentForThisCheckin = true;
+  formRefusedForThisCheckin = true; // refuse no longer relevant once sent
   const confirmBtn = document.getElementById('confirm-btn');
   const refuseBtn = document.getElementById('refuse-btn');
   if (confirmBtn) confirmBtn.disabled = true;
   if (refuseBtn) refuseBtn.disabled = true;
 }
 
+// Refuse-only lock: confirm stays usable so a mind-change can still send.
+function lockRefuseButtonOnly() {
+  formRefusedForThisCheckin = true;
+  const refuseBtn = document.getElementById('refuse-btn');
+  if (refuseBtn) refuseBtn.disabled = true;
+}
+
 function unlockSendButtons() {
   formSentForThisCheckin = false;
+  formRefusedForThisCheckin = false;
   const confirmBtn = document.getElementById('confirm-btn');
   const refuseBtn = document.getElementById('refuse-btn');
   if (confirmBtn) confirmBtn.disabled = false;

@@ -191,6 +191,7 @@ export const translations = {
       refuse: "Refuser l'envoi",
       sentToast: "Envoyé au tableau de l'équipe coachs.",
       refusedToast: 'Refus enregistré. Aucune réponse partagée.',
+      refusedHint: "Refus envoyé. Tu peux quand même envoyer aux coachs si tu changes d'avis.",
       resubmitLocked: 'Tu as deja envoye ton check-in. Attends {min} min avant de renvoyer, ou parle a ton coach.',
       evalLocked: 'Resultat verrouille. Tu ne peux pas changer ton score pendant {min} min. Parle a ton coach si tu dois corriger.',
       resubmitRecorded: "Reprise n°{n} enregistree. Le coach verra que c'est une nouvelle reponse.",
@@ -249,6 +250,16 @@ export const translations = {
         unitHours: 'h',
         unitOf5: '/5',
         unitOf10: '/10'
+      }
+    },
+    history: {
+      title: 'Historique',
+      sub: 'Tes derniers check-ins.',
+      empty: "Pas encore d'historique. Reviens demain pour voir tes tendances.",
+      status: {
+        submitted: 'Envoyé',
+        refused: 'Refusé',
+        unsent: 'Non envoyé'
       }
     },
     settings: {
@@ -449,6 +460,7 @@ export const translations = {
       refuse: 'Decline sending',
       sentToast: 'Sent to the coach team dashboard.',
       refusedToast: 'Refusal logged. No answers shared.',
+      refusedHint: 'Refusal logged. You can still send to coaches if you change your mind.',
       resubmitLocked: 'You already sent your check-in. Wait {min} min before resending, or talk to your coach.',
       evalLocked: 'Result locked. You cannot change your score for {min} min. Talk to your coach if you need a correction.',
       resubmitRecorded: 'Resubmission n°{n} recorded. Your coach will see this is a new answer.',
@@ -507,6 +519,16 @@ export const translations = {
         unitHours: 'h',
         unitOf5: '/5',
         unitOf10: '/10'
+      }
+    },
+    history: {
+      title: 'History',
+      sub: 'Your recent check-ins.',
+      empty: 'No history yet. Come back tomorrow to see your trends.',
+      status: {
+        submitted: 'Sent',
+        refused: 'Declined',
+        unsent: 'Unsent'
       }
     },
     settings: {

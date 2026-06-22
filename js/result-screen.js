@@ -58,6 +58,9 @@ export function renderResult(evalResult) {
   // Indicators
   renderIndicators(evalResult.flags);
 
+  // Past check-ins list
+  renderHistory();
+
   // Reset scroll position so user starts on the photo full-screen
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
@@ -768,6 +771,58 @@ function renderStatsList() {
           <span class="stat-value">${escapeHtml(valueText)}</span><span class="stat-unit">${escapeHtml(item.unit)}</span>
         </div>
       </div>
+    `;
+  }).join('');
+}
+
+/**
+ * Render the past-check-ins list (up to 30 days, most recent first).
+ * Pulls from localStorage history; each row shows date, score, track
+ * colour dot, and the per-day status (submitted / refused / unsent).
+ */
+function renderHistory() {
+  const lang = state.lang;
+  const list = document.getElementById('history-list');
+  const countBadge = document.getElementById('history-count');
+  if (!list) return;
+
+  const history = loadHistory();
+  const entries = Object.entries(history)
+    .map(([dateKey, raw]) => {
+      // Tolerate legacy number entries (score only).
+      const entry = typeof raw === 'number'
+        ? { score: raw }
+        : (raw && typeof raw === 'object' ? raw : null);
+      return entry ? [dateKey, entry] : null;
+    })
+    .filter((p) => p && typeof p[1].score === 'number')
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .slice(0, 30);
+
+  if (countBadge) countBadge.textContent = String(entries.length);
+
+  if (entries.length === 0) {
+    list.innerHTML = `<li class="history-empty">${escapeHtml(t(lang, 'history.empty'))}</li>`;
+    return;
+  }
+
+  const locale = lang === 'en' ? 'en-CA' : 'fr-CA';
+  list.innerHTML = entries.map(([dateKey, entry]) => {
+    const d = new Date(`${dateKey}T00:00:00`);
+    const dateLabel = d.toLocaleDateString(locale, {
+      weekday: 'short', month: 'short', day: 'numeric'
+    });
+    const score = Math.round(entry.score);
+    const color = entry.color || 'green';
+    const status = entry.status || 'unsent';
+    const statusLabel = t(lang, `history.status.${status}`);
+    return `
+      <li class="history-row">
+        <span class="history-dot dot-${color}" aria-hidden="true"></span>
+        <span class="history-date">${escapeHtml(dateLabel)}</span>
+        <span class="history-score">${escapeHtml(String(score))}<span class="history-score-suffix">/100</span></span>
+        <span class="history-status status-${status}">${escapeHtml(statusLabel)}</span>
+      </li>
     `;
   }).join('');
 }

@@ -1427,3 +1427,112 @@
   border-color: rgba(42, 111, 71, 0.18);
   color: var(--green-dark);
 }
+
+/* ============================================
+   History card — past check-ins list
+   ============================================ */
+.history-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-sub {
+  margin: -6px 0 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.history-row {
+  display: grid;
+  grid-template-columns: 14px 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-cream);
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-stack);
+  font-size: 13.5px;
+}
+
+.history-empty {
+  list-style: none;
+  padding: 14px 16px;
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 13.5px;
+  text-align: center;
+}
+
+.history-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--green);
+}
+.history-dot.dot-yellow { background: var(--yellow); }
+.history-dot.dot-red    { background: var(--red); }
+
+.history-date {
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: capitalize;
+  font-variant-numeric: tabular-nums;
+}
+
+.history-score {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-deep-green);
+  font-variant-numeric: tabular-nums;
+}
+
+.history-score-suffix {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  margin-left: 2px;
+}
+
+.history-status {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.history-status.status-submitted {
+  background: rgba(42, 111, 71, 0.12);
+  color: var(--green-dark);
+  border-color: rgba(42, 111, 71, 0.28);
+}
+
+.history-status.status-refused {
+  background: rgba(20, 33, 26, 0.08);
+  color: var(--text-secondary);
+  border-color: rgba(20, 33, 26, 0.18);
+}
+
+.history-status.status-unsent {
+  background: rgba(180, 83, 9, 0.10);
+  color: var(--yellow-dark);
+  border-color: rgba(180, 83, 9, 0.26);
+}

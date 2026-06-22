@@ -3,7 +3,7 @@
  * Boot, landing → form → result flow, global events.
  */
 
-import { state, loadPreferences, saveLang, saveCoachSheetUrl, saveDiscipline, saveProfile, resetForm, saveAthleteName, todayDateKey, normalizeText, getSubmitRecord, setSubmitRecord } from './state.js';
+import { state, loadPreferences, saveLang, saveCoachSheetUrl, saveDiscipline, saveProfile, resetForm, saveAthleteName, todayDateKey, normalizeText, getSubmitRecord, setSubmitRecord, saveScore } from './state.js';
 import { applyTranslations, t } from './translations.js';
 import {
   buildLikertScales,
@@ -378,6 +378,9 @@ function onSubmit() {
 }
 
 let formSentForThisCheckin = false;
+// Tracked separately so a Refuse can still be followed by an actual Send if
+// the athlete changes their mind. Only Confirm definitively closes both.
+let formRefusedForThisCheckin = false;
 
 // TUNABLE: how long (minutes) before the same athlete may resend on the
 // same day. Deters "re-answer until green". Device-clock based, so it is
@@ -425,6 +428,8 @@ function onSendToCoach() {
   }
 
   sendToCoachSheet(lastEvaluation, submitMeta);
+  // Mark today's history row as submitted (merge upsert: keeps score/track/color).
+  saveScore(dayKey, { status: 'submitted', sentAt: now });
   lockSendButtons();
   if (submitMeta.isResubmit) {
     showSendStatus(
@@ -437,27 +442,45 @@ function onSendToCoach() {
 }
 
 function onRefuseSend() {
+  // A definitive send overrides everything; do not let refuse run after send.
   if (formSentForThisCheckin) return;
+  // Don't allow double-refuse (would just spam anonymous rows).
+  if (formRefusedForThisCheckin) return;
   if (!state.coachSheetUrl) {
     showToast(t(state.lang, 'result.noConfig'), 'error');
     openSettings();
     return;
   }
   sendRefusalToSheet();
-  lockSendButtons();
+  saveScore(todayDateKey(), { status: 'refused', refusedAt: Date.now() });
+  // ONLY the refuse button locks. The athlete can still change their mind
+  // and tap "Envoyer aux coachs" afterwards — the inline status line nudges
+  // them that the option is still on the table.
+  lockRefuseButtonOnly();
+  showSendStatus(t(state.lang, 'result.refusedHint'), 'success');
   showToast(t(state.lang, 'result.refusedToast'), 'success');
 }
 
+// Sent is definitive — both buttons go offline.
 function lockSendButtons() {
   formSentForThisCheckin = true;
+  formRefusedForThisCheckin = true; // refuse no longer relevant once sent
   const confirmBtn = document.getElementById('confirm-btn');
   const refuseBtn = document.getElementById('refuse-btn');
   if (confirmBtn) confirmBtn.disabled = true;
   if (refuseBtn) refuseBtn.disabled = true;
 }
 
+// Refuse-only lock: confirm stays usable so a mind-change can still send.
+function lockRefuseButtonOnly() {
+  formRefusedForThisCheckin = true;
+  const refuseBtn = document.getElementById('refuse-btn');
+  if (refuseBtn) refuseBtn.disabled = true;
+}
+
 function unlockSendButtons() {
   formSentForThisCheckin = false;
+  formRefusedForThisCheckin = false;
   const confirmBtn = document.getElementById('confirm-btn');
   const refuseBtn = document.getElementById('refuse-btn');
   if (confirmBtn) confirmBtn.disabled = false;
