@@ -51,7 +51,6 @@ function wireGlobalEvents() {
   document.getElementById('submit-btn').addEventListener('click', onSubmit);
   document.getElementById('confirm-btn').addEventListener('click', onSendToCoach);
   document.getElementById('refuse-btn').addEventListener('click', onRefuseSend);
-  document.getElementById('edit-btn').addEventListener('click', goToFormScreen);
   document.getElementById('restart-btn').addEventListener('click', restart);
 
   const scrollCue = document.getElementById('scroll-cue');
@@ -486,12 +485,6 @@ function clearSendStatus() {
   el.textContent = '';
   el.classList.remove('is-error', 'is-success');
   el.hidden = true;
-}
-
-function goToFormScreen() {
-  document.getElementById('screen-result').hidden = true;
-  document.getElementById('screen-form').hidden = false;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function goToResultScreen() {
