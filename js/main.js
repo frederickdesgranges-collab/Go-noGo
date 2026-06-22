@@ -329,9 +329,49 @@ function onSubmit() {
     }
     return;
   }
+
+  const now = Date.now();
+  const dayKey = todayDateKey();
+  const athleteKey = normalizeText(state.athleteName || '');
+
+  // Eval lock: once a result has been committed today within the window,
+  // do NOT re-evaluate. The athlete can still browse / edit the form, but
+  // cannot re-roll the score by tweaking answers — that is the whole point
+  // of the lock. Fails open when athlete name is empty or storage unusable.
+  if (athleteKey) {
+    const rec = getSubmitRecord(dayKey, athleteKey);
+    if (rec && rec.lastEvalTs && (now - rec.lastEvalTs) < RESUBMIT_LOCK_MINUTES * 60 * 1000) {
+      const minLeft = Math.ceil((RESUBMIT_LOCK_MINUTES * 60000 - (now - rec.lastEvalTs)) / 60000);
+      const msg = t(state.lang, 'result.evalLocked').replace('{min}', String(minLeft));
+      if (lastEvaluation) {
+        // Athlete has an in-memory result already — bring them back to it
+        // with a status line so they see the lock is real.
+        goToResultScreen();
+        renderResult(lastEvaluation);
+        showSendStatus(msg, 'error');
+      } else {
+        // No result loaded this session (e.g. page reload) — toast on form.
+        showToast(msg, 'error');
+      }
+      return;
+    }
+  }
+
   lastEvaluation = evaluate();
-  // Fresh result view: buttons enabled, no stale status line. The
-  // persistent 10-min lock still applies when the athlete taps send.
+
+  // Persist the eval moment so a later Submit within the window is blocked.
+  // Preserve any existing send-related fields (count / lastTs).
+  if (athleteKey) {
+    const prev = getSubmitRecord(dayKey, athleteKey) || {};
+    setSubmitRecord(dayKey, athleteKey, {
+      count: prev.count || 0,
+      lastTs: prev.lastTs || 0,
+      lastEvalTs: now
+    });
+  }
+
+  // Fresh result view: buttons enabled, no stale status line. The 10-min
+  // lock also applies when the athlete taps send (see onSendToCoach).
   unlockSendButtons();
   clearSendStatus();
   goToResultScreen();
@@ -377,7 +417,12 @@ function onSendToCoach() {
     }
     const prevCount = (rec && rec.count) || 0;
     submitMeta = { count: prevCount + 1, isResubmit: prevCount >= 1 };
-    setSubmitRecord(dayKey, athleteKey, { count: submitMeta.count, lastTs: now });
+    setSubmitRecord(dayKey, athleteKey, {
+      count: submitMeta.count,
+      lastTs: now,
+      // Preserve the eval-lock moment so it isn't reset by a send.
+      lastEvalTs: (rec && rec.lastEvalTs) || now
+    });
   }
 
   sendToCoachSheet(lastEvaluation, submitMeta);
