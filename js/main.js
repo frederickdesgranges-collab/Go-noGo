@@ -319,6 +319,10 @@ function toggleLanguage() {
   applyTranslations(next);
   refreshHeaderDate();
   refreshLangButton();
+  // The send-status line is set dynamically (refusal hint, lock notice).
+  // applyTranslations only walks [data-i18n] nodes, so the status would
+  // stay frozen in the previous language without this nudge.
+  paintSendStatus();
   if (lastEvaluation && !document.getElementById('screen-result').hidden) {
     renderResult(lastEvaluation);
   }
@@ -401,22 +405,26 @@ function onSubmit() {
     const rec = getSubmitRecord(dayKey, athleteKey);
     if (rec && rec.lastEvalTs && (now - rec.lastEvalTs) < RESUBMIT_LOCK_MINUTES * 60 * 1000) {
       const minLeft = Math.ceil((RESUBMIT_LOCK_MINUTES * 60000 - (now - rec.lastEvalTs)) / 60000);
-      const msg = t(state.lang, 'result.evalLocked').replace('{min}', String(minLeft));
       if (lastEvaluation) {
         // Athlete has an in-memory result already — bring them back to it
         // with a status line so they see the lock is real.
         goToResultScreen();
         renderResult(lastEvaluation);
-        showSendStatus(msg, 'error');
+        showSendStatus('result.evalLocked', 'error', { min: minLeft });
       } else {
         // No result loaded this session (e.g. page reload) — toast on form.
-        showToast(msg, 'error');
+        showToast(t(state.lang, 'result.evalLocked').replace('{min}', String(minLeft)), 'error');
       }
       return;
     }
   }
 
   lastEvaluation = evaluate();
+  // Each check-in is its own history entry. Keyed by ISO timestamp so
+  // multiple check-ins in the same day stay distinct (sortable + uniquely
+  // addressable for backfill / status updates).
+  lastEvaluation.entryId = new Date(now).toISOString();
+  lastEvaluation.dateKey = dayKey;
 
   // Persist the eval moment so a later Submit within the window is blocked.
   // Preserve any existing send-related fields (count / lastTs).
@@ -480,9 +488,8 @@ function onSendToCoach() {
     if (rec && rec.lastTs && (now - rec.lastTs) < RESUBMIT_LOCK_MINUTES * 60 * 1000) {
       // Inside the lock window: block the network send entirely.
       const minLeft = Math.ceil((RESUBMIT_LOCK_MINUTES * 60000 - (now - rec.lastTs)) / 60000);
-      const msg = t(state.lang, 'result.resubmitLocked').replace('{min}', String(minLeft));
       unlockSendButtons(); // keep the button usable for a later legit retry
-      showSendStatus(msg, 'error');
+      showSendStatus('result.resubmitLocked', 'error', { min: minLeft });
       return;
     }
     const prevCount = (rec && rec.count) || 0;
@@ -497,13 +504,12 @@ function onSendToCoach() {
 
   sendToCoachSheet(lastEvaluation, submitMeta);
   // Mark today's history row as submitted (merge upsert: keeps score/track/color).
-  saveScore(dayKey, { status: 'submitted', sentAt: now });
+  // Target the SPECIFIC entry created by this check-in, not today's
+  // date — so older entries in the same day keep their own status.
+  saveScore(lastEvaluation.entryId || dayKey, { status: 'submitted', sentAt: now });
   lockSendButtons();
   if (submitMeta.isResubmit) {
-    showSendStatus(
-      t(state.lang, 'result.resubmitRecorded').replace('{n}', String(submitMeta.count)),
-      'success'
-    );
+    showSendStatus('result.resubmitRecorded', 'success', { n: submitMeta.count });
   } else {
     showToast(t(state.lang, 'result.sentToast'), 'success');
   }
@@ -520,12 +526,12 @@ function onRefuseSend() {
     return;
   }
   sendRefusalToSheet();
-  saveScore(todayDateKey(), { status: 'refused', refusedAt: Date.now() });
+  saveScore(lastEvaluation?.entryId || todayDateKey(), { status: 'refused', refusedAt: Date.now() });
   // ONLY the refuse button locks. The athlete can still change their mind
   // and tap "Envoyer aux coachs" afterwards — the inline status line nudges
   // them that the option is still on the table.
   lockRefuseButtonOnly();
-  showSendStatus(t(state.lang, 'result.refusedHint'), 'success');
+  showSendStatus('result.refusedHint', 'success');
   showToast(t(state.lang, 'result.refusedToast'), 'success');
 }
 
@@ -560,10 +566,34 @@ function unlockSendButtons() {
  * aria-live=polite). Used for the resubmit-lock notice and the
  * resubmission-recorded confirmation. Non-blocking — never alert().
  */
-function showSendStatus(message, kind) {
+/**
+ * Inline, persistent status line under the send buttons (role=status,
+ * aria-live=polite). Stores the i18n key + replacements on the element
+ * dataset so toggleLanguage can re-translate it on the fly — otherwise
+ * the dynamic text would stay frozen in the language it was set in.
+ */
+function showSendStatus(i18nKey, kind, replacements) {
   const el = document.getElementById('send-status');
   if (!el) return;
-  el.textContent = message;
+  el.dataset.i18nKey = i18nKey || '';
+  el.dataset.i18nReplacements = replacements ? JSON.stringify(replacements) : '';
+  el.dataset.i18nKind = kind || '';
+  paintSendStatus();
+}
+
+function paintSendStatus() {
+  const el = document.getElementById('send-status');
+  if (!el || !el.dataset.i18nKey) return;
+  const key = el.dataset.i18nKey;
+  const kind = el.dataset.i18nKind;
+  const replacements = el.dataset.i18nReplacements
+    ? JSON.parse(el.dataset.i18nReplacements)
+    : {};
+  let msg = t(state.lang, key);
+  Object.entries(replacements).forEach(([k, v]) => {
+    msg = msg.replace(`{${k}}`, String(v));
+  });
+  el.textContent = msg;
   el.classList.remove('is-error', 'is-success');
   if (kind === 'error') el.classList.add('is-error');
   else if (kind === 'success') el.classList.add('is-success');
@@ -576,6 +606,9 @@ function clearSendStatus() {
   el.textContent = '';
   el.classList.remove('is-error', 'is-success');
   el.hidden = true;
+  delete el.dataset.i18nKey;
+  delete el.dataset.i18nReplacements;
+  delete el.dataset.i18nKind;
 }
 
 function goToResultScreen() {

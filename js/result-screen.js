@@ -38,11 +38,15 @@ export function renderResult(evalResult) {
   // Score (count up)
   renderReadiness(evalResult.score);
 
-  // Persist today's full result for the progression chart AND for any
-  // later backfill from the history card. The snapshot keeps the original
-  // signal values so a delayed send can rebuild a complete coach-payload.
+  // Persist this check-in as its own history entry. main.js attaches an
+  // ISO-timestamp entryId so multiple check-ins in the same day stay
+  // distinct; a missing entryId (defensive) falls back to today's date
+  // for backward compat with legacy single-per-day storage.
+  const entryKey = evalResult.entryId || todayDateKey();
   if (typeof evalResult.score === 'number') {
-    saveScore(todayDateKey(), {
+    saveScore(entryKey, {
+      dateKey: evalResult.dateKey || todayDateKey(),
+      timestamp: evalResult.entryId || new Date().toISOString(),
       score: evalResult.score,
       track: evalResult.track,
       color: evalResult.color,
@@ -282,17 +286,26 @@ function renderProgression(evalResult) {
   });
 
   // Build sorted points from the full history.
-  // History entries may be either a plain number (legacy) or
-  // { score, track, color } objects.
-  const recorded = Object.entries(history)
-    .map(([d, raw]) => {
+  // History entries may be either a plain number (legacy), a date-keyed
+  // object (legacy single-per-day), or an ISO-timestamp-keyed object
+  // (new multi-per-day). The chart shows ONE point per day — when there
+  // are several check-ins in a day we keep the latest (largest key).
+  const flat = Object.entries(history)
+    .map(([key, raw]) => {
       const entry = typeof raw === 'number'
         ? { score: raw, track: null, color: null }
-        : { score: raw?.score ?? 0, track: raw?.track ?? null, color: raw?.color ?? null };
-      return { date: d, ...entry };
+        : { score: raw?.score ?? 0, track: raw?.track ?? null, color: raw?.color ?? null, dateKey: raw?.dateKey };
+      const date = entry.dateKey || key.slice(0, 10);
+      return { date, key, ...entry };
     })
-    .filter((p) => typeof p.score === 'number')
-    .sort((a, b) => a.date.localeCompare(b.date));
+    .filter((p) => typeof p.score === 'number');
+  const latestByDate = {};
+  flat.forEach((p) => {
+    if (!latestByDate[p.date] || p.key.localeCompare(latestByDate[p.date].key) > 0) {
+      latestByDate[p.date] = p;
+    }
+  });
+  const recorded = Object.values(latestByDate).sort((a, b) => a.date.localeCompare(b.date));
 
   // Determine the date range to draw.
   // Anchor on today; pad enough on both sides so the user can scroll back/forward.
@@ -708,17 +721,21 @@ export function sendRefusalToSheet() {
  * Side-effects: marks the history row as 'submitted' (merge upsert) and
  * returns true on success, false if the Sheet URL or entry is missing.
  */
-export function sendBackfillToSheet(dateKey, entry) {
+export function sendBackfillToSheet(entryKey, entry) {
   const url = state.coachSheetUrl;
   if (!url || !entry) return false;
   const snap = entry.snapshot || {};
   const now = new Date();
+  // The Sheet's `date` column wants YYYY-MM-DD; entryKey may be a full
+  // ISO timestamp (new format) or already YYYY-MM-DD (legacy). The entry
+  // itself also carries a dateKey field for new entries — prefer that.
+  const dateOnly = entry.dateKey || entryKey.slice(0, 10);
   const baseNote = snap.hydration?.note || '';
-  const sentNote = `[ENVOYÉ EN DIFFÉRÉ depuis le ${dateKey}] ${baseNote}`.trim();
+  const sentNote = `[ENVOYÉ EN DIFFÉRÉ depuis le ${dateOnly}] ${baseNote}`.trim();
 
   const payload = {
     timestamp: now.toISOString(),
-    date: dateKey,
+    date: dateOnly,
     athlete: snap.athleteName || state.athleteName || '',
     discipline: snap.discipline || state.discipline || '',
     profile: snap.profile || state.profile || '',
@@ -767,7 +784,8 @@ export function sendBackfillToSheet(dateKey, entry) {
 
   // Mark the history row as submitted so the button disappears and the
   // status badge flips to "Envoyé" on the next render.
-  saveScore(dateKey, { status: 'submitted', sentAt: Date.now(), backfilled: true });
+  // Flip this specific entry (key may carry a timestamp suffix).
+  saveScore(entryKey, { status: 'submitted', sentAt: Date.now(), backfilled: true });
   return true;
 }
 
@@ -905,17 +923,21 @@ function renderHistoryIntoList(list) {
   const countBadge = countTargetId ? document.getElementById(countTargetId) : null;
 
   const history = loadHistory();
+  // Each history record is keyed by either a full ISO timestamp (new
+  // entries — one per check-in) or a YYYY-MM-DD string (legacy, one per
+  // day). Sorting on the key string descending puts the newest first
+  // for both formats; we keep the raw key as the row id so backfill
+  // targets the specific entry.
   const entries = Object.entries(history)
-    .map(([dateKey, raw]) => {
-      // Tolerate legacy number entries (score only).
+    .map(([entryKey, raw]) => {
       const entry = typeof raw === 'number'
         ? { score: raw }
         : (raw && typeof raw === 'object' ? raw : null);
-      return entry ? [dateKey, entry] : null;
+      return entry ? [entryKey, entry] : null;
     })
     .filter((p) => p && typeof p[1].score === 'number')
     .sort((a, b) => b[0].localeCompare(a[0]))
-    .slice(0, 30);
+    .slice(0, 60); // headroom: ~30 days × 2 check-ins/day
 
   if (countBadge) countBadge.textContent = String(entries.length);
 
@@ -925,26 +947,41 @@ function renderHistoryIntoList(list) {
   }
 
   const locale = lang === 'en' ? 'en-CA' : 'fr-CA';
-  list.innerHTML = entries.map(([dateKey, entry]) => {
-    const d = new Date(`${dateKey}T00:00:00`);
+  list.innerHTML = entries.map(([entryKey, entry]) => {
+    // Date portion — prefer the entry's stored dateKey field; otherwise
+    // take the first 10 chars of the key, which works for both ISO
+    // timestamps ("2026-06-22T...") and legacy date strings.
+    const datePart = entry.dateKey || entryKey.slice(0, 10);
+    const d = new Date(`${datePart}T00:00:00`);
     const dateLabel = d.toLocaleDateString(locale, {
       weekday: 'short', month: 'short', day: 'numeric'
     });
+    // Time portion (only when the key carries a timestamp).
+    const hasTime = /T\d{2}:\d{2}/.test(entryKey);
+    let timeLabel = '';
+    if (hasTime) {
+      const ts = new Date(entryKey);
+      if (!isNaN(ts.getTime())) {
+        timeLabel = ts.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+      }
+    }
+    const dateDisplay = hasTime && timeLabel
+      ? `${dateLabel} · ${timeLabel}`
+      : dateLabel;
     const score = Math.round(entry.score);
     const color = entry.color || 'green';
     const status = entry.status || 'unsent';
     const statusLabel = t(lang, `history.status.${status}`);
     // The Envoyer / Send-now affordance appears on any row the coach team
-    // has NOT yet received: unsent (silent skip) OR refused (anonymous row
-    // exists, but no per-athlete row). A backfill writes a new submitted
-    // row; the original "refusé" row stays in the Sheet as a historical
-    // marker — coach sees both timestamps and can interpret.
+    // has not yet received: unsent OR refused. A backfill writes a new
+    // submitted row addressed by this specific entryKey (not the date),
+    // so the row in history flips even if it was one of several for the day.
     const canBackfill = (status === 'unsent' || status === 'refused') && state.coachSheetUrl;
     const sendBtn = canBackfill
-      ? `<button type="button" class="history-send-btn" data-action="open-confirm" data-date="${escapeHtml(dateKey)}">${escapeHtml(t(lang, 'history.send'))}</button>`
+      ? `<button type="button" class="history-send-btn" data-action="open-confirm" data-date="${escapeHtml(entryKey)}">${escapeHtml(t(lang, 'history.send'))}</button>`
       : '';
     const confirmTitle = escapeHtml(t(lang, 'history.confirmTitle'));
-    const confirmSub = escapeHtml(t(lang, 'history.confirmSub').replace('{date}', dateLabel));
+    const confirmSub = escapeHtml(t(lang, 'history.confirmSub').replace('{date}', dateDisplay));
     const confirmLabel = escapeHtml(t(lang, 'history.confirm'));
     const cancelLabel = escapeHtml(t(lang, 'history.cancel'));
     const confirmPanel = canBackfill
@@ -952,16 +989,16 @@ function renderHistoryIntoList(list) {
            <p class="history-confirm-title">${confirmTitle}</p>
            <p class="history-confirm-sub">${confirmSub}</p>
            <div class="history-confirm-actions">
-             <button type="button" class="history-cancel-btn" data-action="cancel" data-date="${escapeHtml(dateKey)}">${cancelLabel}</button>
-             <button type="button" class="history-confirm-btn" data-action="confirm" data-date="${escapeHtml(dateKey)}">${confirmLabel}</button>
+             <button type="button" class="history-cancel-btn" data-action="cancel" data-date="${escapeHtml(entryKey)}">${cancelLabel}</button>
+             <button type="button" class="history-confirm-btn" data-action="confirm" data-date="${escapeHtml(entryKey)}">${confirmLabel}</button>
            </div>
          </div>`
       : '';
     return `
-      <li class="history-row" data-date="${escapeHtml(dateKey)}">
+      <li class="history-row" data-date="${escapeHtml(entryKey)}">
         <div class="history-row-main">
           <span class="history-dot dot-${color}" aria-hidden="true"></span>
-          <span class="history-date">${escapeHtml(dateLabel)}</span>
+          <span class="history-date">${escapeHtml(dateDisplay)}</span>
           <span class="history-score">${escapeHtml(String(score))}<span class="history-score-suffix">/100</span></span>
           <span class="history-status status-${status}">${escapeHtml(statusLabel)}</span>
           ${sendBtn}
