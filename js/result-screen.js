@@ -38,12 +38,26 @@ export function renderResult(evalResult) {
   // Score (count up)
   renderReadiness(evalResult.score);
 
-  // Persist today's full result for the progression chart
+  // Persist today's full result for the progression chart AND for any
+  // later backfill from the history card. The snapshot keeps the original
+  // signal values so a delayed send can rebuild a complete coach-payload.
   if (typeof evalResult.score === 'number') {
     saveScore(todayDateKey(), {
       score: evalResult.score,
       track: evalResult.track,
-      color: evalResult.color
+      color: evalResult.color,
+      snapshot: {
+        athleteName: state.athleteName || '',
+        discipline: state.discipline || '',
+        profile: state.profile || '',
+        sleep: { ...state.sleep },
+        wellbeing: { ...state.wellbeing },
+        pain: { ...state.pain },
+        hydration: { ...state.hydration },
+        dayIdx: evalResult.dayIdx ?? '',
+        flagsRed: (evalResult.flags?.red || []).map((f) => f.key),
+        flagsYellow: (evalResult.flags?.yellow || []).map((f) => f.key)
+      }
     });
   }
 
@@ -662,6 +676,78 @@ export function sendRefusalToSheet() {
   } catch (_) { /* silent */ }
 }
 
+/**
+ * Backfill a past "Non envoyé" check-in to the staff dashboard. Rebuilds
+ * the same payload shape as sendToCoachSheet using the stored snapshot,
+ * but stamps the ORIGINAL date and prefixes the note with [ENVOYÉ EN
+ * DIFFÉRÉ ...] so the coach knows it isn't fresh.
+ *
+ * Side-effects: marks the history row as 'submitted' (merge upsert) and
+ * returns true on success, false if the Sheet URL or entry is missing.
+ */
+export function sendBackfillToSheet(dateKey, entry) {
+  const url = state.coachSheetUrl;
+  if (!url || !entry) return false;
+  const snap = entry.snapshot || {};
+  const now = new Date();
+  const baseNote = snap.hydration?.note || '';
+  const sentNote = `[ENVOYÉ EN DIFFÉRÉ depuis le ${dateKey}] ${baseNote}`.trim();
+
+  const payload = {
+    timestamp: now.toISOString(),
+    date: dateKey,
+    athlete: snap.athleteName || state.athleteName || '',
+    discipline: snap.discipline || state.discipline || '',
+    profile: snap.profile || state.profile || '',
+    score: entry.score,
+    track: entry.track,
+    color: entry.color,
+    dayOfCamp: snap.dayIdx ?? '',
+    sleepHours: snap.sleep?.durationHours ?? '',
+    sleepBedtime: snap.sleep?.bedtime ?? '',
+    sleepWake: snap.sleep?.wake ?? '',
+    sleepQuality: snap.sleep?.quality ?? '',
+    sleepWakings: snap.sleep?.wakings ?? '',
+    energy: snap.wellbeing?.energy ?? '',
+    muscles: snap.wellbeing?.muscles ?? '',
+    forearms: snap.wellbeing?.forearms ?? '',
+    calm: snap.wellbeing?.calm ?? '',
+    mood: snap.wellbeing?.mood ?? '',
+    skin: snap.wellbeing?.skin ?? '',
+    willingness: snap.wellbeing?.willingness ?? '',
+    recoveryPrs: snap.wellbeing?.recoveryPrs ?? '',
+    prevSessionIntensity: snap.wellbeing?.prevSessionIntensity ?? '',
+    painFingers: snap.pain?.fingers ?? '',
+    painForearm: snap.pain?.forearm ?? '',
+    painElbow: snap.pain?.elbow ?? '',
+    painShoulders: snap.pain?.shoulders ?? '',
+    painBack: snap.pain?.back ?? '',
+    painOther: snap.pain?.other ?? '',
+    fuelScore: snap.hydration?.fuelScore ?? '',
+    note: sentNote,
+    submissionCount: 1,
+    isResubmit: false,
+    backfilled: true,
+    flagsRed: (snap.flagsRed || []).join('|'),
+    flagsYellow: (snap.flagsYellow || []).join('|')
+  };
+
+  try {
+    fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+      keepalive: true
+    }).catch(() => { /* silent */ });
+  } catch (_) { /* silent */ }
+
+  // Mark the history row as submitted so the button disappears and the
+  // status badge flips to "Envoyé" on the next render.
+  saveScore(dateKey, { status: 'submitted', sentAt: Date.now(), backfilled: true });
+  return true;
+}
+
 function daysBetween(a, b) {
   const ms = b - a;
   return Math.round(ms / (24 * 60 * 60 * 1000));
@@ -816,15 +902,98 @@ function renderHistory() {
     const color = entry.color || 'green';
     const status = entry.status || 'unsent';
     const statusLabel = t(lang, `history.status.${status}`);
+    // The Envoyer / Send-now affordance only appears on unsent rows; refused
+    // entries are explicit decisions and submitted entries have nothing to do.
+    const canBackfill = status === 'unsent' && entry.snapshot && state.coachSheetUrl;
+    const sendBtn = canBackfill
+      ? `<button type="button" class="history-send-btn" data-action="open-confirm" data-date="${escapeHtml(dateKey)}">${escapeHtml(t(lang, 'history.send'))}</button>`
+      : '';
+    const confirmTitle = escapeHtml(t(lang, 'history.confirmTitle'));
+    const confirmSub = escapeHtml(t(lang, 'history.confirmSub').replace('{date}', dateLabel));
+    const confirmLabel = escapeHtml(t(lang, 'history.confirm'));
+    const cancelLabel = escapeHtml(t(lang, 'history.cancel'));
+    const confirmPanel = canBackfill
+      ? `<div class="history-confirm" hidden>
+           <p class="history-confirm-title">${confirmTitle}</p>
+           <p class="history-confirm-sub">${confirmSub}</p>
+           <div class="history-confirm-actions">
+             <button type="button" class="history-cancel-btn" data-action="cancel" data-date="${escapeHtml(dateKey)}">${cancelLabel}</button>
+             <button type="button" class="history-confirm-btn" data-action="confirm" data-date="${escapeHtml(dateKey)}">${confirmLabel}</button>
+           </div>
+         </div>`
+      : '';
     return `
-      <li class="history-row">
-        <span class="history-dot dot-${color}" aria-hidden="true"></span>
-        <span class="history-date">${escapeHtml(dateLabel)}</span>
-        <span class="history-score">${escapeHtml(String(score))}<span class="history-score-suffix">/100</span></span>
-        <span class="history-status status-${status}">${escapeHtml(statusLabel)}</span>
+      <li class="history-row" data-date="${escapeHtml(dateKey)}">
+        <div class="history-row-main">
+          <span class="history-dot dot-${color}" aria-hidden="true"></span>
+          <span class="history-date">${escapeHtml(dateLabel)}</span>
+          <span class="history-score">${escapeHtml(String(score))}<span class="history-score-suffix">/100</span></span>
+          <span class="history-status status-${status}">${escapeHtml(statusLabel)}</span>
+          ${sendBtn}
+        </div>
+        ${confirmPanel}
       </li>
     `;
   }).join('');
+
+  wireHistoryActions(list);
+}
+
+/**
+ * Single click handler delegated on the history list. Toggles the
+ * confirmation panel on an unsent row, sends the backfill on confirm,
+ * re-renders the list to flip the row to "Envoyé".
+ */
+function wireHistoryActions(list) {
+  if (!list || list.dataset.wired === '1') return;
+  list.dataset.wired = '1';
+  list.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const action = btn.dataset.action;
+    const dateKey = btn.dataset.date;
+    if (!dateKey) return;
+    if (action === 'open-confirm') {
+      // Close any other panel first so only one is open at a time.
+      list.querySelectorAll('.history-confirm').forEach((p) => { p.hidden = true; });
+      const row = list.querySelector(`.history-row[data-date="${dateKey}"]`);
+      const panel = row && row.querySelector('.history-confirm');
+      if (panel) panel.hidden = false;
+    } else if (action === 'cancel') {
+      const row = list.querySelector(`.history-row[data-date="${dateKey}"]`);
+      const panel = row && row.querySelector('.history-confirm');
+      if (panel) panel.hidden = true;
+    } else if (action === 'confirm') {
+      const history = loadHistory();
+      const entry = history[dateKey];
+      const ok = sendBackfillToSheet(dateKey, entry);
+      if (ok) {
+        renderHistory(); // re-render to flip the badge + drop the button
+        fireToast(t(state.lang, 'history.backfilledToast'), 'success');
+      }
+    }
+  });
+}
+
+/**
+ * Lightweight toast trigger — mirrors main.js's showToast so result-screen
+ * can flash a confirmation without importing across modules. The #toast
+ * element is shared (defined once in index.html).
+ */
+function fireToast(message, kind) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.textContent = message;
+  toast.className = 'toast';
+  if (kind === 'error') toast.classList.add('toast-error');
+  else if (kind === 'success') toast.classList.add('toast-success');
+  toast.hidden = false;
+  void toast.offsetWidth;
+  toast.classList.add('visible');
+  setTimeout(() => {
+    toast.classList.remove('visible');
+    setTimeout(() => { toast.hidden = true; }, 250);
+  }, 3200);
 }
 
 function renderIndicators(flags) {

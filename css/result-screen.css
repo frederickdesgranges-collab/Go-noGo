@@ -1456,16 +1456,21 @@
 }
 
 .history-row {
-  display: grid;
-  grid-template-columns: 14px 1fr auto auto;
-  align-items: center;
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
   padding: 11px 14px;
   border-radius: var(--radius-md);
   background: var(--bg-cream);
   border: 1px solid var(--border-subtle);
   font-family: var(--font-stack);
   font-size: 13.5px;
+}
+
+.history-row-main {
+  display: grid;
+  grid-template-columns: 14px 1fr auto auto auto;
+  align-items: center;
+  gap: 12px;
 }
 
 .history-empty {
@@ -1535,4 +1540,97 @@
   background: rgba(180, 83, 9, 0.10);
   color: var(--yellow-dark);
   border-color: rgba(180, 83, 9, 0.26);
+}
+
+/* Inline "Envoyer" trigger on unsent rows — small pill, low ceremony. */
+.history-send-btn {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--green);
+  color: white;
+  border: 0;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.15s ease;
+  white-space: nowrap;
+}
+
+.history-send-btn:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+/* Expanded confirmation panel — sits under the row, attached visually
+   via the same card surface. Double-confirm is the whole point. */
+.history-confirm {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: rgba(42, 111, 71, 0.06);
+  border: 1px solid rgba(42, 111, 71, 0.22);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.history-confirm[hidden] {
+  display: none;
+}
+
+.history-confirm-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-deep-green);
+}
+
+.history-confirm-sub {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.history-confirm-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.history-confirm-btn,
+.history-cancel-btn {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+.history-confirm-btn {
+  background: var(--green);
+  color: white;
+  border: 0;
+}
+
+.history-confirm-btn:hover {
+  filter: brightness(1.06);
+}
+
+.history-cancel-btn {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.history-cancel-btn:hover {
+  background: var(--bg-cream);
+  color: var(--text-primary);
 }

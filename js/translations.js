@@ -260,7 +260,13 @@ export const translations = {
         submitted: 'Envoyé',
         refused: 'Refusé',
         unsent: 'Non envoyé'
-      }
+      },
+      send: 'Envoyer',
+      confirmTitle: 'Envoyer ce check-in aux coachs ?',
+      confirmSub: 'Le check-in du {date} sera transmis maintenant. Tu ne pourras pas revenir en arrière.',
+      confirm: "Confirmer l'envoi",
+      cancel: 'Annuler',
+      backfilledToast: 'Check-in envoyé en différé.'
     },
     settings: {
       title: 'Paramètres',
@@ -529,7 +535,13 @@ export const translations = {
         submitted: 'Sent',
         refused: 'Declined',
         unsent: 'Unsent'
-      }
+      },
+      send: 'Send',
+      confirmTitle: 'Send this check-in to the coaches?',
+      confirmSub: 'The check-in from {date} will be transmitted now. This cannot be undone.',
+      confirm: 'Confirm sending',
+      cancel: 'Cancel',
+      backfilledToast: 'Check-in sent (delayed).'
     },
     settings: {
       title: 'Settings',
