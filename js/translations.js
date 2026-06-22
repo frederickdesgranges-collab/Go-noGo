@@ -274,6 +274,7 @@ export const translations = {
       confirm: "Confirmer l'envoi",
       cancel: 'Annuler',
       backfilledToast: 'Check-in envoyé en différé.',
+      backfillFailed: "Échec de l'envoi. Vérifie ta connexion et réessaie.",
       back: "Retour"
     },
     settings: {
@@ -557,6 +558,7 @@ export const translations = {
       confirm: 'Confirm sending',
       cancel: 'Cancel',
       backfilledToast: 'Check-in sent (delayed).',
+      backfillFailed: 'Send failed. Check your connection and try again.',
       back: 'Back'
     },
     settings: {

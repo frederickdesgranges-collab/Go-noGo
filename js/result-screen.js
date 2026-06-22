@@ -928,7 +928,10 @@ function renderHistoryIntoList(list) {
     const statusLabel = t(lang, `history.status.${status}`);
     // The Envoyer / Send-now affordance only appears on unsent rows; refused
     // entries are explicit decisions and submitted entries have nothing to do.
-    const canBackfill = status === 'unsent' && entry.snapshot && state.coachSheetUrl;
+    // Snapshot is preferred (rich payload) but not required — without it the
+    // backfill still sends score/track/color/athlete, so the coach at least
+    // sees that the athlete checked in.
+    const canBackfill = status === 'unsent' && state.coachSheetUrl;
     const sendBtn = canBackfill
       ? `<button type="button" class="history-send-btn" data-action="open-confirm" data-date="${escapeHtml(dateKey)}">${escapeHtml(t(lang, 'history.send'))}</button>`
       : '';
@@ -990,10 +993,22 @@ function wireHistoryActions(list) {
     } else if (action === 'confirm') {
       const history = loadHistory();
       const entry = history[dateKey];
+      if (!entry) {
+        // Entry vanished between render and click — shouldn't happen, but
+        // surface a hint instead of silently doing nothing.
+        fireToast(t(state.lang, 'history.backfillFailed'), 'error');
+        return;
+      }
+      if (!state.coachSheetUrl) {
+        fireToast(t(state.lang, 'result.noConfig'), 'error');
+        return;
+      }
       const ok = sendBackfillToSheet(dateKey, entry);
       if (ok) {
         renderHistory(); // re-render to flip the badge + drop the button
         fireToast(t(state.lang, 'history.backfilledToast'), 'success');
+      } else {
+        fireToast(t(state.lang, 'history.backfillFailed'), 'error');
       }
     }
   });
