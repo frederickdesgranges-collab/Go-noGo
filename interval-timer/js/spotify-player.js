@@ -183,22 +183,32 @@ const SpotifyPlayer = (() => {
     if (trackCache[id]) return trackCache[id];
 
     const tracks = [];
-    let url = `/playlists/${id}/tracks`;
-    let query = { limit: 100, fields: "items(track(uri,name,artists(name),is_local)),next" };
-    while (url) {
-      const r = await api(url, { query });
-      if (!r.ok) break;
-      (r.data.items || []).forEach(it => {
-        const t = it && it.track;
-        if (t && t.uri && !t.is_local && t.uri.startsWith("spotify:track:")) {
-          tracks.push({ uri: t.uri, name: t.name, artist: (t.artists || []).map(a => a.name).join(", ") });
-        }
-      });
-      if (r.data.next) {
-        const n = new URL(r.data.next);
-        url = n.pathname.replace("/v1", "");
-        query = Object.fromEntries(n.searchParams.entries());
-      } else url = null;
+    // Depuis février 2026, l'endpoint est « /items » (anciennement « /tracks »).
+    // On tente « /items » d'abord, et on retombe sur « /tracks » si besoin
+    // (compatibilité avec d'éventuelles apps plus anciennes).
+    const fields = "items(track(uri,name,artists(name),is_local)),next";
+    for (const endpoint of ["items", "tracks"]) {
+      let url = `/playlists/${id}/${endpoint}`;
+      let query = { limit: 100, fields };
+      let firstOk = null;
+      while (url) {
+        const r = await api(url, { query });
+        if (firstOk === null) firstOk = r.ok;
+        if (!r.ok) break;
+        (r.data.items || []).forEach(it => {
+          const t = it && it.track;
+          if (t && t.uri && !t.is_local && t.uri.startsWith("spotify:track:")) {
+            tracks.push({ uri: t.uri, name: t.name, artist: (t.artists || []).map(a => a.name).join(", ") });
+          }
+        });
+        if (r.data && r.data.next) {
+          const n = new URL(r.data.next);
+          url = n.pathname.replace("/v1", "");
+          query = Object.fromEntries(n.searchParams.entries());
+        } else url = null;
+      }
+      // Si « /items » a répondu (même vide), inutile d'essayer « /tracks ».
+      if (firstOk) break;
     }
     trackCache[id] = tracks;
     return tracks;
@@ -221,29 +231,79 @@ const SpotifyPlayer = (() => {
    */
   async function prepareQueue(phaseType, playlistRef, order) {
     if (!playlistRef) { queues[phaseType] = null; return; }
+    const id = parsePlaylistId(playlistRef);
+    const contextUri = id ? `spotify:playlist:${id}` : null;
     const tracks = await getPlaylistTracks(playlistRef);
-    if (!tracks.length) { queues[phaseType] = null; return; }
-    queues[phaseType] = {
-      tracks: order === "random" ? shuffle(tracks) : tracks,
-      pos: -1, // sera incrémenté à -> 0 à la première entrée de phase
-    };
+
+    if (tracks.length) {
+      // Cas idéal : on a pu lire les pistes (playlist possédée / collaborative)
+      // -> file déterministe dans l'app (séquentiel ou aléatoire).
+      queues[phaseType] = {
+        tracks: order === "random" ? shuffle(tracks) : tracks,
+        pos: -1, // sera incrémenté à -> 0 à la première entrée de phase
+        contextOnly: false,
+      };
+    } else if (contextUri) {
+      // Repli (depuis fév. 2026) : playlists éditoriales/non possédées ne
+      // renvoient pas leurs pistes. On lit alors par CONTEXTE (+ shuffle si
+      // « aléatoire »), et on avance d'une piste à chaque série.
+      queues[phaseType] = {
+        tracks: [], pos: -1, contextOnly: true,
+        contextUri, started: false, order,
+      };
+    } else {
+      queues[phaseType] = null;
+    }
+  }
+
+  async function playContext(contextUri) {
+    return await api("/me/player/play", {
+      method: "PUT", query: deviceQuery(), body: { context_uri: contextUri },
+    });
+  }
+
+  async function setShuffle(state) {
+    const query = { state: !!state };
+    if (currentDeviceId) query.device_id = currentDeviceId;
+    return await api("/me/player/shuffle", { method: "PUT", query });
   }
 
   /**
    * Avance la file de la phase et joue la piste suivante.
-   * Boucle si épuisée. Renvoie l'objet piste joué, ou null si pas de file.
+   * Boucle si épuisée. Renvoie l'objet piste joué (ou null si lecture par
+   * contexte — l'affichage se met à jour via le sondage « lecture en cours »).
    */
   async function playNextInPhase(phaseType) {
     const q = queues[phaseType];
-    if (!q || !q.tracks.length) return { played: null };
-    q.pos = (q.pos + 1) % q.tracks.length;
-    const track = q.tracks[q.pos];
-    const res = await playUris([track.uri]);
-    return { played: track, res };
+    if (!q) return { played: null };
+
+    // Cas normal : file de pistes lisible -> lecture déterministe par URI.
+    if (!q.contextOnly && q.tracks.length) {
+      q.pos = (q.pos + 1) % q.tracks.length;
+      const track = q.tracks[q.pos];
+      const res = await playUris([track.uri]);
+      return { played: track, res };
+    }
+
+    // Repli contexte : 1re série -> on lance la playlist (shuffle éventuel) ;
+    // séries suivantes -> on passe à la piste suivante du contexte.
+    if (q.contextOnly && q.contextUri) {
+      if (!q.started) {
+        q.started = true;
+        await setShuffle(q.order === "random");
+        const res = await playContext(q.contextUri);
+        return { played: null, res };
+      }
+      const res = await nextTrack();
+      return { played: null, res };
+    }
+    return { played: null };
   }
 
   function resetQueues() {
-    Object.keys(queues).forEach(k => { if (queues[k]) queues[k].pos = -1; });
+    Object.keys(queues).forEach(k => {
+      if (queues[k]) { queues[k].pos = -1; if ("started" in queues[k]) queues[k].started = false; }
+    });
   }
 
   return {
