@@ -140,6 +140,11 @@ function wireLandingScreen() {
   const historyBack = document.getElementById('history-back-btn');
   if (historyBack) historyBack.addEventListener('click', backToLandingFromHistory);
 
+  // Language toggle on the history screen so the athlete can switch
+  // without bouncing back to landing.
+  const historyLang = document.getElementById('history-lang-toggle');
+  if (historyLang) historyLang.addEventListener('click', toggleLanguage);
+
   const landingLang = document.getElementById('landing-lang-toggle');
   if (landingLang) landingLang.addEventListener('click', toggleLanguage);
 
@@ -323,6 +328,10 @@ function toggleLanguage() {
   // applyTranslations only walks [data-i18n] nodes, so the status would
   // stay frozen in the previous language without this nudge.
   paintSendStatus();
+  // The history list items are also rendered dynamically — re-paint both
+  // the card on the result screen and the dedicated history screen so
+  // weekdays, status badges, Envoyer button etc. follow the language.
+  renderHistory();
   if (lastEvaluation && !document.getElementById('screen-result').hidden) {
     renderResult(lastEvaluation);
   }
@@ -331,10 +340,10 @@ function toggleLanguage() {
 
 function refreshLangButton() {
   const code = state.lang.toUpperCase();
-  const headerEl = document.getElementById('lang-code');
-  if (headerEl) headerEl.textContent = code;
-  const landingEl = document.getElementById('landing-lang-code');
-  if (landingEl) landingEl.textContent = code;
+  ['lang-code', 'landing-lang-code', 'history-lang-code'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = code;
+  });
 }
 
 function refreshHeaderDate() {

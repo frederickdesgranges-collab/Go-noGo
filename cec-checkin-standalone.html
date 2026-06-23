@@ -4636,6 +4636,10 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
           <h2 class="history-screen-title" data-i18n="history.title">Historique</h2>
           <p class="history-screen-sub" data-i18n="history.sub">Tes derniers check-ins.</p>
         </div>
+        <button class="landing-lang history-lang" id="history-lang-toggle" type="button" aria-label="Toggle language">
+          <span class="flag" aria-hidden="true">🇨🇦</span>
+          <span class="lang-code" id="history-lang-code">FR</span>
+        </button>
         <span class="card-title-count" id="history-count-screen">0</span>
       </header>
       <ul class="history-list history-list-screen" id="history-list-screen" data-count-target="history-count-screen">
@@ -6810,7 +6814,7 @@ function renderPhotoMeta() {
   if (avatarEl) avatarEl.textContent = raw ? raw.charAt(0).toUpperCase() : '—';
   if (nameEl) nameEl.textContent = raw ? raw.toUpperCase() : '—';
   if (dateEl) {
-    const locale = lang === 'en' ? 'en-CA' : 'fr-CA';
+    const locale = lang === 'en' ? ['en-CA','en'] : ['fr-CA','fr'];
     dateEl.textContent = new Date().toLocaleDateString(locale, {
       day: 'numeric',
       month: 'short'
@@ -7044,7 +7048,7 @@ function renderProgression(evalResult) {
   // Tick labels: choose granularity from zoom
   // 1W: every day; 1M: every ~4 days; 3M: every week
   const tickEvery = zoom === '1W' ? 1 : zoom === '1M' ? 4 : 7;
-  const monthFmt = lang === 'en' ? 'en-CA' : 'fr-CA';
+  const monthFmt = lang === 'en' ? ['en-CA','en'] : ['fr-CA','fr'];
 
   let tickLabels = '';
   for (let i = 0; i < totalDays; i++) {
@@ -7236,7 +7240,7 @@ function wireProgressionDotTooltips(chartHost) {
     const track = target.dataset.track || '';
     const tone = target.dataset.tone || '';
     const dateObj = new Date(date + 'T00:00:00');
-    const locale = lang === 'en' ? 'en-CA' : 'fr-CA';
+    const locale = lang === 'en' ? ['en-CA','en'] : ['fr-CA','fr'];
     const dateLabel = dateObj.toLocaleDateString(locale, {
       weekday: 'short', day: 'numeric', month: 'short'
     }).toUpperCase().replace(/\.,?$/g, '');
@@ -7630,7 +7634,7 @@ function renderHistoryIntoList(list) {
     return;
   }
 
-  const locale = lang === 'en' ? 'en-CA' : 'fr-CA';
+  const locale = lang === 'en' ? ['en-CA','en'] : ['fr-CA','fr'];
   list.innerHTML = entries.map(([entryKey, entry]) => {
     // Date portion — prefer the entry's stored dateKey field; otherwise
     // take the first 10 chars of the key, which works for both ISO
@@ -7988,6 +7992,11 @@ function wireLandingScreen() {
   const historyBack = document.getElementById('history-back-btn');
   if (historyBack) historyBack.addEventListener('click', backToLandingFromHistory);
 
+  // Language toggle on the history screen so the athlete can switch
+  // without bouncing back to landing.
+  const historyLang = document.getElementById('history-lang-toggle');
+  if (historyLang) historyLang.addEventListener('click', toggleLanguage);
+
   const landingLang = document.getElementById('landing-lang-toggle');
   if (landingLang) landingLang.addEventListener('click', toggleLanguage);
 
@@ -8171,6 +8180,10 @@ function toggleLanguage() {
   // applyTranslations only walks [data-i18n] nodes, so the status would
   // stay frozen in the previous language without this nudge.
   paintSendStatus();
+  // The history list items are also rendered dynamically — re-paint both
+  // the card on the result screen and the dedicated history screen so
+  // weekdays, status badges, Envoyer button etc. follow the language.
+  renderHistory();
   if (lastEvaluation && !document.getElementById('screen-result').hidden) {
     renderResult(lastEvaluation);
   }
@@ -8179,10 +8192,10 @@ function toggleLanguage() {
 
 function refreshLangButton() {
   const code = state.lang.toUpperCase();
-  const headerEl = document.getElementById('lang-code');
-  if (headerEl) headerEl.textContent = code;
-  const landingEl = document.getElementById('landing-lang-code');
-  if (landingEl) landingEl.textContent = code;
+  ['lang-code', 'landing-lang-code', 'history-lang-code'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = code;
+  });
 }
 
 function refreshHeaderDate() {

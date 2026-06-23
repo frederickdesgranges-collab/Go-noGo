@@ -129,7 +129,7 @@ function renderPhotoMeta() {
   if (avatarEl) avatarEl.textContent = raw ? raw.charAt(0).toUpperCase() : '—';
   if (nameEl) nameEl.textContent = raw ? raw.toUpperCase() : '—';
   if (dateEl) {
-    const locale = lang === 'en' ? 'en-CA' : 'fr-CA';
+    const locale = lang === 'en' ? ['en-CA','en'] : ['fr-CA','fr'];
     dateEl.textContent = new Date().toLocaleDateString(locale, {
       day: 'numeric',
       month: 'short'
@@ -363,7 +363,7 @@ function renderProgression(evalResult) {
   // Tick labels: choose granularity from zoom
   // 1W: every day; 1M: every ~4 days; 3M: every week
   const tickEvery = zoom === '1W' ? 1 : zoom === '1M' ? 4 : 7;
-  const monthFmt = lang === 'en' ? 'en-CA' : 'fr-CA';
+  const monthFmt = lang === 'en' ? ['en-CA','en'] : ['fr-CA','fr'];
 
   let tickLabels = '';
   for (let i = 0; i < totalDays; i++) {
@@ -555,7 +555,7 @@ function wireProgressionDotTooltips(chartHost) {
     const track = target.dataset.track || '';
     const tone = target.dataset.tone || '';
     const dateObj = new Date(date + 'T00:00:00');
-    const locale = lang === 'en' ? 'en-CA' : 'fr-CA';
+    const locale = lang === 'en' ? ['en-CA','en'] : ['fr-CA','fr'];
     const dateLabel = dateObj.toLocaleDateString(locale, {
       weekday: 'short', day: 'numeric', month: 'short'
     }).toUpperCase().replace(/\.,?$/g, '');
@@ -949,7 +949,7 @@ function renderHistoryIntoList(list) {
     return;
   }
 
-  const locale = lang === 'en' ? 'en-CA' : 'fr-CA';
+  const locale = lang === 'en' ? ['en-CA','en'] : ['fr-CA','fr'];
   list.innerHTML = entries.map(([entryKey, entry]) => {
     // Date portion — prefer the entry's stored dateKey field; otherwise
     // take the first 10 chars of the key, which works for both ISO
