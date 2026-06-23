@@ -101,6 +101,9 @@
       series: clampInt($("#series-count").value, 1, 99, 1),
       order: ($('input[name="track-order"]:checked') || {}).value || "sequential",
       beeps: $("#beeps-enabled").checked,
+      // Saut d'intro : nombre de secondes, ou 0 si désactivé.
+      skipIntroSec: $("#skip-intro-enabled").checked
+        ? clampInt($("#skip-intro-sec").value, 1, 180, 15) : 0,
     };
   }
 
@@ -124,6 +127,8 @@
     });
     $("#series-count").value = cfg.series || 8;
     $("#beeps-enabled").checked = cfg.beeps !== false;
+    $("#skip-intro-enabled").checked = (cfg.skipIntroSec || 0) > 0;
+    if (cfg.skipIntroSec) $("#skip-intro-sec").value = cfg.skipIntroSec;
     const orderEl = $(`input[name="track-order"][value="${cfg.order || "sequential"}"]`);
     if (orderEl) orderEl.checked = true;
     updateSummary();
@@ -273,6 +278,7 @@
 
     Beeper.unlock();            // autorise l'audio (geste utilisateur)
     Beeper.setEnabled(cfg.beeps);
+    SpotifyPlayer.setSeekStart(cfg.skipIntroSec); // saut d'intro des chansons
     TimerEngine.build(cfg);
 
     // Prépare les files de pistes par phase si Spotify est prêt.

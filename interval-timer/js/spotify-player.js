@@ -14,6 +14,7 @@
 const SpotifyPlayer = (() => {
 
   let currentDeviceId = null;
+  let seekStartMs = 0; // décalage de départ des chansons (saut d'intro), en ms
 
   /* Caches : URI de playlist -> tableau de pistes [{uri,name,artist}] */
   const trackCache = {};
@@ -262,6 +263,19 @@ const SpotifyPlayer = (() => {
     });
   }
 
+  /** Décalage de départ des chansons (saut d'intro). sec = 0 -> désactivé. */
+  function setSeekStart(sec) { seekStartMs = Math.max(0, Math.round((sec || 0) * 1000)); }
+
+  /** Avance la lecture à la position de départ choisie (après un petit délai
+   *  pour laisser la piste démarrer avant de chercher la position). */
+  async function applySeekStart() {
+    if (!seekStartMs) return;
+    await new Promise(r => setTimeout(r, 500));
+    const query = { position_ms: seekStartMs };
+    if (currentDeviceId) query.device_id = currentDeviceId;
+    return await api("/me/player/seek", { method: "PUT", query });
+  }
+
   async function setShuffle(state) {
     const query = { state: !!state };
     if (currentDeviceId) query.device_id = currentDeviceId;
@@ -282,19 +296,22 @@ const SpotifyPlayer = (() => {
       q.pos = (q.pos + 1) % q.tracks.length;
       const track = q.tracks[q.pos];
       const res = await playUris([track.uri]);
+      if (res.ok) applySeekStart();
       return { played: track, res };
     }
 
     // Repli contexte : 1re série -> on lance la playlist (shuffle éventuel) ;
     // séries suivantes -> on passe à la piste suivante du contexte.
     if (q.contextOnly && q.contextUri) {
+      let res;
       if (!q.started) {
         q.started = true;
         await setShuffle(q.order === "random");
-        const res = await playContext(q.contextUri);
-        return { played: null, res };
+        res = await playContext(q.contextUri);
+      } else {
+        res = await nextTrack();
       }
-      const res = await nextTrack();
+      if (res.ok) applySeekStart();
       return { played: null, res };
     }
     return { played: null };
@@ -310,6 +327,6 @@ const SpotifyPlayer = (() => {
     api, getProfile, getDevices, setDevice, getDevice, transferTo,
     pause, resume, nextTrack, previousTrack, playUris, setVolume, currentlyPlaying,
     getMyPlaylists, getPlaylistTracks, parsePlaylistId,
-    prepareQueue, playNextInPhase, resetQueues,
+    prepareQueue, playNextInPhase, resetQueues, setSeekStart,
   };
 })();

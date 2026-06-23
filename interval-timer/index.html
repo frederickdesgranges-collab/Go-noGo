@@ -191,6 +191,13 @@
         <input type="checkbox" id="beeps-enabled" checked />
         <span>Bips de décompte (3 dernières secondes + changement de phase)</span>
       </label>
+      <label class="toggle big" style="margin-top:12px">
+        <input type="checkbox" id="skip-intro-enabled" />
+        <span>Démarrer les chansons à
+          <input type="number" id="skip-intro-sec" min="1" max="180" value="15"
+                 inputmode="numeric" style="width:64px; text-align:center" />
+          s du début (saute l'intro)</span>
+      </label>
     </section>
 
     <!-- ----------------------------------------------------------- -->
