@@ -160,6 +160,7 @@ html, body {
 }
 
 .run-top {
+  flex: 0 0 auto;            /* taille fixe : ne disparaît jamais */
   display: flex; justify-content: space-between; align-items: center;
   padding: 14px 20px; font-weight: 700;
   font-size: clamp(1rem, 4vw, 1.8rem);
@@ -167,22 +168,26 @@ html, body {
 }
 .run-phase-name { text-transform: uppercase; letter-spacing: .05em; }
 
-/* LE CHIFFRE GÉANT : occupe tout l'espace, le plus gros possible. */
+/* LE CHIFFRE GÉANT : prend l'espace RESTANT, sans jamais pousser les
+   boutons hors de l'écran. min-height:0 + overflow:hidden garantissent
+   que les contrôles et la barre musique restent toujours visibles. */
 .run-countdown {
-  flex: 1;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
   display: flex; align-items: center; justify-content: center;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   line-height: 1;
-  /* Taille basée sur le viewport : énorme, sans déborder.
-     « MM:SS » fait ~2,5em de large → on plafonne pour rester dans la largeur. */
-  font-size: min(36vw, 60vh);
+  /* Plafonné par la hauteur dispo (vh) ET la largeur (vw). */
+  font-size: min(34vw, 50vh);
   letter-spacing: -0.02em;
   padding: 0 2vw;
   text-align: center;
 }
 
 .run-controls {
+  flex: 0 0 auto;            /* taille fixe : toujours accessible */
   display: flex; justify-content: center; align-items: center; gap: 16px;
   padding: 10px 16px 16px;
 }
@@ -199,6 +204,7 @@ html, body {
 
 /* Barre musique en bas */
 .run-music {
+  flex: 0 0 auto;            /* taille fixe : toujours visible */
   display: flex; align-items: center; gap: 14px;
   padding: 10px 18px calc(14px + env(safe-area-inset-bottom));
   background: rgba(0,0,0,.22);
@@ -216,8 +222,9 @@ html, body {
 
 /* ---- Mode PAYSAGE : on maximise le chiffre, contrôles compacts ---- */
 @media (orientation: landscape) {
-  .run-top { padding: 8px 22px; }
-  .run-countdown { font-size: min(36vw, 80vh); }
+  .run-top { padding: 6px 22px; }
+  /* Plafonné par la hauteur pour laisser la place aux boutons. */
+  .run-countdown { font-size: min(34vw, 52vh); }
   .run-controls { padding: 6px 16px 8px; gap: 22px; }
   .ctrl { width: 56px; height: 56px; }
   .ctrl-main { width: 72px; height: 72px; }
@@ -225,10 +232,15 @@ html, body {
   .track-arrow { width: 46px; height: 46px; }
 }
 
-/* Hauteur réduite (téléphone en paysage) : on resserre encore. */
+/* Hauteur réduite (téléphone en paysage) : on resserre encore et on
+   réduit le chiffre pour garantir l'accès aux boutons. */
 @media (orientation: landscape) and (max-height: 480px) {
+  .run-top { padding: 4px 18px; font-size: clamp(.85rem, 3.2vw, 1.2rem); }
+  .run-countdown { font-size: min(30vw, 46vh); }
   .run-controls { gap: 14px; padding: 4px 12px; }
-  .ctrl { width: 48px; height: 48px; font-size: 1.3rem; }
-  .ctrl-main { width: 60px; height: 60px; font-size: 1.7rem; }
-  .track-arrow { width: 42px; height: 42px; }
+  .ctrl { width: 46px; height: 46px; font-size: 1.2rem; }
+  .ctrl-main { width: 56px; height: 56px; font-size: 1.6rem; }
+  .run-music { padding: 4px 16px calc(4px + env(safe-area-inset-bottom)); }
+  .track-arrow { width: 40px; height: 40px; }
+  .track-title { font-size: .9rem; }
 }
