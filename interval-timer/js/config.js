@@ -8,7 +8,7 @@
  *  pour un client PKCE. Il n'y a AUCUN « client secret » à mettre ici.
  * ===================================================================== */
 
-const SPOTIFY_CLIENT_ID = "COLLE_TON_CLIENT_ID_ICI";
+const SPOTIFY_CLIENT_ID = "c5f00c09e77048af83ae8381509facbf";
 
 
 /* ---------------------------------------------------------------------
