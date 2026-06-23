@@ -17,6 +17,11 @@
 
 * { box-sizing: border-box; }
 
+/* IMPORTANT : garantit que l'attribut HTML `hidden` masque vraiment un
+   élément, même si une règle plus bas lui donne `display: flex`.
+   Sans ceci, l'écran de séance resterait affiché par-dessus le menu. */
+[hidden] { display: none !important; }
+
 html, body {
   margin: 0;
   padding: 0;
