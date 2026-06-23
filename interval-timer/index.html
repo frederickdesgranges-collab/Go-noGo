@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <!-- viewport-fit=cover + user-scalable=no : plein écran propre sur téléphone -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#0c1018" />
+  <meta name="description" content="Minuteur d'intervalles d'entraînement avec contrôle de la musique Spotify" />
+  <title>Minuteur d'intervalles · Spotify</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ============================================================= -->
+  <!--  ÉCRAN DE CONFIGURATION (visible en portrait / hors séance)   -->
+  <!-- ============================================================= -->
+  <main id="config-screen" class="config-screen">
+
+    <header class="app-header">
+      <h1>Minuteur d'intervalles</h1>
+      <p class="subtitle">Entraînement + musique Spotify</p>
+    </header>
+
+    <!-- Bandeau de message global (erreurs / infos en français) -->
+    <div id="banner" class="banner" hidden>
+      <span id="banner-text"></span>
+      <button id="banner-close" class="banner-close" aria-label="Fermer">×</button>
+    </div>
+
+    <!-- ----------------------------------------------------------- -->
+    <!--  SECTION : Connexion Spotify                                -->
+    <!-- ----------------------------------------------------------- -->
+    <section class="card">
+      <h2>1 · Spotify</h2>
+
+      <div id="spotify-disconnected">
+        <p class="hint">Connecte ton compte Spotify Premium pour contrôler la musique.
+          Le minuteur fonctionne aussi <strong>sans</strong> Spotify.</p>
+        <button id="btn-connect" class="btn btn-spotify">Connecter Spotify</button>
+      </div>
+
+      <div id="spotify-connected" hidden>
+        <p class="status-ok">✓ Connecté <span id="spotify-user-name"></span></p>
+
+        <label class="field">
+          <span>Appareil de lecture</span>
+          <div class="row">
+            <select id="device-select" class="select"></select>
+            <button id="btn-refresh-devices" class="btn btn-small" title="Rafraîchir la liste">↻</button>
+          </div>
+        </label>
+        <p class="hint">
+          Si la liste est vide ou que la lecture ne démarre pas :
+          ouvre l'app Spotify, lance une chanson 2 secondes, puis appuie sur ↻.
+        </p>
+        <button id="btn-wake-spotify" class="btn btn-secondary">Activer cet appareil (réveiller Spotify)</button>
+
+        <label class="field" style="margin-top:1rem">
+          <span>Volume Spotify</span>
+          <input id="volume-slider" class="slider" type="range" min="0" max="100" value="60" />
+        </label>
+
+        <button id="btn-disconnect" class="btn btn-text">Se déconnecter</button>
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------------------- -->
+    <!--  SECTION : Phases & durées                                  -->
+    <!-- ----------------------------------------------------------- -->
+    <section class="card">
+      <h2>2 · Phases</h2>
+
+      <!-- ÉCHAUFFEMENT (optionnel) -->
+      <div class="phase-block" data-phase="warmup">
+        <div class="phase-head">
+          <label class="toggle">
+            <input type="checkbox" id="warmup-enabled" />
+            <span>Échauffement</span>
+          </label>
+          <span class="swatch-wrap">
+            <input type="color" class="color-input" id="warmup-color" />
+          </span>
+        </div>
+        <div class="duration-row">
+          <label>min <input type="number" id="warmup-min" min="0" max="99" value="3" inputmode="numeric" /></label>
+          <label>sec <input type="number" id="warmup-sec" min="0" max="59" value="0" inputmode="numeric" /></label>
+        </div>
+      </div>
+
+      <!-- TRAVAIL -->
+      <div class="phase-block" data-phase="work">
+        <div class="phase-head">
+          <span class="phase-name">Travail</span>
+          <span class="swatch-wrap">
+            <input type="color" class="color-input" id="work-color" />
+          </span>
+        </div>
+        <div class="duration-row">
+          <label>min <input type="number" id="work-min" min="0" max="99" value="0" inputmode="numeric" /></label>
+          <label>sec <input type="number" id="work-sec" min="0" max="59" value="20" inputmode="numeric" /></label>
+        </div>
+      </div>
+
+      <!-- REPOS -->
+      <div class="phase-block" data-phase="rest">
+        <div class="phase-head">
+          <span class="phase-name">Repos</span>
+          <span class="swatch-wrap">
+            <input type="color" class="color-input" id="rest-color" />
+          </span>
+        </div>
+        <div class="duration-row">
+          <label>min <input type="number" id="rest-min" min="0" max="99" value="0" inputmode="numeric" /></label>
+          <label>sec <input type="number" id="rest-sec" min="0" max="59" value="10" inputmode="numeric" /></label>
+        </div>
+      </div>
+
+      <!-- NOMBRE DE SÉRIES -->
+      <div class="phase-block">
+        <div class="phase-head">
+          <span class="phase-name">Nombre de séries</span>
+          <input type="number" id="series-count" class="series-input" min="1" max="99" value="8" inputmode="numeric" />
+        </div>
+      </div>
+
+      <!-- RETOUR AU CALME (optionnel) -->
+      <div class="phase-block" data-phase="cooldown">
+        <div class="phase-head">
+          <label class="toggle">
+            <input type="checkbox" id="cooldown-enabled" />
+            <span>Retour au calme</span>
+          </label>
+          <span class="swatch-wrap">
+            <input type="color" class="color-input" id="cooldown-color" />
+          </span>
+        </div>
+        <div class="duration-row">
+          <label>min <input type="number" id="cooldown-min" min="0" max="99" value="2" inputmode="numeric" /></label>
+          <label>sec <input type="number" id="cooldown-sec" min="0" max="59" value="0" inputmode="numeric" /></label>
+        </div>
+      </div>
+
+      <p class="hint" id="session-summary"></p>
+    </section>
+
+    <!-- ----------------------------------------------------------- -->
+    <!--  SECTION : Musique par phase                                -->
+    <!-- ----------------------------------------------------------- -->
+    <section class="card">
+      <h2>3 · Musique par phase</h2>
+      <p class="hint">Choisis une playlist par type de phase. Tu peux sélectionner une de
+        tes playlists ou coller un lien/URI Spotify.</p>
+
+      <div class="music-order">
+        <span>Ordre des chansons :</span>
+        <label><input type="radio" name="track-order" value="sequential" checked /> Séquentiel</label>
+        <label><input type="radio" name="track-order" value="random" /> Aléatoire</label>
+      </div>
+
+      <!-- Un bloc d'assignation par phase, généré ci-dessous -->
+      <div class="playlist-assign" data-phase="warmup">
+        <span class="pl-label">Échauffement</span>
+        <select class="select playlist-select" data-phase="warmup"></select>
+        <input class="input playlist-paste" data-phase="warmup" placeholder="… ou coller lien/URI" />
+      </div>
+      <div class="playlist-assign" data-phase="work">
+        <span class="pl-label">Travail</span>
+        <select class="select playlist-select" data-phase="work"></select>
+        <input class="input playlist-paste" data-phase="work" placeholder="… ou coller lien/URI" />
+      </div>
+      <div class="playlist-assign" data-phase="rest">
+        <span class="pl-label">Repos</span>
+        <select class="select playlist-select" data-phase="rest"></select>
+        <input class="input playlist-paste" data-phase="rest" placeholder="… ou coller lien/URI" />
+      </div>
+      <div class="playlist-assign" data-phase="cooldown">
+        <span class="pl-label">Retour au calme</span>
+        <select class="select playlist-select" data-phase="cooldown"></select>
+        <input class="input playlist-paste" data-phase="cooldown" placeholder="… ou coller lien/URI" />
+      </div>
+
+      <button id="btn-reload-playlists" class="btn btn-small btn-secondary">↻ Recharger mes playlists</button>
+    </section>
+
+    <!-- ----------------------------------------------------------- -->
+    <!--  SECTION : Sons & options                                   -->
+    <!-- ----------------------------------------------------------- -->
+    <section class="card">
+      <h2>4 · Options</h2>
+      <label class="toggle big">
+        <input type="checkbox" id="beeps-enabled" checked />
+        <span>Bips de décompte (3 dernières secondes + changement de phase)</span>
+      </label>
+    </section>
+
+    <!-- ----------------------------------------------------------- -->
+    <!--  SECTION : Préréglages                                      -->
+    <!-- ----------------------------------------------------------- -->
+    <section class="card">
+      <h2>5 · Préréglages</h2>
+      <div class="row">
+        <select id="preset-select" class="select"></select>
+        <button id="btn-load-preset" class="btn btn-small">Charger</button>
+        <button id="btn-delete-preset" class="btn btn-small btn-danger">Suppr.</button>
+      </div>
+      <div class="row" style="margin-top:.5rem">
+        <input id="preset-name" class="input" placeholder="Nom du préréglage" />
+        <button id="btn-save-preset" class="btn btn-small">Enregistrer</button>
+      </div>
+    </section>
+
+    <!-- BOUTON DÉMARRER -->
+    <button id="btn-start" class="btn btn-primary btn-start">▶ Démarrer la séance</button>
+    <p class="rotate-hint">Tourne ton téléphone en mode paysage pendant la séance 🔄</p>
+
+  </main>
+
+
+  <!-- ============================================================= -->
+  <!--  ÉCRAN DE SÉANCE (plein écran, couleur par phase)             -->
+  <!-- ============================================================= -->
+  <section id="run-screen" class="run-screen" hidden>
+
+    <!-- Bandeau haut : phase + série -->
+    <div class="run-top">
+      <span id="run-phase-name" class="run-phase-name">Travail</span>
+      <span id="run-series" class="run-series">Série 1 / 8</span>
+    </div>
+
+    <!-- Le chiffre géant -->
+    <div id="run-countdown" class="run-countdown">00:20</div>
+
+    <!-- Barre de contrôle -->
+    <div class="run-controls">
+      <button id="btn-reset" class="ctrl" title="Réinitialiser">⟲</button>
+      <button id="btn-pause" class="ctrl ctrl-main" title="Pause / Reprendre">⏸</button>
+      <button id="btn-skip" class="ctrl" title="Passer la phase">⏭</button>
+      <button id="btn-exit" class="ctrl" title="Quitter">✕</button>
+    </div>
+
+    <!-- Barre du bas : chanson en cours + flèches -->
+    <div class="run-music">
+      <button id="btn-prev-track" class="track-arrow" title="Chanson précédente">◀</button>
+      <div class="track-info">
+        <span id="track-title" class="track-title">—</span>
+        <span id="track-artist" class="track-artist"></span>
+      </div>
+      <button id="btn-next-track" class="track-arrow" title="Chanson suivante">▶</button>
+    </div>
+
+  </section>
+
+  <!-- Scripts (ordre = dépendances). Pas de build, pas de modules. -->
+  <script src="js/config.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/spotify-auth.js"></script>
+  <script src="js/spotify-player.js"></script>
+  <script src="js/timer-engine.js"></script>
+  <script src="js/presets.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
