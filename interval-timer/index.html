@@ -65,10 +65,30 @@
     </section>
 
     <!-- ----------------------------------------------------------- -->
+    <!--  SECTION : Préréglages                                      -->
+    <!-- ----------------------------------------------------------- -->
+    <section class="card">
+      <h2>2 · Préréglages</h2>
+      <p class="hint">Ta configuration (durées, séries, couleurs, options ET playlists)
+        est <strong>mémorisée automatiquement</strong> : tu la retrouves telle quelle en
+        rouvrant l'app. Les préréglages nommés servent à garder <strong>plusieurs</strong>
+        protocoles différents — charge-en un pour tout remplir d'un coup.</p>
+      <div class="row">
+        <select id="preset-select" class="select"></select>
+        <button id="btn-load-preset" class="btn btn-small">Charger</button>
+        <button id="btn-delete-preset" class="btn btn-small btn-danger">Suppr.</button>
+      </div>
+      <div class="row" style="margin-top:.5rem">
+        <input id="preset-name" class="input" placeholder="Nom du préréglage" />
+        <button id="btn-save-preset" class="btn btn-small">Enregistrer</button>
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------------------- -->
     <!--  SECTION : Phases & durées                                  -->
     <!-- ----------------------------------------------------------- -->
     <section class="card">
-      <h2>2 · Phases</h2>
+      <h2>3 · Phases</h2>
 
       <!-- ÉCHAUFFEMENT (optionnel) -->
       <div class="phase-block" data-phase="warmup">
@@ -147,7 +167,7 @@
     <!--  SECTION : Musique par phase                                -->
     <!-- ----------------------------------------------------------- -->
     <section class="card">
-      <h2>3 · Musique par phase</h2>
+      <h2>4 · Musique par phase</h2>
       <p class="hint">Choisis une playlist par type de phase. Tu peux sélectionner une de
         tes playlists ou coller un lien/URI Spotify.</p>
 
@@ -186,7 +206,7 @@
     <!--  SECTION : Sons & options                                   -->
     <!-- ----------------------------------------------------------- -->
     <section class="card">
-      <h2>4 · Options</h2>
+      <h2>5 · Options</h2>
       <label class="toggle big">
         <input type="checkbox" id="beeps-enabled" checked />
         <span>Bips de décompte (3 dernières secondes + changement de phase)</span>
@@ -198,22 +218,6 @@
                  inputmode="numeric" style="width:64px; text-align:center" />
           s du début (saute l'intro)</span>
       </label>
-    </section>
-
-    <!-- ----------------------------------------------------------- -->
-    <!--  SECTION : Préréglages                                      -->
-    <!-- ----------------------------------------------------------- -->
-    <section class="card">
-      <h2>5 · Préréglages</h2>
-      <div class="row">
-        <select id="preset-select" class="select"></select>
-        <button id="btn-load-preset" class="btn btn-small">Charger</button>
-        <button id="btn-delete-preset" class="btn btn-small btn-danger">Suppr.</button>
-      </div>
-      <div class="row" style="margin-top:.5rem">
-        <input id="preset-name" class="input" placeholder="Nom du préréglage" />
-        <button id="btn-save-preset" class="btn btn-small">Enregistrer</button>
-      </div>
     </section>
 
     <!-- BOUTON DÉMARRER -->

@@ -5,6 +5,7 @@
 
 const Presets = (() => {
   const LS_KEY = "interval_timer_presets";
+  const LS_LAST = "interval_timer_last"; // dernière config utilisée (auto)
 
   function all() {
     try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }
@@ -30,5 +31,14 @@ const Presets = (() => {
     localStorage.setItem(LS_KEY, JSON.stringify(data));
   }
 
-  return { names, save, load, remove };
+  /* Sauvegarde/restauration AUTOMATIQUE de la dernière configuration,
+     pour ne rien avoir à reconfigurer en rouvrant l'app (playlists comprises). */
+  function saveLast(config) {
+    try { localStorage.setItem(LS_LAST, JSON.stringify(config)); } catch {}
+  }
+  function loadLast() {
+    try { return JSON.parse(localStorage.getItem(LS_LAST)); } catch { return null; }
+  }
+
+  return { names, save, load, remove, saveLast, loadLast };
 })();
