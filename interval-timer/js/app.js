@@ -17,6 +17,17 @@
   let nowPlayingTimer = null;
   let userPlaylists = [];     // [{uri,id,name}]
   let textColorOverride = {}; // ex: { work: "#000" } sinon auto
+  let pendingPlaylists = null; // playlists d'un préréglage à (ré)appliquer
+  let persistTimer = null;     // anti-rebond pour la sauvegarde auto
+
+  /* Sauvegarde automatique de la configuration courante (anti-rebond). */
+  function persistLast() {
+    try { Presets.saveLast(getConfig()); } catch {}
+  }
+  function persistSoon() {
+    clearTimeout(persistTimer);
+    persistTimer = setTimeout(persistLast, 400);
+  }
 
   /* =================================================================
    *  BANNIÈRE DE MESSAGES (erreurs / infos en français)
@@ -115,16 +126,14 @@
       $(`#${p}-sec`).value = cfg[p].sec;
       $(`#${p}-color`).value = cfg[p].color || DEFAULT_COLORS[p];
       textColorOverride[p] = cfg[p].textOverride || null;
-      // Playlist : on remet la valeur collée si présente.
-      const paste = $(`.playlist-paste[data-phase="${p}"]`);
-      const sel = $(`.playlist-select[data-phase="${p}"]`);
-      if (cfg[p].playlist) {
-        // Si la playlist correspond à une des miennes, on la sélectionne.
-        const match = userPlaylists.find((pl) => pl.uri === cfg[p].playlist || pl.id === SpotifyPlayer.parsePlaylistId(cfg[p].playlist));
-        if (match) { sel.value = match.uri; paste.value = ""; }
-        else { sel.value = ""; paste.value = cfg[p].playlist; }
-      }
     });
+    // Playlists : on mémorise les références voulues et on les applique.
+    // (Réappliquées aussi après le chargement des playlists Spotify, qui est
+    //  asynchrone — sinon la sélection serait perdue.)
+    pendingPlaylists = {};
+    PHASES.forEach((p) => { if (cfg[p]) pendingPlaylists[p] = cfg[p].playlist || ""; });
+    applyPendingPlaylists();
+
     $("#series-count").value = cfg.series || 8;
     $("#beeps-enabled").checked = cfg.beeps !== false;
     $("#skip-intro-enabled").checked = (cfg.skipIntroSec || 0) > 0;
@@ -132,6 +141,23 @@
     const orderEl = $(`input[name="track-order"][value="${cfg.order || "sequential"}"]`);
     if (orderEl) orderEl.checked = true;
     updateSummary();
+  }
+
+  /** Applique les playlists mémorisées (pendingPlaylists) aux champs :
+   *  sélectionne la playlist dans la liste si elle en fait partie,
+   *  sinon remet la référence (lien/URI) dans le champ « coller ». */
+  function applyPendingPlaylists() {
+    if (!pendingPlaylists) return;
+    PHASES.forEach((p) => {
+      const ref = pendingPlaylists[p];
+      if (!ref) return;
+      const sel = $(`.playlist-select[data-phase="${p}"]`);
+      const paste = $(`.playlist-paste[data-phase="${p}"]`);
+      const match = userPlaylists.find((pl) =>
+        pl.uri === ref || pl.id === SpotifyPlayer.parsePlaylistId(ref));
+      if (match) { sel.value = match.uri; paste.value = ""; }
+      else { sel.value = ""; paste.value = ref; }
+    });
   }
 
   /** Référence de playlist effective d'une phase (collée OU sélectionnée OU défaut). */
@@ -415,6 +441,9 @@
       });
       if (current) sel.value = current;
     });
+    // Réapplique une éventuelle sélection issue d'un préréglage / dernière config
+    // (les playlists arrivent de façon asynchrone après le chargement de la page).
+    applyPendingPlaylists();
   }
 
   /* Boutons Spotify. */
@@ -493,7 +522,7 @@
   $("#btn-load-preset").addEventListener("click", () => {
     const name = $("#preset-select").value;
     const cfg = Presets.load(name);
-    if (cfg) { setConfig(cfg); banner("Préréglage chargé : " + name, "info"); }
+    if (cfg) { setConfig(cfg); persistLast(); banner("Préréglage chargé : " + name, "info"); }
   });
   $("#btn-delete-preset").addEventListener("click", () => {
     const name = $("#preset-select").value;
@@ -514,6 +543,18 @@
     $(s).addEventListener("input", updateSummary)
   );
 
+  // Sauvegarde automatique de TOUTE modification de la config (durées,
+  // séries, couleurs, options, playlists…) pour la retrouver à la réouverture.
+  $("#config-screen").addEventListener("input", persistSoon);
+  $("#config-screen").addEventListener("change", persistSoon);
+
+  // Si l'utilisateur change une playlist à la main, on oublie la sélection
+  // mémorisée (sinon elle serait réappliquée par-dessus son choix).
+  $$(".playlist-select, .playlist-paste").forEach((el) => {
+    el.addEventListener("change", () => { pendingPlaylists = null; });
+    el.addEventListener("input", () => { pendingPlaylists = null; });
+  });
+
   /* =================================================================
    *  INITIALISATION
    * ================================================================= */
@@ -532,6 +573,11 @@
     if (r.error) banner(r.error, "error", true);
 
     await refreshSpotifyUI();
+
+    // Restaure automatiquement la dernière configuration utilisée
+    // (durées, séries, couleurs, options ET playlists). Rien à reconfigurer.
+    const last = Presets.loadLast();
+    if (last) setConfig(last);
 
     // Avertit si le Client ID n'est pas configuré.
     if (SPOTIFY_CLIENT_ID === "COLLE_TON_CLIENT_ID_ICI") {
