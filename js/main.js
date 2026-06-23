@@ -347,7 +347,7 @@ function refreshLangButton() {
 }
 
 function refreshHeaderDate() {
-  const locale = state.lang === 'en' ? 'en-CA' : 'fr-CA';
+  const locale = state.lang === 'en' ? ['en-CA', 'en'] : ['fr-CA', 'fr'];
   const formatted = new Date().toLocaleDateString(locale, {
     weekday: 'long',
     day: 'numeric',
