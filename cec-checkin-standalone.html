@@ -1920,6 +1920,44 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 0 0 10px rgba(185, 28, 28, 0.5);
 }
 
+/* Volume / RPE prescription overlay (lead + combined, camp days) —
+   sits right under the Track pill. Compact, editorial, no chrome. */
+.camp-prescription {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.camp-prescription[hidden] {
+  display: none;
+}
+
+.camp-prescription-values {
+  font-family: var(--font-stack);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-deep-green);
+  font-variant-numeric: tabular-nums;
+}
+
+.camp-prescription-note {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.005em;
+}
+
+.camp-prescription-note[hidden] {
+  display: none;
+}
+
 /* Hero send block — primary CTA + refuse + status, all inside the
    readiness card so the action sits right under the score the athlete
    just read. Width is constrained so the buttons feel intentional in
@@ -4478,6 +4516,12 @@ body:has(.screen-landing:not([hidden])) .container { padding: 0; max-width: none
           <span class="hero-score-value" id="readiness-value">—</span>
           <span class="hero-score-suffix">/ 100</span>
           <span class="track-pill" id="hero-track-label" data-i18n="result.trackA">TRACK A</span>
+          <!-- Volume / RPE prescription (lead + combined, Jul 5–13 only).
+               Hidden by default; renderCampPrescription() unhides on match. -->
+          <div class="camp-prescription" id="camp-prescription" hidden>
+            <span class="camp-prescription-values" id="camp-prescription-values"></span>
+            <p class="camp-prescription-note" id="camp-prescription-note" hidden></p>
+          </div>
         </div>
 
         <div class="hero-text visible" id="hero-text-block">
@@ -4913,6 +4957,14 @@ const translations = {
         unitOf10: '/10'
       }
     },
+    camp: {
+      volume: 'VOLUME',
+      rpe: 'RPE',
+      noteBrixen: 'Voyage à Brixen',
+      noteMunich: 'Voyage à Munich',
+      noteSim1: 'Simulation 1',
+      noteSim2: 'Simulation 2'
+    },
     history: {
       title: 'Historique',
       sub: 'Tes derniers check-ins.',
@@ -5196,6 +5248,14 @@ const translations = {
         unitOf5: '/5',
         unitOf10: '/10'
       }
+    },
+    camp: {
+      volume: 'VOLUME',
+      rpe: 'RPE',
+      noteBrixen: 'Trip to Brixen',
+      noteMunich: 'Trip to Munich',
+      noteSim1: 'Simulation 1',
+      noteSim2: 'Simulation 2'
     },
     history: {
       title: 'History',
@@ -6303,6 +6363,95 @@ function getPlan(planKey) {
   return PLANS[planKey] || PLANS['top-shape'];
 }
 
+/* ============================================
+   Per-day Volume/RPE prescription overlay (lead + combined only).
+   Shown on the result page UNDER the Track pill, July 5 → July 13 2026.
+   ============================================ */
+
+const CAMP_PRESCRIPTIONS = {
+  '2026-07-05': {
+    notes: [],
+    bands: [
+      { profile: 'competing', track: 'A', volume: 30, rpe: '6/10' },
+      { profile: 'competing', track: 'B', volume: 30, rpe: '6/10' }
+    ]
+  },
+  '2026-07-06': {
+    notes: [],
+    bands: [
+      { profile: 'competing', track: 'A', volume: 60, rpe: '7/10' },
+      { profile: 'competing', track: 'B', volume: 40, rpe: '6/10' }
+    ]
+  },
+  // 2026-07-07: no prescription (intentional gap)
+  '2026-07-08': {
+    notes: [{ disciplines: ['lead', 'combined'], key: 'noteBrixen' }],
+    bands: [
+      { profile: 'competing', track: 'A', volume: 80, rpe: '7-8/10' },
+      { profile: 'competing', track: 'B', volume: 55, rpe: '6/10' }
+    ]
+  },
+  '2026-07-09': {
+    notes: [{ disciplines: ['lead', 'combined'], key: 'noteMunich' }],
+    bands: [
+      { profile: 'competing', track: 'A', volume: 45, rpe: '4/10' },
+      { profile: 'competing', track: 'B', volume: 25, rpe: '4/10' },
+      { profile: 'not-competing', track: 'A', volume: 70, rpe: '7/10' }
+      // not-competing Track B falls back to competing B
+    ]
+  },
+  // 2026-07-10: no prescription (intentional gap)
+  '2026-07-11': {
+    notes: [{ disciplines: ['lead', 'combined'], key: 'noteSim1' }],
+    bands: [
+      { profile: 'competing', track: 'A', volume: 70, rpe: '7/10' },
+      { profile: 'competing', track: 'B', volume: 45, rpe: '6/10' },
+      { profile: 'not-competing', track: 'A', volume: 80, rpe: '6/10' }
+    ]
+  },
+  '2026-07-12': {
+    notes: [{ disciplines: ['lead', 'combined'], key: 'noteSim2' }],
+    bands: [
+      { profile: 'competing', track: 'A', volume: 70, rpe: '7/10' },
+      { profile: 'competing', track: 'B', volume: 45, rpe: '6/10' },
+      { profile: 'not-competing', track: 'A', volume: 70, rpe: '7/10' }
+    ]
+  },
+  '2026-07-13': {
+    notes: [],
+    bands: [
+      { profile: 'competing', track: 'A', volume: 15, rpe: '5/10' },
+      { profile: 'competing', track: 'B', volume: 15, rpe: '5/10' }
+    ]
+  }
+};
+
+/**
+ * Return { volume, rpe, noteKey } for a given check-in, or null if no
+ * prescription applies. Boulder / speed athletes always get null. For
+ * lead + combined, the lookup falls back from 'not-competing' to
+ * 'competing' on the same track when no dedicated entry exists — so
+ * a not-competing athlete on Track B sees the competing B values
+ * unless an explicit not-competing B band is provided.
+ */
+function getCampPrescription(dateKey, discipline, profile, track) {
+  if (!['lead', 'combined'].includes(discipline)) return null;
+  if (track !== 'A' && track !== 'B') return null;
+  const day = CAMP_PRESCRIPTIONS[dateKey];
+  if (!day) return null;
+  let band = day.bands.find((b) => b.profile === profile && b.track === track);
+  if (!band && profile === 'not-competing') {
+    band = day.bands.find((b) => b.profile === 'competing' && b.track === track);
+  }
+  if (!band) return null;
+  const note = day.notes.find((n) => n.disciplines.includes(discipline));
+  return {
+    volume: band.volume,
+    rpe: band.rpe,
+    noteKey: note ? note.key : null
+  };
+}
+
 /**
  * Evaluate the current state and return a structured result.
  */
@@ -6556,6 +6705,9 @@ function renderResult(evalResult) {
   // Track pill
   const labelKey = evalResult.track === 'A' ? 'result.trackA' : 'result.trackB';
   document.getElementById('hero-track-label').textContent = t(lang, labelKey);
+
+  // Camp Volume/RPE prescription overlay (lead + combined, July 5-13).
+  renderCampPrescription(evalResult);
 
   // Messages
   document.getElementById('hero-message').textContent = t(lang, evalResult.messageKey);
@@ -7610,6 +7762,41 @@ function fireToast(message, kind) {
     toast.classList.remove('visible');
     setTimeout(() => { toast.hidden = true; }, 250);
   }, 3200);
+}
+
+/**
+ * Camp prescription overlay shown under the Track A/B pill on the hero.
+ * Only fires for lead + combined athletes during the Innsbruck dates that
+ * carry a prescription; otherwise the wrapper is hidden so the hero
+ * collapses cleanly for boulder/speed athletes (and for outside-camp days).
+ */
+function renderCampPrescription(evalResult) {
+  const wrap = document.getElementById('camp-prescription');
+  if (!wrap) return;
+  const dateKey = todayDateKey();
+  const presc = getCampPrescription(dateKey, state.discipline, state.profile, evalResult.track);
+  if (!presc) {
+    wrap.hidden = true;
+    return;
+  }
+  const lang = state.lang;
+  const valueEl = document.getElementById('camp-prescription-values');
+  const noteEl = document.getElementById('camp-prescription-note');
+  if (valueEl) {
+    const volumeLabel = t(lang, 'camp.volume');
+    const rpeLabel = t(lang, 'camp.rpe');
+    valueEl.textContent = `${volumeLabel} ${presc.volume}% · ${rpeLabel} ${presc.rpe}`;
+  }
+  if (noteEl) {
+    if (presc.noteKey) {
+      noteEl.textContent = t(lang, `camp.${presc.noteKey}`);
+      noteEl.hidden = false;
+    } else {
+      noteEl.textContent = '';
+      noteEl.hidden = true;
+    }
+  }
+  wrap.hidden = false;
 }
 
 function renderIndicators(flags) {

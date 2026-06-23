@@ -6,7 +6,7 @@
 import { state, loadHistory, saveScore, todayDateKey, loadProgressionZoom, saveProgressionZoom } from './state.js';
 import { t } from './translations.js';
 import { formatHours } from './form-logic.js';
-import { dayOfCamp } from './evaluation.js';
+import { dayOfCamp, getCampPrescription } from './evaluation.js';
 
 export function renderResult(evalResult) {
   const lang = state.lang;
@@ -24,6 +24,9 @@ export function renderResult(evalResult) {
   // Track pill
   const labelKey = evalResult.track === 'A' ? 'result.trackA' : 'result.trackB';
   document.getElementById('hero-track-label').textContent = t(lang, labelKey);
+
+  // Camp Volume/RPE prescription overlay (lead + combined, July 5-13).
+  renderCampPrescription(evalResult);
 
   // Messages
   document.getElementById('hero-message').textContent = t(lang, evalResult.messageKey);
@@ -1078,6 +1081,41 @@ function fireToast(message, kind) {
     toast.classList.remove('visible');
     setTimeout(() => { toast.hidden = true; }, 250);
   }, 3200);
+}
+
+/**
+ * Camp prescription overlay shown under the Track A/B pill on the hero.
+ * Only fires for lead + combined athletes during the Innsbruck dates that
+ * carry a prescription; otherwise the wrapper is hidden so the hero
+ * collapses cleanly for boulder/speed athletes (and for outside-camp days).
+ */
+function renderCampPrescription(evalResult) {
+  const wrap = document.getElementById('camp-prescription');
+  if (!wrap) return;
+  const dateKey = todayDateKey();
+  const presc = getCampPrescription(dateKey, state.discipline, state.profile, evalResult.track);
+  if (!presc) {
+    wrap.hidden = true;
+    return;
+  }
+  const lang = state.lang;
+  const valueEl = document.getElementById('camp-prescription-values');
+  const noteEl = document.getElementById('camp-prescription-note');
+  if (valueEl) {
+    const volumeLabel = t(lang, 'camp.volume');
+    const rpeLabel = t(lang, 'camp.rpe');
+    valueEl.textContent = `${volumeLabel} ${presc.volume}% · ${rpeLabel} ${presc.rpe}`;
+  }
+  if (noteEl) {
+    if (presc.noteKey) {
+      noteEl.textContent = t(lang, `camp.${presc.noteKey}`);
+      noteEl.hidden = false;
+    } else {
+      noteEl.textContent = '';
+      noteEl.hidden = true;
+    }
+  }
+  wrap.hidden = false;
 }
 
 function renderIndicators(flags) {

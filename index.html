@@ -523,6 +523,12 @@
           <span class="hero-score-value" id="readiness-value">—</span>
           <span class="hero-score-suffix">/ 100</span>
           <span class="track-pill" id="hero-track-label" data-i18n="result.trackA">TRACK A</span>
+          <!-- Volume / RPE prescription (lead + combined, Jul 5–13 only).
+               Hidden by default; renderCampPrescription() unhides on match. -->
+          <div class="camp-prescription" id="camp-prescription" hidden>
+            <span class="camp-prescription-values" id="camp-prescription-values"></span>
+            <p class="camp-prescription-note" id="camp-prescription-note" hidden></p>
+          </div>
         </div>
 
         <div class="hero-text visible" id="hero-text-block">

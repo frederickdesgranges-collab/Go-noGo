@@ -259,6 +259,14 @@ export const translations = {
         unitOf10: '/10'
       }
     },
+    camp: {
+      volume: 'VOLUME',
+      rpe: 'RPE',
+      noteBrixen: 'Voyage à Brixen',
+      noteMunich: 'Voyage à Munich',
+      noteSim1: 'Simulation 1',
+      noteSim2: 'Simulation 2'
+    },
     history: {
       title: 'Historique',
       sub: 'Tes derniers check-ins.',
@@ -542,6 +550,14 @@ export const translations = {
         unitOf5: '/5',
         unitOf10: '/10'
       }
+    },
+    camp: {
+      volume: 'VOLUME',
+      rpe: 'RPE',
+      noteBrixen: 'Trip to Brixen',
+      noteMunich: 'Trip to Munich',
+      noteSim1: 'Simulation 1',
+      noteSim2: 'Simulation 2'
     },
     history: {
       title: 'History',

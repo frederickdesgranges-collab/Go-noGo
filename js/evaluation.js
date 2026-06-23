@@ -149,6 +149,95 @@ export function getPlan(planKey) {
   return PLANS[planKey] || PLANS['top-shape'];
 }
 
+/* ============================================
+   Per-day Volume/RPE prescription overlay (lead + combined only).
+   Shown on the result page UNDER the Track pill, July 5 → July 13 2026.
+   ============================================ */
+
+const CAMP_PRESCRIPTIONS = {
+  '2026-07-05': {
+    notes: [],
+    bands: [
+      { profile: 'competing', track: 'A', volume: 30, rpe: '6/10' },
+      { profile: 'competing', track: 'B', volume: 30, rpe: '6/10' }
+    ]
+  },
+  '2026-07-06': {
+    notes: [],
+    bands: [
+      { profile: 'competing', track: 'A', volume: 60, rpe: '7/10' },
+      { profile: 'competing', track: 'B', volume: 40, rpe: '6/10' }
+    ]
+  },
+  // 2026-07-07: no prescription (intentional gap)
+  '2026-07-08': {
+    notes: [{ disciplines: ['lead', 'combined'], key: 'noteBrixen' }],
+    bands: [
+      { profile: 'competing', track: 'A', volume: 80, rpe: '7-8/10' },
+      { profile: 'competing', track: 'B', volume: 55, rpe: '6/10' }
+    ]
+  },
+  '2026-07-09': {
+    notes: [{ disciplines: ['lead', 'combined'], key: 'noteMunich' }],
+    bands: [
+      { profile: 'competing', track: 'A', volume: 45, rpe: '4/10' },
+      { profile: 'competing', track: 'B', volume: 25, rpe: '4/10' },
+      { profile: 'not-competing', track: 'A', volume: 70, rpe: '7/10' }
+      // not-competing Track B falls back to competing B
+    ]
+  },
+  // 2026-07-10: no prescription (intentional gap)
+  '2026-07-11': {
+    notes: [{ disciplines: ['lead', 'combined'], key: 'noteSim1' }],
+    bands: [
+      { profile: 'competing', track: 'A', volume: 70, rpe: '7/10' },
+      { profile: 'competing', track: 'B', volume: 45, rpe: '6/10' },
+      { profile: 'not-competing', track: 'A', volume: 80, rpe: '6/10' }
+    ]
+  },
+  '2026-07-12': {
+    notes: [{ disciplines: ['lead', 'combined'], key: 'noteSim2' }],
+    bands: [
+      { profile: 'competing', track: 'A', volume: 70, rpe: '7/10' },
+      { profile: 'competing', track: 'B', volume: 45, rpe: '6/10' },
+      { profile: 'not-competing', track: 'A', volume: 70, rpe: '7/10' }
+    ]
+  },
+  '2026-07-13': {
+    notes: [],
+    bands: [
+      { profile: 'competing', track: 'A', volume: 15, rpe: '5/10' },
+      { profile: 'competing', track: 'B', volume: 15, rpe: '5/10' }
+    ]
+  }
+};
+
+/**
+ * Return { volume, rpe, noteKey } for a given check-in, or null if no
+ * prescription applies. Boulder / speed athletes always get null. For
+ * lead + combined, the lookup falls back from 'not-competing' to
+ * 'competing' on the same track when no dedicated entry exists — so
+ * a not-competing athlete on Track B sees the competing B values
+ * unless an explicit not-competing B band is provided.
+ */
+export function getCampPrescription(dateKey, discipline, profile, track) {
+  if (!['lead', 'combined'].includes(discipline)) return null;
+  if (track !== 'A' && track !== 'B') return null;
+  const day = CAMP_PRESCRIPTIONS[dateKey];
+  if (!day) return null;
+  let band = day.bands.find((b) => b.profile === profile && b.track === track);
+  if (!band && profile === 'not-competing') {
+    band = day.bands.find((b) => b.profile === 'competing' && b.track === track);
+  }
+  if (!band) return null;
+  const note = day.notes.find((n) => n.disciplines.includes(discipline));
+  return {
+    volume: band.volume,
+    rpe: band.rpe,
+    noteKey: note ? note.key : null
+  };
+}
+
 /**
  * Evaluate the current state and return a structured result.
  */
