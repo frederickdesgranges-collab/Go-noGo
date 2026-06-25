@@ -722,6 +722,7 @@
     body.fullscreen .brand,
     body.fullscreen #btn-sound,
     body.fullscreen #btn-fullscreen,
+    body.fullscreen #btn-pip,
     body.fullscreen #btn-theme,
     body.fullscreen #btn-lang,
     body.fullscreen .boulders,
@@ -879,6 +880,12 @@
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
             <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
             <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="btn-pip" data-i18n-title="pip_button_title" title="Picture-in-Picture">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <rect x="12" y="11" width="8" height="6" rx="1" fill="currentColor"/>
           </svg>
         </button>
         <button class="icon-btn" id="btn-fullscreen" data-i18n-title="fullscreen_button_title" title="Plein écran">
@@ -1147,6 +1154,7 @@
         brand_subtitle: 'Compétition · IFSC format',
         sound_button_title: 'Activer / couper le son',
         fullscreen_button_title: 'Plein écran',
+        pip_button_title: 'Fenêtre flottante',
         settings_button_title: 'Paramètres',
         settings_modal_title: 'Paramètres',
         close_modal_title: 'Fermer',
@@ -1221,6 +1229,7 @@
         brand_subtitle: 'Competition · IFSC format',
         sound_button_title: 'Enable / mute sound',
         fullscreen_button_title: 'Fullscreen',
+        pip_button_title: 'Picture-in-Picture',
         settings_button_title: 'Settings',
         settings_modal_title: 'Settings',
         close_modal_title: 'Close',
@@ -1438,7 +1447,7 @@
     // Play the full countdown+buzzer recording starting at the given
     // offset inside the sample. Tracks the source node so we can stop
     // it on pause/reset.
-    function playCountdownFull(offsetSeconds = 0) {
+    function playCountdownFull(offsetSeconds = 0, scheduleDelay = 0) {
       if (!settings.soundEnabled) return false;
       const buf = sampleBuffers.countdown_full;
       if (!buf || !audioCtx) return false;
@@ -1446,7 +1455,11 @@
       const src = audioCtx.createBufferSource();
       src.buffer = buf;
       src.connect(audioCtx.destination);
-      src.start(0, Math.max(0, offsetSeconds));
+      // Sample-accurate scheduling. With scheduleDelay > 0 we line the
+      // first tick up with climb-remaining = 5.0 even if the setInterval
+      // fires us early (anticipation window); with offset > 0 we skip
+      // into the sample when triggered late (resume mid-countdown).
+      src.start(audioCtx.currentTime + Math.max(0, scheduleDelay), Math.max(0, offsetSeconds));
       countdownAudioSource = src;
       src.onended = () => { if (countdownAudioSource === src) countdownAudioSource = null; };
       return true;
@@ -1479,13 +1492,16 @@
     function beepTick() {
       ensureAudio();
       if (playSample('tick', 0.95)) return;
-      tone({ freq: 1180, duration: 0.16, volume: 0.5, type: 'square', attack: 0.002, release: 0.06 });
+      // Softer fallback when the MP3 isn't loaded yet — close to the source
+      // tick pitch (~750 Hz sine) so it doesn't sound like a wrong/harsh
+      // square wave standing out.
+      tone({ freq: 750, duration: 0.34, volume: 0.55, type: 'sine', attack: 0.005, release: 0.08 });
     }
     // 1-minute warning — a single countdown tick (same sound as the 5..1 bips)
     function beep1Min() {
       ensureAudio();
       if (playSample('tick', 1.0)) return;
-      tone({ freq: 1180, duration: 0.18, volume: 0.55, type: 'square' });
+      tone({ freq: 750, duration: 0.34, volume: 0.6, type: 'sine', attack: 0.005, release: 0.08 });
     }
     // Climb / observation start — the 440 Hz sine horn (same as end buzzer)
     function beepStart() {
@@ -1536,6 +1552,7 @@
       btnPrev: $('btn-prev'),
       btnSettings: $('btn-settings'),
       btnFs: $('btn-fullscreen'),
+      btnPip: $('btn-pip'),
       btnSound: $('btn-sound'),
       iconSound: $('icon-sound'),
       modal: $('modal-backdrop'),
@@ -1801,13 +1818,24 @@
         // calibrated so the sustained buzzer hits at climb_remaining = 0.
         // Suppresses both the per-second ticks and the separate end buzzer
         // for this phase so nothing doubles up.
+        // Use a 1 s anticipation window above the 5.0 s buzzer offset so we
+        // can SCHEDULE the audio to start exactly when remaining hits 5.0
+        // (avoids cutting off the first tick if the setInterval fires us
+        // a tick or two later than ideal).
         if (runtime.phase === 'climb'
             && !runtime.countdownFullTriggered
             && sampleBuffers.countdown_full
-            && newRemaining <= COUNTDOWN_FULL_BUZZER_OFFSET
+            && newRemaining <= COUNTDOWN_FULL_BUZZER_OFFSET + 1.0
             && newRemaining > 0.1) {
-          const offset = COUNTDOWN_FULL_BUZZER_OFFSET - newRemaining;
-          if (playCountdownFull(offset)) {
+          let offset = 0, scheduleDelay = 0;
+          if (newRemaining >= COUNTDOWN_FULL_BUZZER_OFFSET) {
+            // Early trigger — schedule audio start so first tick lines up
+            scheduleDelay = newRemaining - COUNTDOWN_FULL_BUZZER_OFFSET;
+          } else {
+            // Late trigger (CPU stall or resume) — skip into the sample
+            offset = COUNTDOWN_FULL_BUZZER_OFFSET - newRemaining;
+          }
+          if (playCountdownFull(offset, scheduleDelay)) {
             runtime.countdownFullTriggered = true;
           }
         }
@@ -1970,6 +1998,98 @@
       if (document.fullscreenElement) document.body.classList.add('fullscreen');
     });
 
+    // ============ PICTURE-IN-PICTURE ============
+    // Render the timer to an off-screen canvas and stream the canvas to a
+    // hidden <video>. requestPictureInPicture on the video pops a small
+    // movable window that survives app-switches on Android Chrome and most
+    // desktop browsers. iOS Safari does not support canvas-stream PiP.
+    const pipCanvas = document.createElement('canvas');
+    pipCanvas.width = 640;
+    pipCanvas.height = 360;
+    const pipCtx = pipCanvas.getContext('2d');
+    const pipVideo = document.createElement('video');
+    pipVideo.muted = true;
+    pipVideo.playsInline = true;
+    pipVideo.style.position = 'fixed';
+    pipVideo.style.left = '-9999px';
+    pipVideo.style.width = '1px';
+    pipVideo.style.height = '1px';
+    document.body.appendChild(pipVideo);
+    let pipStreamReady = false;
+
+    function ensurePipStream() {
+      if (pipStreamReady) return;
+      try {
+        const stream = pipCanvas.captureStream(15);
+        pipVideo.srcObject = stream;
+        pipVideo.play().catch(() => {});
+        pipStreamReady = true;
+      } catch (e) { /* captureStream not supported */ }
+    }
+
+    function renderPipFrame() {
+      const W = pipCanvas.width, H = pipCanvas.height;
+      const theme = document.documentElement.dataset.theme;
+      const bg     = theme === 'dark' ? '#07090f' : '#f6f4ef';
+      const fg     = theme === 'dark' ? '#f4f6fb' : '#0a0e1a';
+      const muted  = theme === 'dark' ? '#9aa3b8' : '#5d6478';
+      pipCtx.fillStyle = bg;
+      pipCtx.fillRect(0, 0, W, H);
+
+      const info = phaseInfo(runtime.phase);
+      pipCtx.fillStyle = muted;
+      pipCtx.font = '600 22px "Inter", Arial, sans-serif';
+      pipCtx.textAlign = 'center';
+      pipCtx.textBaseline = 'top';
+      pipCtx.fillText((info?.label || '').toUpperCase(), W / 2, 28);
+
+      pipCtx.fillStyle = fg;
+      pipCtx.font = '900 180px "Archivo Black", "Inter", Arial, sans-serif';
+      pipCtx.textBaseline = 'middle';
+      pipCtx.fillText(fmt(runtime.remaining), W / 2, H / 2 + 12);
+
+      pipCtx.fillStyle = muted;
+      pipCtx.font = '600 22px "Inter", Arial, sans-serif';
+      pipCtx.textBaseline = 'bottom';
+      const total = totalLabel();
+      const boulderLine = settings.numBoulders === Infinity
+        ? `${t('meta_boulder')} ${runtime.boulder}`
+        : `${t('meta_boulder')} ${runtime.boulder} / ${total}`;
+      pipCtx.fillText(boulderLine, W / 2, H - 24);
+    }
+
+    // Keep the PiP canvas current even when the tab is throttled (rAF
+    // pauses in background; setInterval still fires).
+    setInterval(renderPipFrame, 250);
+
+    async function togglePip() {
+      if (!document.pictureInPictureEnabled
+          && !document.webkitPictureInPictureEnabled) return;
+      ensurePipStream();
+      try {
+        if (document.pictureInPictureElement) {
+          await document.exitPictureInPicture();
+        } else {
+          // Make sure we have at least one frame before requesting PiP
+          renderPipFrame();
+          await new Promise(r => setTimeout(r, 50));
+          await pipVideo.requestPictureInPicture();
+        }
+      } catch (e) { /* PiP refused; nothing to do */ }
+    }
+
+    // Optional: auto-pop into PiP when the user switches apps while the
+    // timer is running. Some browsers reject this without a fresh user
+    // gesture — the .catch keeps it harmless.
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden
+          && runtime.running
+          && pipStreamReady
+          && !document.pictureInPictureElement) {
+        pipVideo.requestPictureInPicture?.().catch(() => {});
+      }
+    });
+
     // ============ SETTINGS MODAL ============
     function openModal() {
       // Populate
@@ -2082,6 +2202,12 @@
     els.btnPrev.addEventListener('click', prevAction);
     els.btnSettings.addEventListener('click', openModal);
     els.btnFs.addEventListener('click', toggleFullscreen);
+    // PiP needs the stream to be created from a user gesture on iOS / some
+    // Android browsers, so we wire ensurePipStream() to the Start button
+    // and the timer digits in addition to the PiP button click.
+    els.btnPip.addEventListener('click', togglePip);
+    els.btnMain.addEventListener('click', ensurePipStream);
+    els.time.addEventListener('click', ensurePipStream);
     els.btnSound.addEventListener('click', () => {
       settings.soundEnabled = !settings.soundEnabled;
       els.tgSound.classList.toggle('on', settings.soundEnabled);
@@ -2217,6 +2343,10 @@
     // expects on first open). User can toggle it off via the fullscreen
     // button; browser-initiated exits do not strip it.
     document.body.classList.add('fullscreen');
+    // Hide the PiP button if the browser doesn't support Picture-in-Picture
+    if (!('pictureInPictureEnabled' in document) || !document.pictureInPictureEnabled) {
+      els.btnPip.style.display = 'none';
+    }
 
     // Auto-enter actual browser fullscreen on EVERY press of the Start
     // button or the timer digits (not just the first). The check on
