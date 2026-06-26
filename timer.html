@@ -1897,6 +1897,10 @@
     // ============ CONTROLS ============
     function mainAction() {
       ensureAudio();
+      // Prepare the PiP stream from the same user gesture that starts the
+      // round. The browser needs an active stream playing before it'll
+      // honor autoPictureInPicture when the user switches apps.
+      ensurePipStream();
       const mode = els.btnMain.dataset.mode;
       if (mode === 'start') {
         if (runtime.phase === 'finished' || runtime.phase === 'idle') {
@@ -2010,6 +2014,13 @@
     const pipVideo = document.createElement('video');
     pipVideo.muted = true;
     pipVideo.playsInline = true;
+    // autoPictureInPicture tells supporting browsers (Chrome/Edge desktop
+    // and Android) to AUTOMATICALLY pop this video into PiP when the
+    // document becomes hidden, with no fresh user gesture required. The
+    // attribute is set both as a DOM property and via setAttribute so
+    // older Chromium builds pick it up.
+    pipVideo.autoPictureInPicture = true;
+    pipVideo.setAttribute('autopictureinpicture', '');
     pipVideo.style.position = 'fixed';
     pipVideo.style.left = '-9999px';
     pipVideo.style.width = '1px';
@@ -2022,6 +2033,10 @@
       try {
         const stream = pipCanvas.captureStream(15);
         pipVideo.srcObject = stream;
+        // Re-affirm autoPictureInPicture each time in case the property
+        // was cleared by the browser when srcObject was unset.
+        pipVideo.autoPictureInPicture = true;
+        pipVideo.setAttribute('autopictureinpicture', '');
         pipVideo.play().catch(() => {});
         pipStreamReady = true;
       } catch (e) { /* captureStream not supported */ }
