@@ -123,7 +123,7 @@ Aucun build : tous les fichiers sont servis tels quels.
 Au premier lancement, ouvre l'icône **⚙ Paramètres** (en haut à droite) pour :
 
 - Renseigner le **numéro WhatsApp du coach** (format international sans `+` ni
-  espaces, ex. Canada : `14186095751`).
+  espaces, ex. Canada : `14186000000`).
 - Choisir la **langue par défaut** (FR / EN).
 
 Ces préférences sont sauvegardées localement (`localStorage`) sur le téléphone
